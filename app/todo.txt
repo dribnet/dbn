@@ -1,5 +1,8 @@
 PRIORITY:
 
+make mrj menubar behave a little better, have file->quit menu,
+add an about box under the apple/help menu
+
 make righthand side of dbn edit window behave better (especially on mac)
 resize to usability, select lines correctly, select all, click drag
 scrolls window. maybe external window? maybe wide window with dbn in upper

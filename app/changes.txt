@@ -1,4 +1,4 @@
-Version 1.1: Changes and fixes since version 1.01
+Version 1.2: Changes and fixes since version 1.01
 
 - (major) new parser and execution engine
   increased stability and error messages for syntax problems

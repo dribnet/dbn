@@ -1,5 +1,5 @@
 DESIGN BY NUMBERS RELEASE NOTES
-Version 1.01, August 6, 1999
+Version 1.2, Released 9.9.99
 http://dbn.media.mit.edu 
 dbn-feedback@media.mit.edu
 
@@ -32,13 +32,13 @@ slowly chipping away at the problems.
 The Windows version of the DBN download includes JRE,
 the Java Runtime Environment. This means that you won't
 have to download anything to get DBN up and running. To
-start DBN, just double-click the file entitled 'run.bat'.
+start DBN, just double-click the file titled 'run.bat'.
 
 
 * KNOWN ISSUES
 We're working to iron out any inconsistencies and 
-outstanding issues. If you run across a bug, send email
-with the following:
+outstanding issues. If you run across what appears to be
+a bug, send email with the following:
 1. What you were doing at the time (i.e. a copy of the 
 program that you were working on)
 2. Description of your system setup: Windows 95/98/NT 
@@ -48,11 +48,13 @@ Send this mail to dbn-feedback@media.mit.edu
 
 
 PEOPLE
-The DBN development team is composed of Tom White (chief 
-architect), Ben Fry (graphics + i/o + multilanguage 
-architect), Lauren Dubick (user experience + db architect), 
-Casey Reas (courseware experience + architect), Elise Co 
-and Jocelyn Lin (cgi-ers), and John Maeda.
+The DBN development team is composed of:
+John Maeda
+Tom White (chief architect)
+Ben Fry (graphics, i/o, multilanguage, parser G4)
+Lauren Dubick (database and dbn2 site)
+Casey Reas (courseware)
+Elise Co and Jocelyn Lin (cgi-ers)
 
 
 LICENSE
@@ -76,10 +78,25 @@ ASSERTED, EVEN IF ADVISED OF THE POSSIBILITY OR LIKELIHOOD OF
 SUCH DAMAGES. 
 
 
-CHANGES
+CHANGES (technical section, can be ignored)
 
-1.01 from 1.00
-* Fixed an 'end of line' bug. If a program had a comment at
-the end of its final line, the line would not be read by
-the parser (end-of-line fix for multiple platforms)
+Version 1.2: Changes and fixes since version 1.01
+
+- (major) new parser and execution engine
+  increased stability and error messages for syntax problems
+
+- Multi-file viewing 'griddify' function
+  view many dbnlets within a single applet
+
+- Won't show snapshot menu option if "user" parameter not specified
+
+- pgm file i/o methods replacing old snapshot code,
+  code that talks to the dbn courseware better
+
+
+Version 1.01: Changes and fixes since version 1.0
+
+- Fixed end of line bug. If a program had a comment at
+  the end of its final line, the line would not be read by
+  the parser (end-of-line fix for multiple platforms)
 
