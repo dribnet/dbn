@@ -1,0 +1,189 @@
+DBN
+_ env. toggle for showing a function name each time its hit
+_ env. toggle for showing line numbers within a function
+_   i'm here messages, tie in with breakpoints for debugger
+_   lightweight debugger, doesn't slow down, runs in back
+_ env. toggle to show attr/value for some var in simple way
+_ must fix dbn runner problem with thread weirdness
+_ completely switch to jdk 1.1
+_ when applet finished in grid, 'deselect' it
+_ fix the naming for all the properties before releasing new rev
+_ commands inside a random { } aren't run
+_ error messages going away too quickly
+_   small movements change (inside play btn changes to Play)
+_ comments as debugging descriptors, output to console, shown in context
+_ comments as naming for shapes drawn after it,
+_   or some other model of naming based on inserted text with "" or // or #
+_   could fit nicely with printf-style statements and comments
+_   comments would contain descriptions //!blah for printing and formatting
+_ controlling colors and other properties from inside dbn
+_   generic properties sheet might be better than none
+_   comments are the descriptive text, use multi-line parsing code
+_   embed special chars for ranges
+_   groupings or properties pages based on first word of blah.blah1.blah2=
+_ sketchbook - doodling/scribbling area.. since wacom tablet easily accessible
+_ benchmarking/calibrating system for auto-slowdown
+_ make repetition window (saves and collapses with 10 or so frames)
+_ pockyvision
+_   recording interactions, write out to file when done
+_   ghost mode should run applet closest to the center
+_ make print statements show up in dark blue area
+_ add default magnification, along with paper size
+_ pause/continue ability
+_ when play gets hit, hit stop first (python is complaining)
+_ fix dbnletters.dbn to be more like what's in the book
+_   include a credit to peter cho in the comments?
+_   run a script on all courseware material to fix refs to old fxns
+_ courseware
+_   add grid mode to DbnFancy
+_   coloring comments with only \s at beginning in html cgi
+_   coloring of dbn keywords in courseware
+_   toggle for text only assignments in courseware
+_   courseware text-only assignments is an addl tag, for non-supporting
+_     courses it just gets left out (requiring no addl changes to
+_     unaffected stuff)
+_   rewrite in python, have self-contained java web server/engine
+_     or use perl-based web server that runs CGI as well
+_   make courseware save old versions of programs in log file format
+_   must improve no cache commands.. causing much confusion for students
+_   really need to get python dbn working in browser
+_     currently too difficult to look at everyone's work
+_   better dbn app to courseware connection (via 'ultramode')
+_     set the root for the cw files, can be url or local files
+_   in selection list for assign, include full text of project (?)
+_   add a gallery
+_   uploading library of functions (myfunctions.dbn) to the server
+o   dbn ultramode is a bad idea because it only works on our apache
+_ need to have someone go through and fix the pieces to be archived
+_   older projects are already starting to rot on new version of dbn
+_ movies
+_   animated GIFs or courseware/server-based movie-making solution
+yeah right
+_ jpython -> java syntax conversion
+_   try jpython->java compiler in browser 
+_     do it explicitly, load dynamically
+_     could do dbn->java compilation this way too (make things speedy)
+_ finish debugging javac in dbn window
+_ is it 'letter' or 'type' for dbnletters?
+_ step through code line-by-line
+_ tracing a variable in a separate area
+_ individual passwords in the courseware
+_ misc
+_   dbn. page about 'having problems with dbn'
+_   dbn. redo the dbn2 site
+_   dbn. simple dbn reference page
+_   dbn. make new version for courseware
+_   put the docs in a better package
+_   fix DbnServer so it isn't so slow
+_   finish japanese before going to tokyo
+_ scrapbook
+_   saves programs in progress
+_   stills/snapshots taken
+_   movies
+_ debug issues surrounding signed version and python in browser
+_   set python cachedir: jpython -Dpython.cachedir=myDir
+_ write pilot version
+_   possible to hack kvm to draw grayscale?
+_ add the rest of the base functions to the parser
+_   add converter option to organic2
+_   fix \n problems that are peppered about the code
+_   files should be written using machine's own linefeed format
+_   finalize separate runtime version of dbn (with parser)
+_ converter
+_   need to set var names from converted app apart to avoid conflicts
+_   move all font allocation and use to a specific spot
+_   set editor font face and size using a param tag
+_   param tag to resize running window (instead of 100x100)
+_   param tag to toggle paren-balancing on/off
+_ bug fixes and enhancements I
+_   save caret position during beautify
+_   golan's strange parenthesis bug
+_   work on color with python version and fancier graphics
+_   screen does not clear as soon as play is hit
+_ bug fixes and enhancements II
+_   method for saving images to local disk (to be sent to people)
+_   set of documentation with basic commands included in the app
+_   step-by-step mode for the code
+_   sometimes clicking into another grid cell draws in wrong cell
+_   preprocessor would kill program if comments were inside the last 5 chars
+_   save on courseware site w/o publishing (scrapbook?)
+_   wire downloadable dbn to courseware (menu containing assn list)
+_   full screen, all black background
+_   write code to make dbn work with nscp signing
+_   more consistent slowdown, and option to disable it
+_   finish japanese, get korean, do german
+_   adding antialias, pause, norefresh, escape to dbn translations (others?)
+/   expansion dies in comments for really large program
+_ less likely but interesting
+_   radial DbnGraphics
+_   write in emacs, run in dbn
+_   tag for emacs command keys (ctrl-a, ctrl-e, ctrl-space, ctrl-y)
+_   'escape' command from loops
+_   compile java programs inside dbn environment
+_     maybe as signed applet could use sun.tools.javac
+_     maspanel-style stuff inside dbn area and environment
+_     could do multiple class files and remove public class restrictions
+_ note on dbn site about what browser people are using
+X   loop up/down fix
+X   wire in javac stuff for full compiler support
+X   method for naming converted applet (file dialog?)
+X interface redesign/rework dbn gui
+X   gradually move all params to a DbnProperties class 
+o   make jdk 1.1 dbngraphics (faster)
+o     (nope, not actually that slow, would break non 1.1 browsers)
+X movies. option for including the cursor
+X movies. different colors for mouse down/up
+o movies. click down/click up sound for the mouse
+X   writing out quicktime movies using qtjava
+X     write to memory (or disk file) first
+X     naming files simply and with a sensible default
+X     get rid of last little bit of trouble with stopping the movie
+X write pockyvision
+
+_ allow param tag for network host when dbn being run locally
+_ mouse flakiness solved by using "set mx <mouse 1>"
+_ write language docs o'reilly style
+_ make dbn runtime (runner + runpanel + graphics + half of applet/io)
+_ make griddify version load more quickly
+_ click and drag scrolls textarea
+_ make more static objects where possible, rather than creating 
+  new instances each time a piece is run
+_ figure out why network is running so slow. 
+  send network data as large blocks? (entire block would be 1000
+  bytes, just 1k, not bad. this means 3 updates/sec over modem 
+  which is faster than current response time. need to
+  figure out if bottleneck is server or client induced. 
+X get rid of pop-up menu
+_ network down/disconnect crashes applet without notice
+  throws an arrayindexoutofbounds exception while running
+  couldn't restart afterwards (network down?)
+_ error message for non-existent variable reads
+  like "line needs 4 vars" instead of "unknown var"
+_ if error on last (empty) line, highlight it somehow
+  make empty lines highlight anyway 
+  (add a space? highlight to end of \n?)
+_ finish dbn japanese and others
+_ font size of text area (too small?? too big?)
+  (allow text face, size to be set using a param)
+_ can a NullPointerException be caught such that it would allow
+  dbn to continue running, even if there was an internal error?
+_ if a mini-applet has a bug, set status bar on rollover (hard)
+_ font size too big to get entire error msg
+  make sure all messages are short
+_ need adjustable auto-slowdown (not ai-refresh)
+_ better method of highlighting errors - color, flash, ?
+  actually get highlighting working better
+_ need to internationalize type program here
+  as well as breaking out warnings/messages/errors to separate file
+_ would be nice to have auto-bug-reporting built into applet
+_ make mrj menubar behave a little better, have file->quit menu,
+  add an about box under the apple/help menu:
+
+_ Add a 'MENU' resource with an ID of 1128 to override the default Apple
+_ menu. It should just have a single "About MyApp..." item followed by a
+_ separator line. You'll need to use MRJApplicationUtils to register an
+_ About handler so you can catch the menu command and put up your dialog.
+_ 
+_ To add stuff to the Help menu just use the regular Help-menu support in
+_ the AWT -- as I recall, you just call MenuBar.getHelpMenu() and then
+_ append items to that menu.
