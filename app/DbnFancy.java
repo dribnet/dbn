@@ -12,6 +12,7 @@ import java.awt.event.*;
 public class DbnFancy extends DbnApplet implements ItemListener /*ActionListener*/ {    
   DbnApplet applet;
   Frame frame;
+  TextArea description;
 
   String location;
   String currentProblem;
@@ -32,9 +33,11 @@ public class DbnFancy extends DbnApplet implements ItemListener /*ActionListener
   //String descriptions[][];
 
 
-  public DbnFancy(Frame frame, DbnApplet applet) throws IOException {
-    this.applet = applet;
+  public DbnFancy(Frame frame, TextArea description, 
+		  DbnApplet applet) throws IOException {
     this.frame = frame;
+    this.description = description;
+    this.applet = applet;
 
     MenuBar mb = new MenuBar();
     //Menu menu; 
@@ -68,7 +71,7 @@ public class DbnFancy extends DbnApplet implements ItemListener /*ActionListener
       int closing = line.indexOf('>');
       int number = Integer.parseInt(line.substring(2, closing));
       //System.out.println("parsing #" + number);
-      String content = line.substring(closing);
+      String content = line.substring(closing + 1);
 
       //if (index != currentIndex) {
       //if (currentIndex != -1) {
@@ -165,6 +168,14 @@ public class DbnFancy extends DbnApplet implements ItemListener /*ActionListener
     if (Character.isDigit(cmd.charAt(0))) {
       currentProblem = cmd;
       reselect(problemMenu, cmd);
+
+      int problemCount = descriptions.size();
+      for (int i = 0; i < problemCount; i++) {
+	if (((String)designations.elementAt(i)).equals(currentProblem)) {
+	  description.setText((String)(descriptions.elementAt(i)));
+	  break;
+	}
+      }
     } else {
       currentPerson = cmd;
       reselect(peopleMenu, cmd);
@@ -245,12 +256,14 @@ public class DbnFancy extends DbnApplet implements ItemListener /*ActionListener
     Insets insets = frame.getInsets();
     frame.reshape(50, 50, width + insets.left + insets.right, 
 		  height + insets.top + insets.bottom);
+    TextArea textarea = new TextArea("", 5, 40);
+    frame.add("South", textarea);
     frame.pack();
 
     //sapp = app;
     //frame.setMenuBar(setupMenu(sapp));
     try {
-      new DbnFancy(frame, app);
+      new DbnFancy(frame, textarea, app);
     } catch (IOException e) {
       e.printStackTrace();
       System.exit(1);
