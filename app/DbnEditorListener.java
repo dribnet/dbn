@@ -6,6 +6,14 @@ import java.awt.event.*;
 
 
 class DbnEditorListener extends KeyAdapter implements FocusListener {
+    static final String spaces = "                                  ";
+    String tabString;
+    String newline = System.getProperty("line.separator");
+
+    boolean expandTabs;
+    int tabSize;
+    boolean autoIndent;
+
     DbnGui gui;
     boolean balancing = false;
     TextArea tc;
@@ -13,6 +21,11 @@ class DbnEditorListener extends KeyAdapter implements FocusListener {
     int position;
 
     public DbnEditorListener(DbnGui gui) {
+	expandTabs = DbnProperties.getBoolean("editor.expandTabs", false);
+	tabSize = DbnProperties.getInteger("editor.tabSize", 2);
+	tabString = spaces.substring(0, tabSize);
+	autoIndent = DbnProperties.getBoolean("editor.autoIndent", false);
+
 	this.gui = gui;
     }
 
@@ -60,8 +73,44 @@ class DbnEditorListener extends KeyAdapter implements FocusListener {
 		balancing = true;
 	    }
 	    break;
+	    
+	case 9:  // expand tabs
+	    if (expandTabs) {
+		//System.out.println("start = " + tc.getSelectionStart());
+		//System.out.println("end = " + tc.getSelectionEnd());
+		//System.out.println("pos = " + tc.getCaretPosition());
+		tc.replaceRange(tabString, tc.getSelectionStart(),
+				tc.getSelectionEnd());
+		event.consume();
+	    }
+	    break;
 
-	case  1: tc.selectAll(); break;  // control a for select all
+	case 10:  // auto-indent
+	    if (autoIndent) {
+		contents = tc.getText().toCharArray();
+		// back up until \r \r\n or \n.. @#($* cross platform
+		index = contents.length-1;
+		int spaceCount = 0;
+		boolean finished = false;
+		while ((index != -1) && (!finished)) {
+		    if ((contents[index] == '\r') ||
+			(contents[index] == '\n')) {
+			finished = true;
+		    } else {
+			spaceCount = (contents[index] == ' ') ?
+			    (spaceCount + 1) : 0;
+		    }
+		    index--;
+		}
+		//System.out.println("space count is " + spaceCount);
+		//String separator = System.getProperty("line.separator");
+		tc.replaceRange(newline + spaces.substring(0, spaceCount), 
+				tc.getSelectionStart(), tc.getSelectionEnd());
+		event.consume();
+	    }
+	    break;
+
+	case 1: tc.selectAll(); break;  // control a for select all
 	}
     }
 

@@ -51,12 +51,14 @@ public class DbnApplet extends Applet
 
 
     public void init() {
+	DbnProperties.setApplet(this);
+
 	String file, prog = null;
 	String progs[] = null;
 	String defaultProgram = "// enter program\n";
 
 	setLayout(new BorderLayout());
-	System.getProperties().list(System.out);
+	//System.getProperties().list(System.out);
 	//System.out.println("home = " + System.getProperty("user.home"));
 	//System.out.println("prefix = " + System.getProperty("sys.prefix"));
 

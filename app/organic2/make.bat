@@ -15,6 +15,7 @@ set CLASSPATH2=%CLASSPATH%
 set CLASSPATH=organic2\lib\jpython.jar;%CLASSPATH%
 
 cd ..
+rem buzz.pl "javac -nowarn -d organic2\classes" -dJDK11 -dPYTHON -dSCHEME -dFANCY *.java scheme\*.java python\*.java
 buzz.pl "jikes +D -nowarn -d organic2\classes" -dJDK11 -dPYTHON -dSCHEME -dFANCY *.java scheme\*.java python\*.java
 cd organic2
 
