@@ -2,6 +2,8 @@ import java.awt.*;
 import java.applet.Applet;
 import java.util.*;
 
+import java.awt.event.*;
+
 
 class DbnLicensePlate extends Panel implements Runnable {
     DbnGui gui;
@@ -866,11 +868,13 @@ public class DbnGui extends Panel {
 	Panel p1 = new Panel();
 	p1.setLayout(new GridLayout(1,2));
 	p1.add(dbrp = new DbnRunPanel(app, this, progs));
-	// this was messing up the layout
-	//p1.add(ta = new TextArea(prog,80,24));
-	p1.add(ta = new TextArea(progs[0], 20, 40));
+	p1.add(ta = new TextArea(progs[0], 20, 40));	
+	ta.addKeyListener(new ParenBalancer());
+
 	// has to be capitalized. argh.
-	ta.setFont(new Font("Monospaced", Font.PLAIN, 12));
+	//ta.setFont(new Font("Monospaced", Font.PLAIN, 12));
+	// that was causing problems, we'll go with the jdk 1.0 style
+	ta.setFont(new Font("courier", Font.PLAIN, 12));
 	add("Center", p1);
 	p1 = new Panel();
 	p1.setLayout(new GridLayout(1,2));
@@ -1098,4 +1102,50 @@ public class DbnGui extends Panel {
 	dbcp.idle();
     }	
 }
- 
+
+
+class ParenBalancer extends KeyAdapter {
+    boolean balancing = false;
+    int position;
+    
+    public void keyPressed(KeyEvent event) {
+	// only works with TextArea, because it needs 'insert'
+	//TextComponent tc = (TextComponent) event.getSource();
+	TextArea tc = (TextArea) event.getSource();
+	if (balancing) {
+	    // bounce back, otherwise will write over!
+	    tc.setCaretPosition(position);
+	    balancing = false;
+	}
+	char c = event.getKeyChar();
+	if (c == ')') {
+	    position = tc.getCaretPosition() + 1;
+	    char contents[] = tc.getText().toCharArray();
+	    int counter = 1; // char not in the textfield yet
+	    int index = contents.length-1;
+	    boolean error = false;
+	    while (counter != 0) {
+		if (contents[index] == ')') counter++;
+		if (contents[index] == '(') counter--;
+		index--;
+		if ((index == -1) && (counter != 0)) {
+		    error = true;
+		    break;
+		}
+	    }
+	    if (error) {
+		//System.err.println("mismatched paren");
+		Toolkit.getDefaultToolkit().beep();
+		tc.select(0, 0);
+		tc.setCaretPosition(position);
+	    }
+	    tc.insert(")", position-1);
+	    event.consume();
+	    if (!error) {
+		tc.select(index+1, index+2);
+		balancing = true;
+	    }
+	}
+    }
+}
+
