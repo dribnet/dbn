@@ -11,9 +11,6 @@ public class DbnApplet extends Applet
     DbnApplet applet;
     Properties properties;
 
-    // I18N functions require jdk 1.1, set this to
-    // false and it should remove the non jdk-1.0 code
-    static final boolean I18N = true;
     private String languageEncoding;
     private char[][] languageTable;
     Hashtable languageHash;
@@ -62,7 +59,9 @@ public class DbnApplet extends Applet
 
 	setLayout(new BorderLayout());
 
-	if (I18N) initLanguage();
+#ifdef JDK11
+	initLanguage();
+#endif
 	
 	boolean shouldBeautify = false;
 	prog = getParameter("inline_program");
@@ -239,23 +238,23 @@ public class DbnApplet extends Applet
 
 
     public String languageEncode(byte program[]) {
-	if (I18N) {
-	    // convert the bytes based on the current
-	    // language and encoding setting
-	    try {
-		if (languageEncoding == null)
-		    return new String(program);
-		//System.err.println("using encoding " + languageEncoding);
-		return new String(program, languageEncoding);
-	    } catch (UnsupportedEncodingException e) {
-		e.printStackTrace();
-		languageEncoding = null;
+#ifdef JDK11
+	// convert the bytes based on the current
+	// language and encoding setting
+	try {
+	    if (languageEncoding == null)
 		return new String(program);
-	    }
-	} else {
-	    // use old-style jdk 1.0 constructor
-	    return new String(program, 0);
+	    //System.err.println("using encoding " + languageEncoding);
+	    return new String(program, languageEncoding);
+	} catch (UnsupportedEncodingException e) {
+	    e.printStackTrace();
+	    languageEncoding = null;
+	    return new String(program);
 	}
+#else
+	// use old-style jdk 1.0 constructor
+	return new String(program, 0);
+#endif
     }
 
     public boolean isApplet() {
@@ -312,8 +311,6 @@ public class DbnApplet extends Applet
 
 
     public void initLanguage() {
-	if (!I18N) return;
-	
 	languageHash = new Hashtable();
 	int languageCount = keywords.length;
 	int keywordCount = getKeywordCount();
@@ -350,21 +347,28 @@ public class DbnApplet extends Applet
     // en, es, de (the iso specifiers) and the value
     // is char[][], which contains the chars for replace
     public char[][] getLanguageTable() {
-	if (!I18N) return null;
+#ifndef JDK11
+	return null;
+#else
 	return languageTable;
+#endif
     }
 
     public char[][] getEnglishTable() {
-	if (!I18N) return null;
+#ifndef JDK11
+	return null;
+#else
 	return (char[][]) languageHash.get("en");
+#endif
     }
 
     // parse language table using input from a file
     // read file using program methods above, 
     // then add the language to the languageHash
     public void addLanguageTable(String filename) {
-	if (!I18N) return;
-
+#ifndef JDK11
+	return;
+#else
 	char[] chars = readFile(filename).toCharArray();
 	int keywordIndex = 0;
 	char[] keyword = new char[32];
@@ -428,6 +432,7 @@ public class DbnApplet extends Applet
 	    return;
 	}
 	languageHash.put(languageName, keywordData);
+#endif
     }
 }
 

@@ -99,9 +99,10 @@ public class DbnGraphics {
         connectorTable.put("net", new Object()); // int values not useful here
 	connectorTable.put("array", new int[1000]);
 
-	// #ifdef CRICKET
+#ifdef CRICKET
 	connectorTable.put("sensor", new Object());
 	openSensor();	
+#endif
 
 	currentDbnGraphics = this;
 	//dbr.render();

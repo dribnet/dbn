@@ -69,14 +69,14 @@ public class DbnIO
 	File file = new File(directory, filename);
 
 	try {
-	    if (app.I18N) {
+#ifdef JDK11
 		FileWriter writer = new FileWriter(file);
 		writer.write(s);
 		writer.flush();
 		writer.close();
-	    } else {
-		throw new RuntimeException("untested code in doLocalWrite");
-		/*
+#else
+		System.err.println("untested code in doLocalWrite");
+
 		FileOutputStream output = new FileOutputStream(file); 
 		// no I18N, just blat out the low byte of each char
 		byte data[] = new byte[s.length()]; 
@@ -84,8 +84,7 @@ public class DbnIO
 		output.write(data); 
 		output.flush(); 
 		// NOT TESTED
-		*/
-	    }
+#endif
 	    lastDirectory = directory;
 	    lastFile = filename;
 	} catch (IOException e) {

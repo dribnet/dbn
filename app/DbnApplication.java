@@ -1,3 +1,5 @@
+#ifdef JDK11
+
 import java.awt.*;
 import java.applet.Applet;
 import java.io.*;
@@ -50,29 +52,4 @@ public class DbnApplication extends DbnApplet
     }
 }
 
-
-/*
-class MemoryReporter implements Runnable {
-    Thread thread;
-
-    public MemoryReporter() {
-	thread = new Thread(this);
-	thread.start();
-    }
-
-    public void run() {
-	while (Thread.currentThread() == thread) {
-	    try {
-		thread.sleep(1000);
-	    } catch (InterruptedException e) {
-	    }
-	    Runtime r = Runtime.getRuntime();
-	    r.gc();
-	    long mem = r.freeMemory();
-	    long tmem = r.totalMemory();
-	    //mem /= 1024;
-	    System.err.println(mem + " " + tmem);
-	}
-    }
-}
-*/
+#endif

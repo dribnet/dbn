@@ -1,3 +1,6 @@
+#ifdef JDK11
+
+
 import java.awt.*;
 import java.applet.Applet;
 import java.io.*;
@@ -112,6 +115,8 @@ public class DbnFancy extends DbnApplet implements ActionListener
     }
 }
 
+
+#endif
 
     //static String rootPath;
 	

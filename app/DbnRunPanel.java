@@ -209,7 +209,7 @@ public class DbnRunPanel extends Panel {
 
 
     public void griddify(int width, int height) {
-	final int margin = 20;
+	int margin = 20;
 	int ncols = (width - margin) / (runnerWidth+margin);
 	int marginX = (width - (ncols*runnerWidth + (ncols-1)*margin)) / 2;
 	//int marginY = marginX;
@@ -295,7 +295,7 @@ public class DbnRunPanel extends Panel {
 	    // put ticks around (only if in edit mode)
 	    if (tickColor != null) {
 		g.setColor(tickColor);
-		final int increment = 20;
+		int increment = 20;
 		int x, y;
 		y = ry + runnerHeight;
 		for (x = 0; x < runnerWidth; x += increment) {

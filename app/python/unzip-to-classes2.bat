@@ -1,1 +1,7 @@
-unzip -d ../classes2 jpython.jar
+@echo off
+unzip jpython.jar
+mv com ..\classes2
+mv org ..\classes2
+
+
+

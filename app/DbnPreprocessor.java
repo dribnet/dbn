@@ -63,15 +63,12 @@ public class DbnPreprocessor {
 	return stuff;
     }
 
-    // multilingual I18N friendly dbn requires jdk 1.1
-    // the following acts just like a compiler #define
-    // (a compiler with any amount of intelligence 
-    // will strip the un-needed code)
     // applet parameter tag has language en, ja, es, de
     // can't mix multiple languages together
     public char[] translateLanguage(char program[]) {
-    	if (!DbnApplet.I18N) return program;
-
+#ifndef JDK11
+	return program;
+#else
 	// default language (english), no changes
 	char[][] table = applet.getLanguageTable();
 	char[][] translated = applet.getEnglishTable();
@@ -147,6 +144,7 @@ public class DbnPreprocessor {
 	System.arraycopy(expansion, 0, output, 0, expansionIndex);
 	//DBNApplet.debugString(new String(output));
 	return output;
+#endif
     }
 
 
