@@ -1,5 +1,5 @@
 DESIGN BY NUMBERS RELEASE NOTES
-Version 2.X, Released XX XX XX
+Version 2.2, Released August 10, 2001
 http://dbn.media.mit.edu 
 dbn-feedback@media.mit.edu
 
@@ -9,9 +9,11 @@ This file contains useful updates, information, and
 troubleshooting notes.
 
 
-* NEW USER INTERFACE
-This version if DBN is a major rewrite, with the most
-obvious change being the new user interface. Mmmm tasty!
+* FINAL VERSION OF DBN
+Version 2.2 will likely be the final version of the 
+Design By Numbers system. While there may be upgrades 
+for important bug fixes, this is the last version that
+will include new features.
 
 
 * DBNGRAPHICS.DBN and DBNLETTERS.DBN
@@ -43,6 +45,11 @@ The Windows version of the DBN download includes JRE,
 the Java Runtime Environment. This means that you won't
 have to download anything to get DBN up and running. To
 start DBN, just double-click the file titled 'run.bat'.
+
+If you are using Windows 95, 98 (or perhaps even ME), 
+you may have trouble with using the run file. If the
+window opens and then closes quickly, instead move
+dbn to your C drive, and try the run95.bat file.
 
 
 * KNOWN ISSUES
@@ -81,6 +88,44 @@ to DBN development are Peter Cho, Elise Co, Golan Levin,
 Jocelyn Lin, and Josh Nimoy. 
 
 
+* HIDDEN FEATURES INSIDE DBN
+For more information, visit the DBN web site.
+- holding down the 'control' key and clicking in the 
+  image area will save the current image to a .tiff
+  file, that can be opened by photoshop or other
+  applications. 
+- holding down the shift key while clicking pixels 
+  inside the graphics area will highlight the line of
+  code that (most recently) drew that pixel.
+- color is included in this version. instead of just
+  'pen 45' or 'paper 30' to set a 45 or 30% gray, 
+  use 'pen 10 30 50' for red, green, and blue values
+  of 10, 30, and 50 (on a scale of 0 to 100)
+  same goes for paper, i.e. 'paper 20 70 40'. because
+  rgb works differently than gray, note that to get
+  a 0% gray (paper 0) using rgb color, the command
+  would be 'paper 100 100 100'.
+- get/set are a little stranger, however. the command
+  'set [50 50] 30' will set location 50, 50 to 30% gray;
+  because color requires three entries, you have to 
+  specify which one you'd like. so 'set [40 40 red] 30'
+  will set the amount of red at location 40, 40 to 30%.
+  similarly, 'set blah [40 40 red]' will set the variable
+  'blah' to the red value at location 40, 40.
+- the drawing area can be resized, using the 'size' command.
+  'size 200 200' in your code will cause the drawing
+  window to grow to 200 by 200 pixels (instead of the 
+  usual 101 by 101).
+- it is also possible to use a magnification on the drawing
+  area. add the amount to magnify by to the end of 
+  the size command. for instance, a 4x magnification and
+  a 200x200 drawing area would be: 'size 200 200 4'
+- this version is speed-controlled. to disable speed control
+  so that your applets run as fast as possible, add 
+  'slowdown=false' to the 'dbn.properties' file 
+  that's inside the 'lib' folder.
+
+
 LICENSE
 Massachusetts Institute of Technology ("MIT") hereby grants 
 permission for you to copy and use Design by Numbers (DBN) 
@@ -104,7 +149,13 @@ SUCH DAMAGES.
 
 CHANGES (technical section that you're welcome to ignore)
 
-Version 2.X: Changes since 2.0.1
+Version 2.2: Changes since 2.0.1
+
+- added automatic-slowdown feature
+- ability to save tiff files
+- added notes about hidden features
+- support for color commands: pen, paper, get/set [ ]
+- changing of dbn drawing area using the 'size' command
 
 - dbnletters was broken.. it used functions called typeA,
   typeB, typeC; but the book used letterA, letterB, letterC

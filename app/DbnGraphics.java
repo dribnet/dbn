@@ -36,14 +36,12 @@ public class DbnGraphics extends Panel {
   Image lastImage;
   Graphics lastGraphics;
 
-  //Graphics g;
   int gx, gy;
 
   int pixels[];
   int pixelCount;
   int penColor;
 
-  //boolean antialias;
   int magnification = 1;
 
   Color bgColor;
@@ -73,6 +71,8 @@ public class DbnGraphics extends Panel {
   int repeatlevel = 0;    
   int flushCount = 0;
 
+  boolean slowdown;
+  
 
   public DbnGraphics(int width, int height, Color bgColor) {
     this.bgColor = bgColor;
@@ -107,19 +107,6 @@ public class DbnGraphics extends Panel {
 
     if ((wide == width) && (high == height)) return;
 
-    /*
-    int oldWidth = width;
-    int oldHeight = height;
-
-    // make sure the jokers don't ask for something ridiculous
-    if ((wide < 1) || (high < 1)) {
-      if ((oldWidth == 0) && (oldHeight == 0)) {
-	size(101, 101);
-      }
-      return;  // otherwise just ignore
-    }
-    */
-
     width = wide;
     height = high;
     width1 = width - 1;
@@ -138,21 +125,9 @@ public class DbnGraphics extends Panel {
 
     baseImage = null; // so that it gets reshaped
 
-    //if (oldWidth != width || oldHeight != height)
     repack();
-    //update();
   }
 
-  /*
-  // i don't know if i like this one, seems like people could
-  // make the mistake "size 100" too often, and be surprised
-  // with the result. dbn's error reporting sucks so it'd be
-  // really confusing for people.
-  public void size(int magnify) {
-    magnification = Math.max(magnify, 1);
-    repack();
-  }
-  */
 
   public void size(int wide, int high, int magnify) {
     int mag = magnification;
@@ -182,17 +157,7 @@ public class DbnGraphics extends Panel {
   */
 
   protected void repack() {
-    //System.out.println("attempting repack");
     invalidate();
-    /*
-    if (getParent() != null) {
-      //System.out.println("  repacking");
-      //getParent().getParent().getParent().doLayout();
-      frame = (Frame) getParent().getParent().getParent().getParent();
-      frame.pack();
-      //System.err.println("packed");
-    }
-    */
     if (frame != null) frame.pack();
   }
 
@@ -203,19 +168,6 @@ public class DbnGraphics extends Panel {
       lines[i] = -2;
     }
     penColor = 0xff000000;
-
-    //if (g != null) {
-      //g.setColor(grays[0]);
-      //g.fillRect(0, 0, width, height);
-    //}
-    //if (lastImageg != null) {
-      //g.setColor(grays[0]);
-      //g.fillRect(0, 0, width, height);
-    //}
-    //penColor = 100;
-
-    //antialias = false;
-    //explicitRefresh = false;
     aiRefresh = true;
 
     flushCount = 0;
@@ -227,10 +179,6 @@ public class DbnGraphics extends Panel {
       key[i] = 0;
     for (int i = 0; i < 1000; i++)
       array[i] = 0;
-   
-    //mouse = new int[3];
-    //key = new int[26];
-    //array = new int[1000];
   }
 
 
@@ -297,6 +245,7 @@ public class DbnGraphics extends Panel {
       pixels[i] = color;
       lines[i] = currentLine;
     }
+    slowdown();
   }
 
 
@@ -514,6 +463,7 @@ public class DbnGraphics extends Panel {
     int index = (height1-y)*width + x;
     pixels[index] = penColor;
     lines[index] = currentLine;
+    slowdown();
   }
 
   private int lineClipCode(float x, float y) {
@@ -548,6 +498,7 @@ public class DbnGraphics extends Panel {
     //setPixel(x, y, gray, gray, gray);
     pixels[index] = makeGray(gray); //makeColor(red, green, blue);
     lines[index] = currentLine;
+    slowdown();
   }
 
   public void setPixel(int x, int y, int which, int value) {
@@ -559,28 +510,9 @@ public class DbnGraphics extends Panel {
     value = bound(value, 100);
     pixels[index] &= ~(0xff << place);
     pixels[index] |= colorMap[value] << place;
-    /*
-    int index = (height1-y)*width + x;
-    if (which == 0) {
-      pixels[index] = (pixels[index] & 0xff00ffff) | 
-	(colorMap[bound(value, 100)] << 16);
-    } else if (which == 1) {
-      pixels[index] = (pixels[index] & 0xffff00ff) | 
-	(colorMap[bound(value, 100)] << 8);
-    } else if (which == 2) {
-      pixels[index] = (pixels[index] & 0xffffff00) | 
-	(colorMap[bound(value, 100)]);
-    } else {
-      return;
-    }
-    */
     lines[index] = currentLine;
+    slowdown();
   }
-
-  /*
-  public void setPixel(int x, int y, int red, int green, int blue) {
-  }
-  */
 
   public int getPixel(int x, int y) {
     int pixel = pixels[(height1-((y<0)?0:((y>height1)?height1:y)))*width + 
@@ -1008,8 +940,8 @@ public class DbnGraphics extends Panel {
 
   protected void openNetwork() throws DbnException {
     try {
-      DbnApplet applet = DbnApplet.applet;
-      String hostname = applet.getNetServer();
+      //DbnApplet applet = DbnApplet.applet;
+      String hostname = DbnApplet.applet.getNetServer();
       Socket socket = new Socket(hostname, NET_PORT);
       netInputStream = new DataInputStream(socket.getInputStream());
       netOutputStream = new DataOutputStream(socket.getOutputStream());
@@ -1109,6 +1041,49 @@ public class DbnGraphics extends Panel {
     throw new DbnException("Cannot talk to sensor, only listen");
   }
 #endif
+
+
+  ////////////////////////////////////////////////////////////
+
+  boolean slowInited;
+  long lastMillis;
+  int slowCounter;
+
+  static int SLOW_COUNT = 5;
+  static int SLOW_MILLIS = 100;
+
+  private final void slowdown() {
+    if (!slowInited) {
+      slowdown = DbnApplet.getBoolean("slowdown", true);
+      SLOW_COUNT = DbnApplet.getInteger("slowdown.count", 5);
+      SLOW_MILLIS = DbnApplet.getInteger("slowdown.millis", 100);
+      slowInited = true;
+    }
+
+    if (!slowdown) return;
+    //System.out.println("slow");
+
+    if (lastMillis == 0) {
+      lastMillis = System.currentTimeMillis();
+      return;
+
+    } else if (slowCounter == SLOW_COUNT) {
+      long millis = System.currentTimeMillis();
+      if (millis - lastMillis < SLOW_MILLIS) {
+	//System.out.println("slowing down");
+	while (System.currentTimeMillis() - lastMillis < SLOW_MILLIS) { }
+	millis = System.currentTimeMillis();
+	//} else {
+	//System.out.println("millis - last = " + (millis-lastMillis));
+      }
+      refresh();
+      slowCounter = 0;
+      lastMillis = millis;	
+
+    } else {
+      slowCounter++;
+    }
+  }
 
 
   ////////////////////////////////////////////////////////////
