@@ -668,9 +668,12 @@ public class DbnGraphics extends Panel {
 
   public Dimension preferredSize() {
     //System.out.println("setting new preferred size");
-    return new Dimension(width1*magnification /*+ 30*/, 
-			 height1*magnification /*+ 30*/);
+    //return new Dimension(width1*magnification /*+ 30*/, 
+    //		 height1*magnification /*+ 30*/);
     //return new Dimension(width, height);
+
+    return new Dimension(width*magnification, 
+			 height*magnification);
   }
 
 

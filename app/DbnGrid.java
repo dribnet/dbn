@@ -9,7 +9,6 @@
 
 import java.awt.*;
 import java.util.*;
-
 import java.awt.event.*;
 
 // this panel holds 1 or more DbnPanels in a gridded
@@ -48,6 +47,7 @@ public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
 
     gwidth = DbnApplet.getInteger("graphics_width", 101);
     gheight = DbnApplet.getInteger("graphics_height", 101);
+    //System.out.println("gwidth, heigh = " + gwidth + ", " + gheight);
 
     runners = new Vector();
 
@@ -96,18 +96,19 @@ public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
     if (!inited) {
       setLayout(null);
       Dimension dim = size();
-
-      //int margin = 20;
-      int ncols = (dim.width - MARGARINE) / (gwidth+MARGARINE);
-      int marginX = (dim.width - (ncols*gwidth + (ncols-1)*MARGARINE)) / 2;
-      //int marginY = marginX;
-      int nrows = (gcount + ncols-1) / ncols;
-      int marginY = (dim.height - (nrows*gheight + (nrows-1)*MARGARINE)) / 2;
 	    
       if (gcount == 1) {
 	gx[0] = (dim.width - gwidth) / 2;
 	gy[0] = (dim.height - gheight) / 2;
+
       } else {
+	int ncols = (dim.width - MARGARINE) / (gwidth+MARGARINE);
+	//if (ncols < 1) ncols = 1; // otherwise div by zero
+	int marginX = (dim.width - (ncols*gwidth + (ncols-1)*MARGARINE)) / 2;
+	//int marginY = marginX;
+	int nrows = (gcount + ncols-1) / ncols;
+	int marginY = (dim.height - (nrows*gheight + (nrows-1)*MARGARINE)) / 2;
+
 	int x = 0, y = 0;
 	for (int i = 0; i < gcount; i++) {
 	  gx[i] = x + marginX;
@@ -141,13 +142,16 @@ public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
 
   public void mouseEntered(MouseEvent e) { }
   public void mouseExited(MouseEvent e) { }
+
+
+  public void mouseClicked(MouseEvent e) { }
+
   public void mouseReleased(MouseEvent e) { }
   
   public void mousePressed(MouseEvent e) {
     //mouseClicked(e);
-  }
+    //}
 
-  public void mouseClicked(MouseEvent e) {
     //int x = e.getX();
     //int y = e.getY();
     //System.out.println("mouse is down at " + x + ", " + y);
@@ -161,10 +165,10 @@ public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
       //if (graphics[gcurrent].inside(x, y)) {  // grrr.. jdk10
       if (source == graphics[gcurrent]) {
 	//return true;
-	System.out.println("(ignoring.. clicked the same)");
+	//System.out.println("(ignoring.. clicked the same)");
 	return;
       } else {
-	System.out.println("(new selection.. killing what's currently running)");
+	//System.out.println("(new selection.. killing what's currently running)");
 	// kill the currently running applet
 	//graphics[gcurrent].terminate();
 	terminate();
@@ -175,17 +179,17 @@ public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
     gcurrent = -1;
     for (int i = 0; i < gcount; i++) {
       if (source == graphics[i]) {
-	System.out.println("setting gcurrent to " + i);
+	//System.out.println("setting gcurrent to " + i);
 	//x += gx[i];
 	//y += gy[i];
 	gcurrent = i;
 	break;
       }
     }
-    System.out.println("  gcurrent = " + gcurrent);
-    if (gcurrent == -1) {
-      System.out.println("  source is " + source);
-    }
+    //System.out.println("  gcurrent = " + gcurrent);
+    //if (gcurrent == -1) {
+      //System.out.println("  source is " + source);
+    //}
     if (gcurrent != -1) {
     //System.out.flush();
     // figure out what was selected
@@ -208,7 +212,7 @@ public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
       graphics[gcurrent].enable();
       graphics[gcurrent].setCurrentDbnGraphics();
       runners.addElement(runner);
-      System.out.println("  starting " + gcurrent);
+      //System.out.println("  starting " + gcurrent);
       /*
       } else {
 	System.out.println("nope. " + " " + gx[i] + " " + gy[i]);

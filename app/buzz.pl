@@ -30,7 +30,8 @@ if ($ENV{'WINDIR'} ne '') {
 #print "args = @ARGV\n";
 $command = shift(@ARGV);
 if ($command eq '') {
-    print "no args passed in.. can't run\n";
+    print "buzz.pl: perl is misconfigured.. no args passed in.. can't run\n";
+    print "         cygwin perl seems to have problems, use activestate\n";
     exit;
 }
 

@@ -1,4 +1,5 @@
 #ifdef EDITOR
+#ifdef OPENGL
 
 import java.awt.*;
 import gl4java.*;
@@ -269,5 +270,6 @@ public class ExperimentalCanvas extends GLCanvas {
 }
 
 
+#endif
 #endif
 
