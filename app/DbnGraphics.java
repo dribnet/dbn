@@ -239,8 +239,13 @@ public class DbnGraphics
 
     // uglyish hack for scheme, the fix is even uglier, though
     static DbnGraphics currentDbnGraphics;
+
     static public DbnGraphics getCurrentGraphics() {
 	return currentDbnGraphics;
+    }
+
+    static void setCurrentGraphics(DbnGraphics dbg) {
+	currentDbnGraphics = dbg;
     }
 
 

@@ -1,3 +1,3 @@
 @echo off
-jre -nojit -cp classes2 DbnApplication
+jre -cp classes2 DbnApplication
 

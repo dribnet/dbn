@@ -39,6 +39,8 @@ public class DbnRunPanel extends Panel {
 	emouse = (int[]) connectorTable.get("mouse");
 	ekey = (int[]) connectorTable.get("key");
 	etime = (int[]) connectorTable.get("time");
+
+	DbnGraphics.setCurrentGraphics(dbr.dbg);
     }
 
     public DbnRunner newdbr_at(DbnApplet app, DbnGui gui, String prog, 
