@@ -2,6 +2,8 @@ import java.io.*;
 import java.util.*;
 
 
+// SIZE has not been added to java converter 
+
 public class DbnToken {
   DbnToken parent;
 
@@ -63,9 +65,11 @@ public class DbnToken {
   static final int LINE      = 53;
   static final int FIELD     = 54;
   static final int PAUSE     = 55;
-  static final int ANTIALIAS = 56;
-  static final int REFRESH   = 57;
-  static final int NOREFRESH = 58;
+  static final int REFRESH   = 56;
+  static final int SIZE      = 57;
+
+  static final int ANTIALIAS  = 80;  // the deprecated list
+  static final int NOREFRESH  = 81;
 
   static final int SMALLER     = 60;
   static final int NOT_SMALLER = 61;
@@ -238,8 +242,12 @@ public class DbnToken {
     case LINE: buffer.append("LINE"); break;
     case FIELD: buffer.append("FIELD"); break;
     case PAUSE: buffer.append("PAUSE"); break;
-    case ANTIALIAS: buffer.append("ANTIALIAS"); break;
     case REFRESH: buffer.append("REFRESH"); break;
+    case SIZE: buffer.append("SIZE"); break;
+
+      // deprecated pals
+    case NOREFRESH: buffer.append("NOREFRESH"); break;
+    case ANTIALIAS: buffer.append("ANTIALIAS"); break;
 
     case SMALLER: buffer.append("SMALLER"); break;
     case NOT_SMALLER: buffer.append("NOT_SMALLER"); break;

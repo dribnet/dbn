@@ -1,21 +1,43 @@
-DBN
+VERSION 3
+_ completely switch to jdk 1.1
+_   strip out old code for jdk 1.0 support
+_   make cgi that will detect browser type to warn on the mac
+_     (or even on the pc with crusty navigator)
+_ commands inside a random { } aren't run
+_ add default magnification, along with paper size
+_ make print statements show up in dark blue area
+_ pause/continue ability
+
+
+MAC
+_ window is too wide, not tall enough
+_ resize box on window makes it look really crappy
+
+
+GRID
+_ when applet finished in grid, 'deselect' it
+
+
+ENV
 _ env. toggle for showing a function name each time its hit
 _ env. toggle for showing line numbers within a function
 _   i'm here messages, tie in with breakpoints for debugger
 _   lightweight debugger, doesn't slow down, runs in back
 _ env. toggle to show attr/value for some var in simple way
-_ must fix dbn runner problem with thread weirdness
-_ completely switch to jdk 1.1
-_ when applet finished in grid, 'deselect' it
-_ fix the naming for all the properties before releasing new rev
-_ commands inside a random { } aren't run
-_ error messages going away too quickly
-_   small movements change (inside play btn changes to Play)
 _ comments as debugging descriptors, output to console, shown in context
 _ comments as naming for shapes drawn after it,
 _   or some other model of naming based on inserted text with "" or // or #
 _   could fit nicely with printf-style statements and comments
 _   comments would contain descriptions //!blah for printing and formatting
+
+
+WHAT?
+_ must fix dbn runner problem with thread weirdness
+
+
+_ fix the naming for all the properties before releasing new rev
+_ error messages going away too quickly
+_   small movements change (inside play btn changes to Play)
 _ controlling colors and other properties from inside dbn
 _   generic properties sheet might be better than none
 _   comments are the descriptive text, use multi-line parsing code
@@ -27,9 +49,6 @@ _ make repetition window (saves and collapses with 10 or so frames)
 _ pockyvision
 _   recording interactions, write out to file when done
 _   ghost mode should run applet closest to the center
-_ make print statements show up in dark blue area
-_ add default magnification, along with paper size
-_ pause/continue ability
 _ when play gets hit, hit stop first (python is complaining)
 _ fix dbnletters.dbn to be more like what's in the book
 _   include a credit to peter cho in the comments?
@@ -124,21 +143,6 @@ _     maybe as signed applet could use sun.tools.javac
 _     maspanel-style stuff inside dbn area and environment
 _     could do multiple class files and remove public class restrictions
 _ note on dbn site about what browser people are using
-X   loop up/down fix
-X   wire in javac stuff for full compiler support
-X   method for naming converted applet (file dialog?)
-X interface redesign/rework dbn gui
-X   gradually move all params to a DbnProperties class 
-o   make jdk 1.1 dbngraphics (faster)
-o     (nope, not actually that slow, would break non 1.1 browsers)
-X movies. option for including the cursor
-X movies. different colors for mouse down/up
-o movies. click down/click up sound for the mouse
-X   writing out quicktime movies using qtjava
-X     write to memory (or disk file) first
-X     naming files simply and with a sensible default
-X     get rid of last little bit of trouble with stopping the movie
-X write pockyvision
 
 _ allow param tag for network host when dbn being run locally
 _ mouse flakiness solved by using "set mx <mouse 1>"
@@ -187,3 +191,21 @@ _
 _ To add stuff to the Help menu just use the regular Help-menu support in
 _ the AWT -- as I recall, you just call MenuBar.getHelpMenu() and then
 _ append items to that menu.
+
+
+DONE
+X   loop up/down fix
+X   wire in javac stuff for full compiler support
+X   method for naming converted applet (file dialog?)
+X interface redesign/rework dbn gui
+X   gradually move all params to a DbnProperties class 
+o   make jdk 1.1 dbngraphics (faster)
+o     (nope, not actually that slow, would break non 1.1 browsers)
+X movies. option for including the cursor
+X movies. different colors for mouse down/up
+o movies. click down/click up sound for the mouse
+X   writing out quicktime movies using qtjava
+X     write to memory (or disk file) first
+X     naming files simply and with a sensible default
+X     get rid of last little bit of trouble with stopping the movie
+X write pockyvision

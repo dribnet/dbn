@@ -152,6 +152,8 @@ public class DbnParser {
 	return parseSet(current);
       if (word.equals("same?")) 
 	return parseComparison(current, DbnToken.SAME);
+      if (word.equals("size"))
+	return parseSize(current);
       if (word.equals("smaller?")) 
 	return parseComparison(current, DbnToken.SMALLER);
       break;
@@ -534,6 +536,23 @@ public class DbnParser {
     }
     if (!parseEOL()) {
       die("new line required after set");
+    }
+    return true;
+  }
+
+
+  boolean parseSize(DbnToken parent) throws DbnException {
+    if (!consumeSpaces()) {
+      die("incomplete size statement");
+    }
+    DbnToken current = parent.addChild(DbnToken.SIZE, line);
+    if (!(parseValue(current) && parseValue(current))) {
+      die("size must be followed by two values");
+    }
+    DbnToken current2 = (DbnToken) current.clone();
+    if (parseValue(current2)) {  // user wants size with magnify
+      current.childCount = current2.childCount;
+      current.children = current2.children;
     }
     return true;
   }

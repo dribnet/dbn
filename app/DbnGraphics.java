@@ -79,18 +79,36 @@ public class DbnGraphics extends Panel {
 #ifdef CRICKET
     openSensor();
 #endif
-    setup(width, height);
+    size(width, height);
   }
 
 
-  public void setup(int width, int height) {
+  // this may need to be preprocessed from the program,
+  // at least its first instance. the idea of re-allocating
+  // midway through could really cause a mess. 
+  // more important, i don't want to reset the screen to 
+  // 100x100 if the programmer is always using a larger area.
+
+  // solution:
+  // after parsing program, walk tree to check for instance
+  // of a SIZE token. if one exists, don't resize the window
+  // during reset(). if there is none, and the size is something
+  // different than 101x101, reset the area to 101x101
+
+  // if the size is a 'simple' value (just a number), it might 
+  // make sense to change the screen's size at that time, 
+  // but that seems needlessly complex. 
+
+  public void size(int width, int height) {
+    System.out.println("size " + width + " " + height);
+
     int oldWidth = this.width;
     int oldHeight = this.height;
 
     // make sure the jokers don't ask for something ridiculous
     if ((width < 1) || (height < 1)) {
       if ((oldWidth == 0) && (oldHeight == 0)) {
-	setup(101, 101);
+	size(101, 101);
       }
       return;  // otherwise just ignore
     }
@@ -127,7 +145,24 @@ public class DbnGraphics extends Panel {
     update();
   }
 
+  /*
+  // i don't know if i like this one, seems like people could
+  // make the mistake "size 100" too often, and be surprised
+  // with the result. dbn's error reporting sucks so it'd be
+  // really confusing for people.
+  public void size(int magnify) {
+    magnification = Math.max(magnify, 1);
+    repack();
+  }
+  */
 
+  public void size(int wide, int high, int magnify) {
+    System.out.println("size " + wide + " " + high + " " + magnify);
+    magnification = Math.max(magnify, 1);
+    size(wide, high);
+  }
+
+  /*
   public void magnify(int howmuch) {
     if (howmuch < 1) howmuch = 1;
     magnification = howmuch;
@@ -137,7 +172,7 @@ public class DbnGraphics extends Panel {
     //height += 1000;
     //setup(width, height - 1000); 
   }
-
+  */
 
   protected void repack() {
     if (getParent() != null) {
@@ -154,17 +189,17 @@ public class DbnGraphics extends Panel {
       pixels[i] = 0xffffffff;
       lines[i] = -2;
     }
+    penColor = 0xff000000;
 
-    if (g != null) {
+    //if (g != null) {
       //g.setColor(grays[0]);
       //g.fillRect(0, 0, width, height);
-    }
+    //}
     //if (lastImageg != null) {
       //g.setColor(grays[0]);
       //g.fillRect(0, 0, width, height);
     //}
     //penColor = 100;
-    penColor = 0xff000000;
 
     //antialias = false;
     //explicitRefresh = false;
@@ -480,7 +515,7 @@ public class DbnGraphics extends Panel {
     if (y2 < y1) { 
       int temp = y1; y1 = y2; y2 = temp; 
     }
-    for (int y = y1; y1 <= y2; y1++) {
+    for (int y = y1; y <= y2; y++) {
       line(x1, y, x2, y);
     }
     penColor = oldColor;

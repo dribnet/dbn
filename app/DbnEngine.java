@@ -114,9 +114,12 @@ public class DbnEngine {
     case DbnToken.LINE: execLine(current); break;
     case DbnToken.FIELD: execField(current); break;
     case DbnToken.PAUSE: execPause(current); break;
-    case DbnToken.ANTIALIAS: execAntiAlias(current); break;
     case DbnToken.REFRESH: execRefresh(current); break;
+    case DbnToken.SIZE: execSize(current); break;
+      
+      // deprecated stuff
     case DbnToken.NOREFRESH: execNoRefresh(current); break;
+    case DbnToken.ANTIALIAS: execAntiAlias(current); break;
 
     case DbnToken.SMALLER: 
     case DbnToken.NOT_SMALLER: 
@@ -236,6 +239,19 @@ public class DbnEngine {
 
     setValue(variable, getValue(value));
     if (watchCurrent) setCurrent(variable);
+  }
+
+
+  void execSize(DbnToken current) throws DbnException {
+    if (watchCurrent) setCurrent(current);
+    if (current.childCount == 2) {
+      graphics.size(getValue(current.children[0]),
+		    getValue(current.children[1]));
+    } else {
+      graphics.size(getValue(current.children[0]),
+		    getValue(current.children[1]),
+		    getValue(current.children[2]));
+    }
   }
 
 
