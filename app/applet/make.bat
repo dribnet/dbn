@@ -13,8 +13,9 @@ rem --- printing goes away, which would be really bad
 set CLASSPATH2=%CLASSPATH%
 set CLASSPATH=jdk-102.zip
 
-buzz.pl "jikes +1.0 +D -nowarn -d classes" *.java
-cd classes
+cd ..
+buzz.pl "jikes +1.0 +D -nowarn -d applet\classes" *.java
+cd applet\classes
 zip -0q dbn.jar *.class *.dbn
 cd ..
 
