@@ -20,7 +20,27 @@ public class PythonEngine extends DbnEngine {
 	    interpreter.exec("g = DbnGraphics.getCurrentGraphics()");
 	    interpreter.exec(program);
 	} catch (Exception e) {
-	    if (!stopFlag) throw new DbnException(e.toString());
+	    //e.printStackTrace();
+	    //if (!stopFlag) throw new DbnException(e.toString());
+	    if (!stopFlag) {
+		e.printStackTrace();
+		String s = e.toString();
+		int num = s.indexOf("line");
+		if (num != -1) {
+		    s = s.substring(num + 5);
+		    num = s.indexOf(',');
+		    int linenum = 0;
+		    try {
+			linenum = Integer.parseInt(s.substring(0, num));
+		    } catch (NumberFormatException e2) {
+			throw new DbnException("Python error, check the console.");
+		    }
+		    throw new DbnException("Python error on line " + linenum, linenum);
+		} else {
+		    //throw new DbnException(e.toString());
+		    throw new DbnException("Python error, check the console.");
+		}
+	    }
 	}
     }
     

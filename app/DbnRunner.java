@@ -22,6 +22,7 @@ public class DbnRunner implements Runnable {
     int state = RUNNER_FINISHED;
 	    
     Thread thread;
+    boolean forceStop;
 
 
     public DbnRunner(DbnApplet app, DbnGui gui, DbnRunPanel dbrp, 
@@ -105,8 +106,10 @@ public class DbnRunner implements Runnable {
 		engine = new SchemeEngine(dbg, program);
 		engine.start();
 	    } else if (program.charAt(0) == '#') {
+		forceStop = true;
 		engine = new PythonEngine(dbg, program);
 		engine.start();
+		forceStop = false;
 	    } else {
 		String processed = preprocessor.process(program);
 		DbnParser parser = new DbnParser(processed.toCharArray());
@@ -117,12 +120,9 @@ public class DbnRunner implements Runnable {
 	    gui.success();
 
 	} catch (DbnException e) { 
-	    //e.printStackTrace();
 	    state = RUNNER_ERROR;
-	    //System.out.println("stopping..");
+	    forceStop = false;
 	    this.stop();
-	    //System.out.println("done stopping..");
-	    // must go below so that error msg shows
 	    gui.reporterror(e);
 
 	} catch (Exception e) {
@@ -137,7 +137,7 @@ public class DbnRunner implements Runnable {
     public void stop() {
 	if (engine != null) {
 	    engine.stop();
-	    if (engine instanceof PythonEngine) {
+	    if (forceStop) {
 		thread.stop();
 		thread = null;
 	    }

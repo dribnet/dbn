@@ -19,6 +19,7 @@ class DbnEditorListener extends KeyAdapter implements FocusListener {
 	tc = (TextArea) event.getSource();
 	deselect();
 	char c = event.getKeyChar();
+	
 	//System.err.println((int)c);
 	switch ((int) c) {
 	case ')':
