@@ -1,5 +1,7 @@
 PRIORITY:
 
+TODO allow param tag for network host when dbn being run locally
+
 TODO mouse flakiness solved by using "set mx <mouse 1>"
 
 TODO write down defaults for each of the tags

@@ -229,6 +229,10 @@ public class DbnApplet extends Applet
 	return (codebase.indexOf("file") == 0);
     }
 
+    public String getHost() {
+	return isLocal() ? "localhost" : getCodeBase().getHost();
+    }
+
     public void showStatus(String status) {
 	if (isApplet()) {
 	    super.showStatus(status);

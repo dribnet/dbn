@@ -1,28 +1,38 @@
 import java.awt.*;
+import java.io.*;
+import java.net.*;
 import java.util.*;
 
 
 public class DbnGraphics
 {
-    public Image im;
-    Graphics img;
-    Color cols[] = new Color[101];
-    long lastpapert = 0; // for use in autoslowdown
+    static Color grays[];
+    static {
+	grays = new Color[101];
+	for (int i = 0; i < 101; i++) {
+	    int gray = i*255/100;
+	    grays[i] = new Color(gray, gray, gray);
+	}
+    }
+
+    Image image;
+    Graphics g;
+    long lastpapert;
     
     byte[] pixels;
-    byte penColor = 100;
+    byte penColor;
     int pixelCount;
-    boolean antialias = false;
+    boolean antialias;
     
     DbnRunner dbr;
     
-    int cbw, cbh;
-    int cbw1, cbh1;
-    
-    public int width, height;
+    int width, height;
+    int width1, height1;
+
     Panel dad;
     
     Hashtable connectorTable;
+    String hostname;
     
     int FDOT = 10;
     int FPAPER = 100;
@@ -41,7 +51,7 @@ public class DbnGraphics
     boolean autoflushenablep = true;
     int repeatlevel = 0;
     
-    int flushc = 0;
+    int flushCount = 0;
 
 
     public void flushNormal() {
@@ -86,7 +96,7 @@ public class DbnGraphics
 	if (flushfire == -1) {
 	    // did not flush during a forever
 	    // force it
-	    forceFlush();
+	    refresh();
 	    autoflushenablep= true;
 	}
 	flushfire = -1;
@@ -127,8 +137,8 @@ public class DbnGraphics
 	repeatlevel--;
 	flushNormal();
 	if (!insideforeverp) {
-	    if (flushc>0 && flushfire==-1) {
-		forceFlush();
+	    if (flushCount>0 && flushfire==-1) {
+		refresh();
 	    }
 	}
     }
@@ -139,11 +149,11 @@ public class DbnGraphics
 	if (insideforeverp&&aiflushp) {
 	    if (flushfire==-1) {
 		flushfire = 0; // paper was first
-		forceFlush();
+		refresh();
 	    } else {
 		if (lastflushfire == 0) {
 		    // could be consecutive paper -> legalize
-		    forceFlush();
+		    refresh();
 		} else {
    		    // ignore flush
 		}
@@ -159,7 +169,7 @@ public class DbnGraphics
 	if (insideforeverp&&aiflushp) {
 	    if (flushfire==-1) {
 		flushfire = 1; // field was first
-		forceFlush();
+		refresh();
 	    } else {
 		// ignore flush
 	    }
@@ -169,11 +179,13 @@ public class DbnGraphics
 	lastflushfire = flushfire;
     }	
     
-    /********** end ai double buffer *****/
+    /********** end ai double refresh *****/
 
     
-    public DbnGraphics(Panel parent, DbnRunner dbr, int w, int h) {
+    public DbnGraphics(Panel parent, int width, int height,
+		       DbnRunner dbr, String hostname) {
 	this.dbr = dbr;
+	this.hostname = hostname;
 
 	// when dbngraphics comes up, query applet for parameters
 	// this is to maintain illusion of a perfect 
@@ -197,25 +209,21 @@ public class DbnGraphics
 		//System.out.println("auto flush is on");
 	    }
 	}
-	
-	cbw = w; cbh = h;
-	width = w; height = h;
+
+	this.width = width;
+	this.height = height;
+	width1 = width - 1;
+	height1 = height - 1;
 	dad = parent;
-	// assuming that cbw is 101, cbh is 101, needed minused versions
-	cbw1 = cbw-1; cbh1=cbh-1;
 	
 	pixelCount = width * height;
-	pixels = new byte[ pixelCount ];
+	pixels = new byte[pixelCount];
 	
 	byte value = 0;
 	for(int i = 0; i < pixelCount; ++ i ) {
 	    pixels[i] = value;
 	}
 	penColor = 100;
-	
-	for (int i = 0; i < 101; i++) {
-	    cols[i] = new Color(i*255/100,i*255/100,i*255/100);
-	}
 	
         // build the 'i' of io into it all
         connectorTable = new Hashtable();
@@ -225,56 +233,63 @@ public class DbnGraphics
         connectorTable.put("key", new int[26]);
         connectorTable.put("time", new int[4]);
         connectorTable.put("net", new Object()); // int values not useful here
+
+	currentDbnGraphics = this;
+    }
+
+    // uglyish hack for scheme, the fix is even uglier, though
+    static DbnGraphics currentDbnGraphics;
+    static public DbnGraphics getCurrentGraphics() {
+	return currentDbnGraphics;
     }
 
 
+    // used by dbngui to get/set stuff
     public Hashtable getConnectorTable() {
 	return connectorTable; 
     }
+
 	
-    public void forceFlush()
-    {
-	flushc=flushc%100; //im.flush(); 
-	flushc = 0;
+    public void refresh() {
+	flushCount = flushCount % 100; //im.flush(); 
+	flushCount = 0;
 	dbr.render(); 
     }
-    
+
+
     public void myFlush(int v) {
-	flushc+=v;
+	flushCount+=v;
 	if (autoflushenablep) {	
-	    if (flushc>99) { 
-		forceFlush();
+	    if (flushCount>99) { 
+		refresh();
 	    }
 	}
     }
     
     public void buildBuffers() {
-	if (im == null) { 
+	if (image == null) { 
 	    //some sync problem forces this sequence to be important
-	    im = dad.createImage(width, height);
-	    img = im.getGraphics(); 
+	    image = dad.createImage(width, height);
+	    g = image.getGraphics(); 
 	    reset();
 	}
     }
 
 
     public void reset() {
-	//System.out.println("reset");
-	penColor=100;
-	for(int i=0;i<pixelCount;i++) pixels[i] = 0;
-	flushc = 0;
-	img.setColor(cols[penColor]);
-	img.fillRect(0,0,cbw,cbh);
+	penColor = 100;
+	g.setColor(grays[penColor]);
+
+	for (int i = 0; i < pixelCount; i++) 
+	    pixels[i] = 0;
+	g.fillRect(0,0,width,height);
+
+	antialias = false;
+
+	flushCount = 0;
 	resetBlockDetect();
-	//		im.flush();
     }
     
-
-    private int bound(int input, int upper) {
-	if (input > upper) return upper;
-	else if (input < 0) return 0;
-	else return input;
-    }
 
 
     public void paper(int val) {
@@ -295,22 +310,18 @@ public class DbnGraphics
 	    lastpapert = curt;
 	} catch (Exception e) { }
 
-	if (val > 100) 
-	    val = 100;
-	else if(val < 0) 
-	    val = 0;
-	bVal = (byte) val;
-	for(int i=0;i<pixelCount;i++) pixels[i] = bVal;
-	img.setColor(cols[100-bVal]);
-	img.fillRect(0,0,cbw,cbh);
+	bVal = (byte) bound(val, 100);
+	for (int i = 0; i < pixelCount; i++) pixels[i] = bVal;
+	g.setColor(grays[100 - bVal]);
+	g.fillRect(0, 0, width, height);
     }
 
 
     public void field(int x1, int y1, int x2, int y2, int val) {
-	x1 = bound(x1, cbw1);
-	y1 = bound(y1, cbh1);
-	x2 = bound(x2, cbw1);
-	y2 = bound(y2, cbh1);
+	x1 = bound(x1, width1);
+	y1 = bound(y1, height1);
+	x2 = bound(x2, width1);
+	y2 = bound(y2, height1);
 	val = bound(val, 100);
 	fieldFlush();
 	
@@ -319,14 +330,13 @@ public class DbnGraphics
 	
 	byte bVal = (byte) val;
 	for (int j = y1; j <= y2; j++) {
-	    int pp = cbw*j;
+	    int pp = width*j;
 	    for (int i = x1; i <= x2; i++) {
 		pixels[pp+i] = bVal;
 	    }
 	}		
-	
-	img.setColor(cols[100-bVal]);
-	img.fillRect(x1,cbh-y1-(y2-y1)-1,(x2-x1)+1,(y2-y1)+1);
+	g.setColor(grays[100-bVal]);
+	g.fillRect(x1,height-y1-(y2-y1)-1,(x2-x1)+1,(y2-y1)+1);
     }
     
     public void pen(int val) {
@@ -337,12 +347,14 @@ public class DbnGraphics
 	penColor = (byte)val;
     }
 
+
     public byte getPen() {
 	return penColor;
     }
 
+
     public void setPixel(int x, int y, int val) {
-	int checkX, checkY, checkVal;
+	//int checkX, checkY, checkVal;
 	
         myFlush(FDOT);
         // NOTE::*******
@@ -350,35 +362,34 @@ public class DbnGraphics
 	// directly to screen without flushing
 	// as drawing dots is so laborious...
 	
-	if (x<0 || x>cbw1 || y<0 || y>cbh1) return;
-	if (val < 0) 
-	    checkVal = 0;
-	else if (val > 100) 
-	    checkVal = 100;
-	else 
-	    checkVal = val;
-	pixels[(cbh1-y)*cbw + x] = (byte)checkVal;
-	img.setColor(cols[100-checkVal]);
-	img.drawLine(x,cbh1-y,x,cbh1-y);
+	if (x < 0 || x > width1 || y < 0 || y > height1) return;
+	int checkVal = bound(val, 100);
+	pixels[(height1-y)*width + x] = (byte)checkVal;
+	g.setColor(grays[100-checkVal]);
+	g.drawLine(x, height1-y, x, height1-y);
     }
 
+
     public int getPixel(int x, int y) {
-	return (int) pixels[(cbh1-((y<0)?0:((y>cbh1)?cbh1:y)))*cbw + 
-			   ((x<0)?0:((x>cbw1)?cbw1:x))];
+	return (int) 
+	    pixels[(height1-((y<0)?0:((y>height1)?height1:y)))*width + 
+		  ((x<0)?0:((x>width1)?width1:x))];
     }
+
 
     public void setAntiAlias(int m) {
 	antialias = (m > 50);
     }
-    
+
+
     void intensifyPixel(int x, int y, float dist) {
 	int oldVal, newVal, val, index;
 	
 	//System.err.println("setting " + x + ", " + y);
-	if (x<0 || x>cbw1 || y<0 || y>cbh1) return;
+	if (x<0 || x>width1 || y<0 || y>height1) return;
 	if(dist < 0) dist = 0.0f - dist;
 	if(dist > 1.0f) return;
-	index = (cbh1-y)*cbw + x;
+	index = (height1-y)*width + x;
 		
 	val = (int)(pixels[index]*dist + penColor*(1.0f-dist));
 
@@ -388,22 +399,23 @@ public class DbnGraphics
 	pixels[index] = (byte)val;
 	
 	if (antialias) {
-	    img.setColor(cols[100-val]);
-	    img.drawLine(x,cbh1-y,x,cbh1-y);
+	    g.setColor(grays[100-val]);
+	    g.drawLine(x,height1-y,x,height1-y);
 	}
     }
+
 
     // line clipping code appropriated from 
     // "Computer Graphics for Java Programmers"
 
     private int clipCode(float x, float y) {
-	return ((x < 0 ? 8 : 0) | (x > cbw1 ? 4 : 0) |
-		(y < 0 ? 2 : 0) | (y > cbh1 ? 1 : 0));
+	return ((x < 0 ? 8 : 0) | (x > width1 ? 4 : 0) |
+		(y < 0 ? 2 : 0) | (y > height1 ? 1 : 0));
     }
     
     public void line(int ox1, int oy1, int ox2, int oy2) {
 	/* check for line clipping, do it if necessary */
-	if ((ox1 < 0) || (oy1 < 0) || (ox2 > cbw1) || (oy2 > cbh1)) {
+	if ((ox1 < 0) || (oy1 < 0) || (ox2 > width1) || (oy2 > height1)) {
 	    // clipping, converts to floats for dy/dx fun
 	    // (otherwise there's just too much casting mess in here)
 	    float xP = (float)ox1, yP = (float)oy1;
@@ -419,22 +431,22 @@ public class DbnGraphics
 		    if ((cP & 8) == 8) { 
 			yP += (0-xP) * dy / dx; xP = 0; 
 		    } else if ((cP & 4) == 4) { 
-			yP += (cbw1-xP) * dy / dx; xP = cbw1; 
+			yP += (width1-xP) * dy / dx; xP = width1; 
 		    } else if ((cP & 2) == 2) { 
 			xP += (0-yP) * dx / dy; yP = 0;
 		    } else if ((cP & 1) == 1) {
-			xP += (cbh1-yP) * dx / dy; yP = cbh1;
+			xP += (height1-yP) * dx / dy; yP = height1;
 		    }  
 		    cP = clipCode(xP, yP);
 		} else if (cQ != 0) {
 		    if ((cQ & 8) == 8) { 
 			yQ += (0-xQ) * dy / dx; xQ = 0;
 		    } else if ((cQ & 4) == 4) {
-			yQ += (cbw1-xQ) * dy / dx; xQ = cbw1;
+			yQ += (width1-xQ) * dy / dx; xQ = width1;
 		    } else if ((cQ & 2) == 2) { 
 			xQ += (0-yQ) * dx / dy; yQ = 0;
 		    } else if ((cQ & 1) == 1) { 
-			xQ += (cbh1-yQ) * dx / dy; yQ = cbh1;
+			xQ += (height1-yQ) * dx / dy; yQ = height1;
 		    }  
 		    cQ = clipCode(xQ, yQ);
 		}
@@ -452,8 +464,8 @@ public class DbnGraphics
 	myFlush(FLINE);
 	
 	if (!antialias) { 
-	    img.setColor(cols[100-penColor]);
-	    img.drawLine(ox1,cbh1-oy1,ox2,cbh1-oy2);
+	    g.setColor(grays[100-penColor]);
+	    g.drawLine(ox1,height1-oy1,ox2,height1-oy2);
 	}
 	
         /* first do horizontal line */
@@ -590,69 +602,157 @@ public class DbnGraphics
     }
 
 
-    public void refresh() {
-	forceFlush();
-    }
-
-
     public byte[] getPixels() {
 	return pixels;
     }
-}
 
 
-    // this will go away soon
-    /*
-    public String gethexthumbnail(int n) 
-    { 
-	return gethexthumbnail(n, 4); 
+    static private int bound(int input, int upper) {
+	if (input > upper) return upper;
+	else if (input < 0) return 0;
+	else return input;
     }
-  
-    public String gethexthumbnail(int n, int bitdepth)
-    {
-	// input is byte[] pixels, int cbw, int cbh
-	// output is n by n (resampled to 4-bit) ascii HEX String
-	// this only produces 4 or 8 bit representations
-	String s = "";
-	final String[] HEX_CODES = { "0", "1", "2", "3", 
-				     "4", "5", "6", "7", 
-				     "8", "9", "A", "B",
-				     "C", "D", "E", "F"};
-	
-	if ((cbw != 0) && (cbh != 0)){
-	    int p = 0;
-	    int srcindex = 0;
-	    int nsrcpixels = cbw*cbh;
-	    int srcx, srcy, newx, newy;
-	    float xratio = (float)cbw/(float)n;
-	    float yratio = (float)cbh/(float)n;
-	    float valueScale = (float) (2.55/16.0);
+
+
+    // -------------------------------------------------------------    
+
+    public boolean isConnector(String s) {
+	return connectorTable.containsKey(s);
+    }	
+
+
+    public int connectorGet(String name, int slot) throws DbnException {
+	if (name.equals("net")) {
+	    return networkGet(slot);
+	}
+	int values[] = (int[]) connectorTable.get(name);
+	if (values == null) {
+	    throw new DbnException("unknown external data " + name);
+	}
+	try {
+	    return values[slot-1];
+	} catch (Exception e) {
+	    throw new DbnException("could not get slot " + 
+				   slot + " of " + name);
+	}
+    }
+
+
+    public void connectorSet(String name, int slot, int value) 
+	throws DbnException {
+	if (name.equals("net")) {
+	    networkSet(slot, value); 
+	    return;
+	}
+	int values[] = (int[]) connectorTable.get(name);
+	if (values == null) {
+	    throw new DbnException("unknown external data " + name);
+	}
+	try {
+	    values[slot-1] = value;
+	} catch (Exception e) {
+	    throw new DbnException("error setting " + name + " " + slot + 
+				   " to " + value);
+	}
+    }
+
+
+    // networking support
+    static final int NET_PORT = 8000;
+    static final int NET_ERROR_MESSAGE = -1;
+    static final int NET_OK_MESSAGE = 0;
+    static final int NET_GET_MESSAGE = 1;
+    static final int NET_SET_MESSAGE = 2;
+    
+    DataInputStream netInputStream;
+    DataOutputStream netOutputStream;
+    boolean secondAttempt; 
+
+
+    protected void networkOpen() throws DbnException {
+	try {
+	    //String hostname = app.isLocal() ? 
+	    //"localhost" : app.getCodeBase().getHost();
+
+	    Socket socket = new Socket(hostname, NET_PORT);
+	    netInputStream = new DataInputStream(socket.getInputStream());
+	    netOutputStream = new DataOutputStream(socket.getOutputStream());
 	    
-	    for (newy=0; newy<n; newy++){
-		for (newx=0; newx<n; newx++){
-		    // for each new pixel, get the location of its source pixel
-		    srcx = (int) Math.floor(newx*xratio);
-		    srcy = (int) Math.floor(newy*yratio);
-		    // get the value at that location from the source image
-		    srcindex = cbh*srcy + srcx;
-		    if (srcindex < nsrcpixels){
-			p = (int) (2.55f*(float)pixels[srcindex]); // 0-100, scaled to 0-255
-			// get the high-order bits,
-			// fetch their equivalent hexcode string 
-			// and tack it onto our output
-			switch (bitdepth){
-			case 8: s += HEX_CODES[p/16]; // high bits
-			    s += HEX_CODES[p%16]; // low bits
-			    break;
-			default:
-			case 4: s += HEX_CODES[p/16]; break;
-			}
-			
-		    }
-		}
+	} catch (IOException e) {
+	    netInputStream = null;
+	    netOutputStream = null;
+	    throw new DbnException("could not connect to server");
+	}
+    }
+
+
+    protected int networkGet(int number) throws DbnException {
+	if (netInputStream == null) {
+	    networkOpen();
+	}
+
+	int val = -1; // !#$(*@#$ compiler
+	try {
+	    netOutputStream.writeInt(1);
+	    netOutputStream.writeInt(NET_GET_MESSAGE);
+	    netOutputStream.writeInt(number);
+	    netOutputStream.writeInt(0);
+	    netOutputStream.flush();
+
+	    int version = netInputStream.readInt();
+	    int message = netInputStream.readInt();
+	    int num = netInputStream.readInt();
+	    val = netInputStream.readInt();
+
+	    // past where an ioexception would be thrown
+	    secondAttempt = false; 
+	    if (message != NET_OK_MESSAGE) {
+		throw new DbnException("bad data from the server");
+	    }
+
+	} catch (IOException e) {
+	    if (!secondAttempt) { // re-connect and try again
+		secondAttempt = true;
+		networkOpen();
+		return networkGet(number);
+	    } else {
+		throw new DbnException("could not connect to server");
 	    }
 	}
-	return s;
+	return val;
+    }
+
+
+    protected void networkSet(int number, int value) throws DbnException {
+	if (netInputStream == null) {
+	    networkOpen();
+	}
+	try {
+	    netOutputStream.writeInt(1);
+	    netOutputStream.writeInt(NET_SET_MESSAGE);
+	    netOutputStream.writeInt(number);
+	    netOutputStream.writeInt(value);
+	    netOutputStream.flush();
+
+	    int version = netInputStream.readInt();
+	    int message = netInputStream.readInt();
+	    int num = netInputStream.readInt();
+	    int val = netInputStream.readInt();
+
+	    // past where an ioexception would be thrown
+	    secondAttempt = false; 
+	    if (message != NET_OK_MESSAGE) {
+		throw new DbnException("could not set data on the server");
+	    }
+
+	} catch (IOException e) {
+	    if (!secondAttempt) { // re-connect and try again
+		secondAttempt = true;
+		networkOpen();
+		networkSet(number, value);
+	    } else {
+		throw new DbnException("could not connect to server");
+	    }
+	}
     }
 }
-    */

@@ -2,38 +2,36 @@ import java.awt.*;
 import java.applet.Applet;
 
 
-/*
- * dbnrunner is not threaded, dbn in general is not multi-threaded.
- * you can imagine situations where there might be 2 dbnrunners running
- * at the same time, in which case you would want to encapsulate each
- * runner in its own thread.
- */ 
 public class DbnRunner implements Runnable {
     DbnApplet app;
     DbnGui gui;
     Panel parent;
+    DbnGraphics dbg;
+
+    String program;
+
+    // from DbnProcessor
+    DbnPreprocessor preprocessor;
+    DbnEngine engine;
+    long heartbeatTime;
+
+    //SchemeRunner runner;
+
+    int dispx, dispy;
+    int dispw, disph;
 	
-    public DbnGraphics dbg;
-    String prog;
-    DbnProcessor dp;
-	
-    public int dispx = 0, dispy = 0;
-    public int dispw, disph;
-	
-    public int state = DBNRUN_FINISHED;
-	
-    static final int DBNRUN_STARTED = 0;
-    static final int DBNRUN_FINISHED = 1;
-    static final int DBNRUN_ERROR = -1;
-    static final int DBNRUN_STOPPED = 2;
-    
-    Thread runner = null;
-    long sleepc = 0; // how slow to slow it down
+    static final int RUNNER_STARTED = 0;
+    static final int RUNNER_FINISHED = 1;
+    static final int RUNNER_ERROR = -1;
+    static final int RUNNER_STOPPED = 2;
+    int state = RUNNER_FINISHED;
+	    
+    Thread thread;
+    //long sleepc; // how slow to slow it down
 
 
     public DbnRunner(DbnApplet app, DbnGui gui, Panel parent, 
-		     int x, int y, int w, int h, String program)
-    {
+		     int x, int y, int w, int h, String program) {
 	super();
 	this.app = app;
 	this.gui = gui;
@@ -41,119 +39,84 @@ public class DbnRunner implements Runnable {
 	
 	dispx = x; dispy = y;
 	dispw = w; disph = h;
-	dbg = new DbnGraphics(parent, this, w, h);	
+	dbg = new DbnGraphics(parent, w, h, this, app.getHost());
 	setProgram(program);
+
+	preprocessor = new DbnPreprocessor(gui, app);
     }
 	
-    public void setDisplayXY(int x, int y)
-    {
+    public void setDisplayXY(int x, int y) {
 	dispx = x; dispy = y;
     }
 	
-    public boolean insidep(int x, int y)
-    {
+    public boolean insidep(int x, int y) {
 	return (dispx<x&&x<(dispx+dispw)&&dispy<y&&y<(dispy+disph));
     }
 
-    public void setProgram(String program)
-    {
-	prog = program;
+    public void setProgram(String program) {
+	this.program = program;
     }
     
-    public boolean runningp()
-    {
-	return (state==DBNRUN_STARTED);
+    public boolean runningp() {
+	return (state==RUNNER_STARTED);
     }
 
-    public void start()
-    {
+    public void start() {
 	// threadless version didn't work
 	try { 
-	    if (runner!=null) {
-		runner.stop(); 
-		runner=null;
+	    if (thread != null) {
+		thread.stop(); 
+		thread = null;
 	    } 
 	} catch (Exception e) { 
-	    runner = null;
+	    thread = null;
 	}
-	
-	if (runner == null) {
-	    runner = new Thread(this);
-	    runner.start();
+	if (thread == null) {
+	    thread = new Thread(this);
+	    thread.start();
 	}
     }
 	
     // called just before starts
-    Graphics cachedg=null;
-    public void allsettogo()
-    {
-	state=DBNRUN_STARTED;
-	dbg.reset();
-	cachedg=null;
-    }
-    
+    Graphics cachedg = null;
+
     // called just when done
-    public void alldone()
-    {
+    public void alldone() {
 	// called as the last thing to do
 	//	db.im.flush();
 	render();
 	gui.terminated();
     }
-	
-    public void stop() {
-	//if (dp != null) dp.pleaseQuit();
-	if (dp != null) dp.stop();
-	//msg("Stopped.");
-	msg(""); 
-	/*
-	  if (runner != null)
-	  {
-	  // only sandmen kill runners
-	  runner.stop();
-	  runner = null;
-	  state=DBNRUN_STOPPED;
-	  }
-	  alldone();
-	*/
-    }
-    
-    public void msg(String s)
-    {
+
+    public void msg(String s) {
 	gui.msg(s);
-	//sp(s);
     }
-    
-    //public void sp(String s) 
-    //{
-    //System.out.println(s);
-    //}
-    
-	
-    public void run()
-    {
+
+
+    public void run() {
 	boolean donep = false;
 	
-	allsettogo();
-	// should process program here
-	// run must call render while it is running ...
-	// must tell processor to slowdown when going to fast ... ? 
-	// speed constantcy in dbn ...
+	state = RUNNER_STARTED;
+	dbg.reset();
+	cachedg = null;
 	
 	try {
-	    // THIS IS WHERE THE 'dbnprocessor' should be doing it's thing
-	    dp = new DbnProcessor(gui, dbg, app);
-	    dp.start(prog);
-	    dp = null;
-	    //Thread.sleep(1000);
-	    state = DBNRUN_FINISHED;
+	    if (program.charAt(0) == ';') {
+		//runner = new SchemeRunner(dbg);
+		//runner.start(program);
+		engine = new SchemeEngine(dbg, program);
+		engine.start();
+	    } else {
+		String processed = preprocessor.process(program);
+		DbnParser parser = new DbnParser(processed.toCharArray());
+		engine = new DbnEngine(parser.getRoot(), dbg, this);
+		engine.start();
+	    }
+	    state = RUNNER_FINISHED;
 	    gui.success();
-	    //donep = true;
 
 	} catch (DbnException e) { 
-	    //sp("Caught dbn exception");
-	    //System.err.println("got exception");
-	    state = DBNRUN_ERROR;
+	    state = RUNNER_ERROR;
 	    this.stop();
 	    // must go below so that error msg shows
 	    gui.reporterror(e);
@@ -164,21 +127,53 @@ public class DbnRunner implements Runnable {
 	}	
 	alldone();
     }
-	
-    public void render(Graphics g)
-    {
-	if (dbg.im == null) {
+
+
+    public void stop() {
+	//System.out.println("DbnRunner.stop()");
+	//if (dp != null) dp.stop();
+	if (engine != null) {
+	    engine.stop();
+	    engine = null;
+	}
+	//if (runner != null) {
+	//	    runner.stop();
+	//  runner = null;
+	//}
+	msg(""); 
+    }
+
+
+    public void render() {
+	if (cachedg == null) cachedg = parent.getGraphics();
+	render(cachedg);
+    }
+
+
+    public void render(Graphics g) {
+	if (dbg.image == null) {
 	    dbg.buildBuffers();
 	}
 	// i think this was throwing an exception on close
 	if (g != null) {
-	    g.drawImage(dbg.im,dispx,dispy,parent);
+	    g.drawImage(dbg.image, dispx, dispy, parent);
 	}
     }
-    
-    public void render()
-    {
-	if (cachedg == null) cachedg = parent.getGraphics();
-	render(cachedg);
+
+
+    // from DbnProcessor
+
+    public void idle() {
+	long currentTime = System.currentTimeMillis();
+	gui.idle(currentTime);
+
+	if ((currentTime % 1000) > 800) {
+	    // beat the heart if a new beat
+	    long hba = currentTime / 1000;
+	    if (hba != heartbeatTime)
+		gui.heartbeat();
+	    heartbeatTime = hba;
+	}
     }
+
 }

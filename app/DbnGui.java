@@ -6,7 +6,7 @@ import java.util.*;
 class DbnLicensePlate extends Panel implements Runnable {
     DbnGui gui;
     Font f = new Font("Helvetica", Font.PLAIN, 10);
-    Thread engine;
+    Thread thread;
     Image im;
     Graphics img;
     
@@ -30,20 +30,19 @@ class DbnLicensePlate extends Panel implements Runnable {
     int s2x, s2y;
 
 	
-    public DbnLicensePlate(DbnGui gui)
-    {
+    public DbnLicensePlate(DbnGui gui) {
 	super();
 	this.gui = gui;
     }
     
     public boolean mouseDown(Event ev, int mx, int my)
     {
-	if (engine==null) {
-	    engine = new Thread(this);
-	    engine.start();
+	if (thread==null) {
+	    thread = new Thread(this);
+	    thread.start();
 	} else {
-	    engine.stop();
-	    engine = null;
+	    thread.stop();
+	    thread = null;
 	    unlaunch();
 	}
 	return true;
@@ -72,7 +71,7 @@ class DbnLicensePlate extends Panel implements Runnable {
 	    cs[k] = s1.charAt(i); 
 	    ys[k] = s1y;
 	    xso[k]=xs[k] = x;
-	    x+=g.getFontMetrics().stringWidth(""+cs[k]);
+	    x+=g.getFontMetrics().stringWidth(String.valueOf(cs[k]));
 	    dxs[k] = cs[k]/4;
 	    dys[k] = 0;//cs[k]&0x3;
 	    cols[k] = Color.white;
@@ -83,7 +82,7 @@ class DbnLicensePlate extends Panel implements Runnable {
 	    cs[k] = s2.charAt(i); 
 	    ys[k] = s1y;
 	    xso[k]=xs[k] = x;
-	    x+=g.getFontMetrics().stringWidth(""+cs[k]);
+	    x+=g.getFontMetrics().stringWidth(String.valueOf(cs[k]));
 	    dxs[k] = cs[k]/4;
 	    dys[k] = 0;//cs[k]&0x3;
 	    cols[k] = Color.gray;
@@ -117,7 +116,7 @@ class DbnLicensePlate extends Panel implements Runnable {
 		x = (int)(xs[i]+a*(xso[i]-xs[i]));
 		y = ys[i];
 		img.setColor(cols[i]);
-		img.drawString(""+cs[i],x,y);
+		img.drawString(String.valueOf(cs[i]), x, y);
 	    }		
 
 	    g.drawImage(im,0,0,this);
@@ -514,7 +513,8 @@ class DbnRunPanel extends Panel {
     public boolean mouseExit(Event ev, int x, int y)
     {
 	updatemouse(x,y);
-	terminate();
+	// is this the auto-stopper?
+	//terminate();
 	/*if (app.gui.run_mode!=null) 
 	    if (app.gui.run_mode.equals("mouse_inside")) {
 		terminate();
@@ -650,11 +650,14 @@ class DbnRunPanel extends Panel {
 		y = dbr.dispy+dbr.disph-dbr.disph*i/100-1;
 		g.drawLine(dbr.dispx-2,y,dbr.dispx-4,y);
  	        g.drawString(String.valueOf(i), 
-			     dbr.dispx-4-g.getFontMetrics().stringWidth(""+i),y);
-		x=dbr.dispx+dbr.dispw*i/100; y = dbr.dispy+dbr.disph+1;
+			     dbr.dispx-4-g.getFontMetrics().
+			     stringWidth(String.valueOf(i)), y);
+		x = dbr.dispx + dbr.dispw*i/100; 
+		y = dbr.dispy + dbr.disph+1;
         	g.drawLine(x,y,x,y+2);
         	g.drawString(String.valueOf(i),
-			     dbr.dispx+dbr.dispw*i/100+1,dbr.dispy+dbr.disph+12);
+			     dbr.dispx+dbr.dispw*i/100+1,
+			     dbr.dispy+dbr.disph+12);
 	    }
 		
 	    g.setColor(bgcol);

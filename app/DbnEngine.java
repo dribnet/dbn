@@ -3,21 +3,23 @@ import java.util.*;
 
 public class DbnEngine {
     DbnToken root;
-    DbnProcessor parent;
+    DbnRunner parent;
     DbnGraphics graphics;
     boolean stopFlag;
 
-    //static final int STACK_SIZE = 100;
     int stackSize = 100;
     Hashtable stack[];
     int stackIndex = 0;
 
 
-    DbnEngine(DbnToken root, DbnGraphics graphics, DbnProcessor parent) {
+    DbnEngine() { }  // so it can be subclassed for scheme and python
+
+    DbnEngine(DbnToken root, DbnGraphics graphics, DbnRunner parent) {
 	this.root = root;
 	this.graphics = graphics;
 	this.parent = parent;
     }
+
 
     public void start() throws DbnException {
 	stopFlag = false;
@@ -375,9 +377,9 @@ public class DbnEngine {
 
 
     int getConnector(DbnToken current) throws DbnException {
-	if (parent.isConnector(current.name))
-	    return parent.connectorGet(current.name,
-				       getValue(current.children[0]));
+	if (graphics.isConnector(current.name))
+	    return graphics.connectorGet(current.name,
+					 getValue(current.children[0]));
 	die("connector not found", current);
 	return -1;
     }
@@ -453,10 +455,10 @@ public class DbnEngine {
 
 	case DbnToken.OUTPUT_CONNECTOR:
 	    //value.print();
-	    if (parent.isConnector(value.name)) {
-		parent.connectorSet(value.name,
-				    getValue(value.children[0]), 
-				    amount);
+	    if (graphics.isConnector(value.name)) {
+		graphics.connectorSet(value.name,
+				      getValue(value.children[0]), 
+				      amount);
 	    } else {
 		die("output connector not found", value);
 	    }
