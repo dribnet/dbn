@@ -57,22 +57,25 @@ public class DbnFancy extends DbnApplet implements ActionListener {
 
   static final String problems[] = {
     //"7A", "7B", "7C", "8A", "8B", "8C"
-    "2A", "2B", "2C"
+    //"2A", "2B", "2C"
+    "5A", "5B", "5C"
   };
   String currentProblem = problems[0];
 
-  static final String people[] = {
-    "a_goel", "anne", "awchau", "b_piper", "beck", "bernie", "btking", 
-    "escudero", "girit", "govango", "jarnold", "jaylee", "jeeeee5", 
-    "jeppig", "jic", "jleblanc", "jpatten", "jroth", "jshafer", 
-    "leeh", "lfsulliv", "lintina", "megan", "mlpriebe", "mpalmer", 
-    "mshah", "mstmegs", "mstring", "neptune", "nhsia", "okhan", "potato", 
-    "ross186426", "rstreit", "sini", "sloan2", "tony", "xxiang"
+  
+  static final String people[] = { 
+    "a_goel", "anne", "awchau", "b_piper", "beck", "bernie", "btking",
+    "drrich", "escudero", "girit", "govango", "jarnold", "jaylee",
+    "jeeeee5", "jeppig", "jic", "jleblanc", "jpatten", "jroth",
+    "jshafer", "leeh", "lfsulliv", "lintina", "megan", "mlpriebe",
+    "mpalmer", "mshah", "mstmegs", "mstring", "neptune", "nhsia",
+    "okhan", "rstreit", "sini", "sloan2", "tony"
 
     //"akilian", "ben", "cameron", "carsonr", "casey",
     //"dana", "darkmoon", "dc", "elise", "golan", "hannes",
     //"james", "jared", "kelly", "ppk", "shyam", "tom"
   };
+  
     
   String currentPerson = people[0];
 

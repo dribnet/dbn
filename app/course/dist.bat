@@ -11,6 +11,7 @@ rem --- build dbn.exe from the classes folder
 cd classes
 rem jexegen /r /w /main:DbnApplication /out:..\dbn.exe *.class *.dbn com\* org\*
 jexegen /r /main:DbnApplication /out:..\dbn.exe *.class *.dbn com\* org\*
+jexegen /r /main:DbnFancy /out:..\fancy.exe *.class *.dbn com\* org\*
 cd ..
 
 rem --- build dbn.cab from the classes folder
@@ -28,7 +29,7 @@ rm -rf dbn
 mkdir dbn
 
 rem -- make a copy in a folder called 'dbn'
-cp DBN.exe dbn/
+cp *.exe dbn/
 
 rem -- put buttons and props into a lib directory
 mkdir dbn\lib
@@ -59,7 +60,7 @@ cd ..
 
 mkdir dbn\lib
 cp lib/buttons.gif dbn/lib/buttons.gif
-mv lib/dbn.jar dbn/lib/dbn.jar
+cp lib/dbn.jar dbn/lib/dbn.jar
 cp lib/dbn.properties dbn/lib/dbn.properties
 java LineFeedConverter mac dbn/lib/dbn.properties
 
