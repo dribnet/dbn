@@ -131,12 +131,17 @@ public class DbnEditor extends Panel implements DbnEnvironment {
 
 #ifdef RECORDER
   public void doRecord() {
-    doPlay();
+    doStop();
     DbnRecorder.start(this, graphics.width, graphics.height);
+    //while (Dbn
+    doPlay();
   }
 #endif
 
   public void doStop() {
+#ifdef RECORDER
+    if (!playing) return;
+#endif
     terminate();
     buttons.clear();
     playing = false;

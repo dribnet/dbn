@@ -53,7 +53,7 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
   CSequence sequence;
   ImageDescription description;
   //boolean started;
-  static boolean finishing;
+  //static boolean finishing;
 
   boolean cursorVisible;
   Color cursorUpColor;
@@ -190,7 +190,8 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
 
   static public void addFrame(Image image, byte pixels[],
 			      int mouseX, int mouseY, boolean mouseDown) {
-    if ((recorder != null) && !finishing) {
+    //if ((recorder != null) && !finishing) {
+    if (recorder != null) {
       recorder.add(image, pixels, mouseX, mouseY, mouseDown);
     }
   }
@@ -313,18 +314,26 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
 
 
   static public void stop() {
-    if ((recorder == null) || finishing) return;
+    //if ((recorder == null) || finishing) return;
+    if (recorder == null) return;
     //System.out.println("stopping recorder");
 
-    finishing = true;
+    //finishing = true;
     recorder.finish();
-    finishing = false;
+    //finishing = false;
     recorder = null;
   }
 
   public void finish() {
     //if (finishing) return;
     try {
+      // be sure to get the very last frame
+      // set the clock to make the frame not exceed 30 fps
+      // then update the graphics so that the last frame is added
+      lastTime = System.currentTimeMillis() - 100;
+      ((DbnEditor)environment).graphics.update();
+
+      //System.out.println("making quicktime");
       makeQuickTime();
 
       // the end of CreateMovie.addVideoTrack()
@@ -344,7 +353,7 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
       e.printStackTrace();
 
     } catch (QTException e) {
-      System.err.println("doing things");
+      //System.err.println("doing things");
       e.printStackTrace();
     }
   }
