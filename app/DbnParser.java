@@ -105,7 +105,16 @@ public class DbnParser {
     //if (parseEOL(current)) return true;
 
     if (parseEOL()) return true;
-    if (parseBlock(parent)) return true;
+
+    // this is the friggin code that parses those empty blocks
+    //if (parseBlock(parent)) return true;
+    // needs to have an arbitrary parent b/c of the way i wrote
+    // the parse/execution tree
+    DbnToken bcurrent = new DbnToken(DbnToken.STATEMENTS, line);
+    if (parseBlock(bcurrent)) {
+      parent.addChild(bcurrent, line);
+      return true;
+    }
 
     String word = consumeWord();
     if ((word == null) || (word.length() == 0)) return false;

@@ -58,6 +58,7 @@ public class DbnEngine {
 
     if (stopFlag) return;
 
+    //System.out.println("executing " + current.childCount + " kids");
     for (int i = 0; i < current.childCount; i++) {
       execStatement(current.children[i]);
       //parent.idle();
@@ -137,6 +138,7 @@ public class DbnEngine {
   void execBlock(DbnToken current) throws DbnException {
     if (watchCurrent) setCurrent(current);
 
+    //System.out.println("starting block..");
     execStatements(current);
   }
 

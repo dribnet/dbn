@@ -27,7 +27,12 @@ if ($ENV{'WINDIR'} ne '') {
     $unix = 1;
 }
 
+#print "args = @ARGV\n";
 $command = shift(@ARGV);
+if ($command eq '') {
+    print "no args passed in.. can't run\n";
+    exit;
+}
 
 if ($command =~ /-classpath/) {
     die "cannot set classpath using this version of buzz";

@@ -89,6 +89,7 @@ public class DbnRunner implements Runnable {
 	  new DbnParser(DbnPreprocessor.process(pre + program));
 	
 	DbnToken root = parser.getRoot();
+	//root.print();
 	if (!root.findToken(DbnToken.SIZE)) {
 	  graphics.size(101, 101, 1);
 	}
