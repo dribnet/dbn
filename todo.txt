@@ -1,3 +1,7 @@
+PROBLEMS
+_ people can't run programs using <net> on their own web pages
+
+
 VERSION 3
 _ completely switch to jdk 1.1
 _   strip out old code for jdk 1.0 support
@@ -12,7 +16,7 @@ _ better default .tif names for screen grab
 
 
 LANGUAGE
-_ break out of forever
+_ break out of forever (used to be in the language)
 _ floating point numbers (toggle from dbn.properties?)
 
 
