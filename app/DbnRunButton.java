@@ -13,12 +13,31 @@ public class DbnRunButton extends Panel {
     int playn, stopn;
 	
     int marg = 4;
+
+    // because this is threaded, runningp might not
+    // be updated by the time the person hits stop/start again
+    boolean running;
+
     
     public DbnRunButton(DbnGui gui) {
 	super();
 	this.gui = gui;
     }
-	
+
+    public void initiated() {
+	//repaint();  // re-added for key commands
+	//System.out.println("dbrb started");
+	running = true;
+	paint(this.getGraphics());
+    }
+
+    public void terminated() {
+	running = false;
+	//System.out.println("dbrb stopped");
+	paint(this.getGraphics());
+	//repaint();
+    }
+
     public void idle() {
 	Graphics g = this.getGraphics();
 		
@@ -30,32 +49,7 @@ public class DbnRunButton extends Panel {
 	}
 	g.drawRect(marg,marg,cbh-marg*2,cbh-marg*2);
     }
-	
-    public void initiated() {
-	//repaint();  // re-added for key commands
-	//System.out.println("dbrb started");
-	paint(this.getGraphics());
-    }
 
-    public void terminated() {
-	//System.out.println("dbrb stopped");
-	paint(this.getGraphics());
-	//repaint();
-    }
-	
-    public boolean mouseEnter(Event ev, int x, int y) {
-	Graphics g = this.getGraphics();
-	g.setColor(Color.black);
-	g.drawRect(marg,marg,cbh-marg*2,cbh-marg*2);
-	return true;
-    }
-
-    public boolean mouseExit(Event ev, int x, int y) {
-	Graphics g = this.getGraphics();
-	g.setColor(Color.gray);
-	g.drawRect(marg,marg,cbh-marg*2,cbh-marg*2);
-	return true;
-    }
 
     public void drawmain(Graphics g, boolean runningp) {
 	g.setColor(gui.getPanelBgColor()); 
@@ -73,23 +67,11 @@ public class DbnRunButton extends Panel {
 	    g.fillPolygon(playxs,playys,playn);	
 	}
     }
-	
-    public boolean mouseDown(Event ev, int x, int y) {
-	if (!gui.getrunningp()) {
-	    drawmain(this.getGraphics(),true);
-	    gui.initiate();
-	} else {
-	    drawmain(this.getGraphics(),false);
-	    gui.terminate();
-	}
-	return true;
-    }
-	
-    public void paint(Graphics g)
-    {	
+
+    public void paint(Graphics g) {	
 	Rectangle r = bounds();
-	//g.setColor(Color.white);
-	//g.fillRect(r.x, r.y, r.width, r.height);
+	g.setColor(Color.white);
+	g.fillRect(r.x, r.y, r.width, r.height);
 
 	if (r.width > 1) {
 	    cb = r; 
@@ -118,14 +100,46 @@ public class DbnRunButton extends Panel {
 		stopys[3] = cbh-marg*3+1;
 	    }
 	}
-	drawmain(g, gui.getrunningp());
+	//drawmain(g, gui.getrunningp());
+	drawmain(g, running);
 			
 	g.setColor(Color.gray);
 	g.drawRect(marg, marg, cbh-marg*2, cbh-marg*2);
     }
 
-    public Dimension preferredSize()
-    {
+
+    public boolean mouseDown(Event ev, int x, int y) {
+	if (running) gui.terminate();
+	else gui.initiate();
+	/*
+	if (!gui.getrunningp()) {
+	    paint(this.getGraphics());
+	    //drawmain(this.getGraphics(),true);
+	    gui.initiate();
+	} else {
+	    //drawmain(this.getGraphics(),false);
+	    gui.terminate();
+	}
+	*/
+	return true;
+    }
+
+    public boolean mouseEnter(Event ev, int x, int y) {
+	Graphics g = this.getGraphics();
+	g.setColor(Color.black);
+	g.drawRect(marg,marg,cbh-marg*2,cbh-marg*2);
+	return true;
+    }
+
+    public boolean mouseExit(Event ev, int x, int y) {
+	Graphics g = this.getGraphics();
+	g.setColor(Color.gray);
+	g.drawRect(marg,marg,cbh-marg*2,cbh-marg*2);
+	return true;
+    }
+
+
+    public Dimension preferredSize() {
         return new Dimension(36, 24);
     }	
 }

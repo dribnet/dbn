@@ -350,6 +350,7 @@ public class DbnGui extends Panel {
 	
     public void terminate()
     {
+	//System.out.println("dbngui terminated");
 	dbrp.terminate();
 	//dbcp.msg("Stopped.");
 	dbcp.msg("");
