@@ -1,23 +1,17 @@
 @echo off
 
-rem -- this is dbn for the organic course, with both python and scheme
-rem -- requires full jdk11, no ifs ands or butts
-rem -- will require applet signing if used in courseware (not yet in use)
-
-rem -- also includes DbnFancy, which is for courseware teacher to do local
-rem -- viewing of applets. this is a temporary fix for applet signing
-rem -- issues that have been a problem with jpython
+rem -- this is dbn for the organic course exhibition
 
 rem -- cleanup the stuff that changes the most
 rm -f classes\*.class 
 
 set CLASSPATH2=%CLASSPATH%
-set CLASSPATH=organic2\lib\jpython.jar;%CLASSPATH%
+set CLASSPATH=organic3\lib\jpython.jar;%CLASSPATH%
 
 cd ..
-rem buzz.pl "javac -nowarn -d organic2\classes" -dJDK11 -dPYTHON -dSCHEME -dFANCY *.java scheme\*.java python\*.java
-buzz.pl "jikes +D -nowarn -d organic2\classes" -dJDK11 -dPYTHON -dSCHEME -dFANCY *.java scheme\*.java python\*.java
-cd organic2
+buzz.pl "sj -nowarn -d organic3\classes" -dJDK11 -dPYTHON -dSCHEME -dFANCY *.java scheme\*.java python\*.java
+rem buzz.pl "jikes +D -nowarn -d organic3\classes" -dJDK11 -dPYTHON -dSCHEME -dFANCY *.java scheme\*.java python\*.java
+cd organic3
 
 rm -f lib\dbn.jar
 cd classes
