@@ -7,8 +7,6 @@ rem rm -f classes\dbn.jar
 
 set ME=kvm
 
-rem --- to be really strict, but that means that 
-rem --- printing goes away, which would be really bad
 set SAVED_CLASSPATH=%CLASSPATH%
 set CLASSPATH=.\%ME%\kvm.zip
 
