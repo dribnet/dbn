@@ -14,7 +14,7 @@ cd application
 
 cd classes
 rm -f ..\lib\dbn.jar
-zip -0q ..\lib\dbn.jar *.class *.dbn
+zip -0q ..\lib\dbn.jar *.class *.dbn *.gif
 cd ..
 
 

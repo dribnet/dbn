@@ -27,5 +27,24 @@ rem -- make the zip file and destroy the evidence
 zip -rq dbn.zip dbn
 rm -rf dbn
 
-rem zip -rq dbn.zip run.bat readme.txt bin\*.dll bin\*.exe lib\*.properties lib\*.jar lib\security\java.security 
-rem rm -f readme.txt
+rem --- now to make the mac version
+rem --- in the main folder: DBN (app), lib (folder), README (mac lfs)
+rem --- in the lib folder: buttons.gif, dbn.properties (mac lfs), dbn.jar
+
+mkdir dbn
+cp ../readme.txt dbn/README
+java LineFeedConverter mac dbn/README
+cp appl.bin dbn/dbn.bin
+
+mkdir dbn\lib
+cp lib/buttons.gif dbn/lib/buttons.gif
+cp lib/dbn.jar dbn/lib/dbn.jar
+cp lib/dbn.properties dbn/lib/dbn.properties
+java LineFeedConverter mac dbn/lib/dbn.properties
+
+cp -r examples dbn/
+rm -rf dbn/examples/CVS
+java LineFeedConverter mac dbn/examples
+
+zip -rq dbn-mac.zip dbn
+rm -rf dbn
