@@ -1,0 +1,6 @@
+Changes and fixes since version 1.0
+
+- Fixed end of line bug. If a program had a comment at
+  the end of its final line, the line would not be read by
+  the parser (end-of-line fix for multiple platforms)
+

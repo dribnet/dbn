@@ -12,24 +12,39 @@ import java.util.*;
  *      -> need path resoution issue
  *
  * if no .dbn extension then gets passed as is to parser
- *
  */ 
 public class DbnPreprocessor {
     DbnGui gui;
     DbnApplet applet;
-    
+
+    // this is sticky, because the textfield really wants its
+    // own type of newlines. this is because the parser needs
+    // a newline at the end, and it wasn't getting it unless
+    // it's the real type of newline. so, it's an unfortunate 
+    // addition (all these vars) but it's gotta be.
+    static int eolCount;
+    static char eol[];
+    static {
+	String separator = System.getProperty("line.separator");
+	eolCount = separator.length();
+	eol = new char[eolCount];
+	for (int i = 0; i < eolCount; i++) {
+	    eol[i] = separator.charAt(i);
+	}
+    }
 
     public DbnPreprocessor(DbnGui gui, DbnApplet applet) {
 	this.gui = gui;
 	this.applet = applet;
 	
 	// build hashtable here
-	// with some nicely defined param interface for language replacement
-	// don't forget that some languages have 2-byte code.
-	// want to define the 'space' character replacement
-	// perhaps as enclosuers in singlebyte parens? (#),( ),(papel),(paper)
-	// or some universally unicode compliant enclosure of a string start/end
-	// then can stringtokenize based upon whitespace char/chars.
+	// with some nicely defined param interface for language 
+	// replacement don't forget that some languages have 2-byte 
+	// code. want to define the 'space' character replacement
+	// perhaps as enclosuers in singlebyte parens?
+	// (#),( ),(papel),(paper) or some universally unicode 
+	// compliant enclosure of a string start/end then can 
+	// stringtokenize based upon whitespace char/chars.
 	// * try not to make too much garbage.
     }
     
@@ -246,9 +261,11 @@ public class DbnPreprocessor {
 		return data;
 	    }
 	    // add an extra newline for the parser
-	    expansion = new char[data.length + 1];
+	    expansion = new char[data.length + eolCount];
 	    System.arraycopy(data, 0, expansion, 0, data.length);
-	    expansion[data.length] = '\n';
+	    for (int i = 0; i < eolCount; i++) {
+		expansion[data.length + i] = eol[i];
+	    }
 	    return expansion;
 	}
 
@@ -262,9 +279,12 @@ public class DbnPreprocessor {
 	expansionIndex += (data.length - lastChunk);
 
 	// add an extra newline for the parser
-	if (expansion.length < expansionIndex+1)
+	if (expansion.length < expansionIndex + eolCount) {
 	    expansion = growArray(expansion);
-	expansion[expansionIndex++] = '\n';
+	}
+	for (int i = 0; i < eolCount; i++) {
+	    expansion[expansionIndex++] = eol[i];
+	}
 
 	// copy everything into memory of the exact size
 	//return new String(expansion, 0, expansionIndex);
@@ -276,24 +296,22 @@ public class DbnPreprocessor {
 
     // first do language translation for the main code
     // then do load expansion for the main code
-	    // do this recursively
+    // (do this recursively)
     public String doit(String string) {
 	//System.err.println("preproc: doit " + s);
 	char program[] = string.toCharArray();
 	
-	// walk through string, convert to hashcodes and compare as fast as possible
-	// break into 2 phases as might want to do an expand from the outside.
+	// walk through string, convert to hashcodes and compare 
+	// as fast as possible break into 2 phases as might want 
+	// to do an expand from the outside.
 	program = translateLanguage(program);
 	
 	// do load expansion
+	// NOTE: there is a bug in DBN, it likes to have a '\n' 
+	// at the end be sure to attach this (see comments above, 
+	// the newline is added by the preproc
 	program = loadExpand(program);
-
-	// now go and walk through with xlation
-	// NOTE: there is a bug in DBN, it likes to have a '\n' at the end
-	// be sure to attach this
 	
-	//return new String(program, 0) + "\n";// added by jm
-	//return s.toLowerCase()+"\n";
 	return new String(program);
     }
 }

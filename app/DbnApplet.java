@@ -8,30 +8,6 @@ import java.util.*;
 import java.awt.event.*;
 
 
-class MemoryReporter implements Runnable {
-    Thread thread;
-
-    public MemoryReporter() {
-	thread = new Thread(this);
-	thread.start();
-    }
-
-    public void run() {
-	while (Thread.currentThread() == thread) {
-	    try {
-		thread.sleep(1000);
-	    } catch (InterruptedException e) {
-	    }
-	    Runtime r = Runtime.getRuntime();
-	    r.gc();
-	    long mem = r.freeMemory();
-	    long tmem = r.totalMemory();
-	    //mem /= 1024;
-	    System.err.println(mem + " " + tmem);
-	}
-    }
-}
-
 public class DbnApplet extends Applet
 {
     DbnGui gui;
@@ -132,7 +108,6 @@ public class DbnApplet extends Applet
 	if (wasInline) gui.beautify(); // inline progs will look scary
     }
 
-
     public String getParameter(String name) {
 	if (isApplet()) {
 	    return super.getParameter(name);
@@ -140,10 +115,10 @@ public class DbnApplet extends Applet
 	return properties.getProperty(name);
     }
 
-
     public void destroy() {
 	if (gui != null) gui.terminate();
     }
+
 
     /* loading order:
      * 0. if application, a file on the disk
@@ -234,6 +209,7 @@ public class DbnApplet extends Applet
 	    return null;
 	}
     }
+
 
     public String languageEncode(byte program[]) {
 	if (I18N) {
@@ -426,3 +402,29 @@ public class DbnApplet extends Applet
     }
 }
 
+
+/*
+class MemoryReporter implements Runnable {
+    Thread thread;
+
+    public MemoryReporter() {
+	thread = new Thread(this);
+	thread.start();
+    }
+
+    public void run() {
+	while (Thread.currentThread() == thread) {
+	    try {
+		thread.sleep(1000);
+	    } catch (InterruptedException e) {
+	    }
+	    Runtime r = Runtime.getRuntime();
+	    r.gc();
+	    long mem = r.freeMemory();
+	    long tmem = r.totalMemory();
+	    //mem /= 1024;
+	    System.err.println(mem + " " + tmem);
+	}
+    }
+}
+*/
