@@ -7,15 +7,13 @@ public class DbnRunner implements Runnable {
     DbnGui gui;
     Panel parent;
     DbnGraphics dbg;
+    Graphics cachedg;
 
     String program;
 
-    // from DbnProcessor
     DbnPreprocessor preprocessor;
     DbnEngine engine;
     long heartbeatTime;
-
-    //SchemeRunner runner;
 
     int dispx, dispy;
     int dispw, disph;
@@ -27,7 +25,6 @@ public class DbnRunner implements Runnable {
     int state = RUNNER_FINISHED;
 	    
     Thread thread;
-    //long sleepc; // how slow to slow it down
 
 
     public DbnRunner(DbnApplet app, DbnGui gui, Panel parent, 
@@ -77,17 +74,6 @@ public class DbnRunner implements Runnable {
 	}
     }
 	
-    // called just before starts
-    Graphics cachedg = null;
-
-    // called just when done
-    public void alldone() {
-	// called as the last thing to do
-	//	db.im.flush();
-	render();
-	gui.terminated();
-    }
-
     public void msg(String s) {
 	gui.msg(s);
     }
@@ -102,8 +88,6 @@ public class DbnRunner implements Runnable {
 	
 	try {
 	    if (program.charAt(0) == ';') {
-		//runner = new SchemeRunner(dbg);
-		//runner.start(program);
 		engine = new SchemeEngine(dbg, program);
 		engine.start();
 	    } else {
@@ -125,21 +109,16 @@ public class DbnRunner implements Runnable {
 	    e.printStackTrace();
 	    this.stop();
 	}	
-	alldone();
+	render();
+	gui.terminated();
     }
 
 
     public void stop() {
-	//System.out.println("DbnRunner.stop()");
-	//if (dp != null) dp.stop();
 	if (engine != null) {
 	    engine.stop();
 	    engine = null;
 	}
-	//if (runner != null) {
-	//	    runner.stop();
-	//  runner = null;
-	//}
 	msg(""); 
     }
 
