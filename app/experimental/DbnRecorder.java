@@ -237,8 +237,8 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
 
   public Rectangle[] paint(Graphics g) {
     System.out.println("painting");
-    g.setColor(Color.white);
-    g.fillRect(0, 0, width, height);
+    //g.setColor(Color.white);
+    //g.fillRect(0, 0, width, height);
     g.setColor(Color.red);
     g.fillRect(0, 0, 40, 90);
     //if (lastImage != null)
