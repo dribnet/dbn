@@ -641,7 +641,7 @@ public class DbnParser {
 	    die("connector must have a valid name");
 	}
 	DbnToken current = null;
-	int paramCount = 1;
+	int paramCount = 1; //input ? 1 : 2;
 	if (!input && !name.equals("net")) {
 	    die("only net can be set, " + name + " cannot");
 	}

@@ -450,6 +450,17 @@ public class DbnEngine {
 			      getValue(value.children[1]), amount);
 	    break;
 
+	case DbnToken.OUTPUT_CONNECTOR:
+	    //value.print();
+	    if (parent.isConnector(value.name)) {
+		parent.connectorSet(value.name,
+				    getValue(value.children[0]), 
+				    amount);
+	    } else {
+		die("output connector not found", value);
+	    }
+	    break;
+
 	default:
 	    die("cannot set var to " + amount, value);
 	}
