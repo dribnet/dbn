@@ -1,481 +1,503 @@
 #ifdef EDITOR
 
 import java.awt.*;
+import java.io.*;
+import java.net.*;
 import java.util.*;
 
 
 // play, stop, open, save, courseware, print, beautify
 // height of button panel is 35
 
-public class DbnEditor implements DbnEnvironment {
-    static final String DEFAULT_PROGRAM = "// enter program\n";
+public class DbnEditor extends Panel implements DbnEnvironment {
+  static final String DEFAULT_PROGRAM = "// enter program\n";
+  static final String spaces = "                                                                              ";
 
-    // set explicitly because different platforms use different colors
-    static final Color panelBgColor = new Color(204, 204, 204);
+  // set explicitly because different platforms use different colors
+  //static final Color panelBgColor = new Color(204, 204, 204);
 
-    DbnApplet app;
+  DbnApplet app;
 
-    DbnEditorButtons buttons;
-    DbnEditorGraphics graphics;
+  DbnEditorButtons buttons;
+  DbnEditorGraphics graphics;
+  DbnRunner runner;
 
-    Label status;
-    TextArea textarea;
+  Label status;
+  TextArea textarea;
 
-    String lastDirectory;
-    String lastFile;
+  String lastDirectory;
+  String lastFile;
 
 
-    public DbnEditor(DbnApplet app, String program) {
-	this.app = app;
-	setLayout(new BorderLayout());
+  public DbnEditor(DbnApplet app, String program) {
+    this.app = app;
+    setLayout(new BorderLayout());
 
-	Color bgColor = 
-	    DbnProperties.getColor("bg_color", new Color(51, 102, 153));
-	Color bgStippleColor = 
-	    DbnProperties.getColor("bg_stipple_color", null);
-	Color tickColor = 
-	    DbnProperties.getColor("tick_color", new Color(204, 204, 204));
-	Color gutterBgColor =
-	    DbnProperties.getColor("gutter_bg_color", new Color(0, 51, 102));
-	Color buttonBgColor = 
-	    DbnProperties.getColor("button_bg_color", new Color(153, 153, 153));
-	Color statusBgColor = 
-	    DbnProperties.getColor("status_bg_color", new Color(204, 204, 204));
+    Color bgColor = 
+      DbnApplet.getColor("bg_color", new Color(51, 102, 153));
+    Color bgStippleColor = 
+      DbnApplet.getColor("bg_stipple_color", null);
+    Color tickColor = 
+      DbnApplet.getColor("tick_color", new Color(204, 204, 204));
+    Color gutterBgColor =
+      DbnApplet.getColor("gutter_bg_color", new Color(0, 51, 102));
+    Color buttonBgColor = 
+      DbnApplet.getColor("button_bg_color", new Color(153, 153, 153));
+    Color statusBgColor = 
+      DbnApplet.getColor("status_bg_color", new Color(204, 204, 204));
 
-	int gwidth = DbnProperties.getInteger("graphics_width", 101);
-	int gheight = DbnProperties.getInteger("graphics_height", 101);
+    int gwidth = DbnApplet.getInteger("graphics_width", 101);
+    int gheight = DbnApplet.getInteger("graphics_height", 101);
 
-	add("North", new DbnEditorLicensePlate(this));
+    add("North", new DbnEditorLicensePlate());
+    //Panel vert = new Panel();
+    //vert.setLayout(new BorderLayout());
+    //vert.add("North", new DbnEditorLicensePlate());
 
-	Panel left = new Panel();
-	left.setLayout(new BorderLayout());
+    Panel left = new Panel();
+    left.setLayout(new BorderLayout());
 
-	boolean privileges = DbnProperties.hasFullPrivileges();
-	boolean courseware = DbnProperties.get("save_as") != null;
-	buttons = new DbnEditorButtons(this, privileges, courseware, 
-				       (privileges & !courseware), true);
-	left.add("North", buttons);
+    boolean privileges = DbnApplet.hasFullPrivileges();
+    boolean courseware = DbnApplet.get("save_as") != null;
+    buttons = new DbnEditorButtons(this, privileges, courseware, 
+				   (privileges & !courseware), true);
+    buttons.setBackground(buttonBgColor);
+    left.add("North", buttons);
 
-	graphics = new DbnEditorGraphics(gwidth, gheight);
-	left.add("Center", graphics);
+    graphics = new DbnEditorGraphics(gwidth, gheight, 
+				     bgColor, bgStippleColor);
+    left.add("Center", graphics);
 
-	gutter = new Panel();
-	gutter.setBackground(gutterBgColor);
-	left.add("South", gutter);
+    Panel gutter = new Panel();
+    gutter.setBackground(gutterBgColor);
+    gutter.setSize(100, 100);
+    left.add("South", gutter);
 
-	Panel right = new Panel();
-	right.setLayout(new BorderLayout());
+    Panel right = new Panel();
+    right.setLayout(new BorderLayout());
 
-	Panel statusPanel = new Panel();
-	statusPanel.setBackground(statusBgColor);
-	statusPanel.add(status = new Label());
-	right.add("North", statusPanel);
+    Panel statusPanel = new Panel();
+    statusPanel.setBackground(statusBgColor);
+    statusPanel.setLayout(new FlowLayout(FlowLayout.LEFT)); //new GridLayout(1, 1));
+    statusPanel.add(status = new Label(spaces));
+    right.add("North", statusPanel);
 
-	if (program == null) program = DEFAULT_PROGRAM;
-	textarea = new TextArea(program, 20, 48);
-	textarea.setFont(DbnProperties.getFont("editor"));
-	right.add("Center", text);
+    if (program == null) program = DEFAULT_PROGRAM;
+    textarea = new TextArea(program, 20, 48);
+    textarea.setFont(DbnApplet.getFont("editor"));
+    right.add("Center", textarea);
 
-	this.add("West", left);
-	this.add("East", right);
+    //Panel leftright = new Panel();
+    //leftright.setLayout(new FlowLayout(FlowLayout.LEFT));
+    this.add("West", left);
+    this.add("East", right);
+    //leftright.add(left);
+    //leftright.add(right);
+
+    //vert.add("Center", leftright);
+    //this.add("North", vert);
+    //this.add("Center", leftright);
 
 #ifdef JDK11
-	if (!DbnProperties.isMacintosh()) {
-	    DbnEditorListener listener = new DbnEditorListener(this);
-	    textarea.addKeyListener(listener);
-	    textarea.addFocusListener(listener);
-	    textarea.addKeyListener(new DbnKeyListener(this));
-	}
+    if (!DbnApplet.isMacintosh()) {
+      DbnEditorListener listener = new DbnEditorListener();
+      textarea.addKeyListener(listener);
+      textarea.addFocusListener(listener);
+      textarea.addKeyListener(new DbnKeyListener(this));
+    }
 #endif
+  }
+
+
+  public void doPlay() {
+    initiate();
+  }
+
+
+  public void doStop() {
+    terminate();
+    buttons.clear();
+  }
+
+
+  public void doOpen() {
+    FileDialog fd = new FileDialog(new Frame(), 
+				   "Open a DBN program...", 
+				   FileDialog.LOAD);
+    fd.setDirectory(lastDirectory);
+    fd.setFile(lastFile);
+    fd.show();
+	
+    String directory = fd.getDirectory();
+    String filename = fd.getFile();
+    if (filename == null) {
+      buttons.clear();
+      return; // user cancelled
     }
+    File file = new File(directory, filename);
 
-
-    //public Color getPanelBgColor() {
-    //return panelBgColor;
-    //}
-
-    /*
-    // show a string in the browser status bar
-    // like "Loading cheesedanish.dbn..."
-    String currentStatus;
-    public void showStatus(String status) {
-	if (currentStatus == null) {
-	    app.showStatus(status);
-	    currentStatus = status;
-	}
-    }
-    
-    // needs to say what to clear, so things don't
-    // recursively wind up clearing each other
-    public void clearStatus(String status) {
-	if ((currentStatus != null) &&
-	    (status.equals(currentStatus))) {
-	    app.showStatus("");
-	    currentStatus = null;
-	}
-    }
-    */
-
-/*
-    public void runpanelrefreshed()
-    {
-	if (runMode!=null)
-	    if (runMode.equals("immediate")) {
-		if (!getrunningp()) // kick it to start running
-		    {
-			//			dbrp.initiate();
-		    }
-	    }
-    }
-*/
-    /*
-    public boolean action(Event evt, Object arg) {
-    	if (evt.target == cmds) {
-	    // could also do it here, i s'pose
-
-    	} else if (evt.target == doitButton) {
-	    String selected = cmds.getSelectedItem();
-	    if (selected.equals(BEAUTIFY_ITEM)) doBeautify();
-	    else if (selected.equals(SNAPSHOT_ITEM)) doSnapshot();
-	    else if (selected.equals(SAVE_ITEM)) doSave();
-	    else if (selected.equals(OPEN_ITEM)) doOpen();
-	    else if (selected.equals(PRINT_ITEM)) doPrint();
-    	}
-        return true;
-    }
-    */
-
-    public void doPrint() {
-#ifdef JDK11
-	Frame frame = new Frame(); // bullocks
-	int screenWidth = getToolkit().getScreenSize().width;
-	frame.reshape(screenWidth + 20, 100, screenWidth + 100, 200);
-	frame.show();
-
-	Properties props = new Properties();
-	PrintJob pj = getToolkit().getPrintJob(frame, "DBN", props);
-	if (pj != null) {
-	    Graphics g = pj.getGraphics();
-	    dbrp.runners[dbrp.current].dbg.print(g, 100, 100); 
-	    // jdk 1.1 is a piece of crap, the following 
-	    // line works only half the time.
-	    //g.drawImage(dbrp.runners[dbrp.current].dbg.image, 100, 100, null);
-	    g.dispose();
-	    g = null;
-	    pj.end();
-	}
-	frame.dispose();
-#endif
-    }
-
-    public void doSnapshot() {
-	dbcp.msg("Sending your file to the server...");
-
-	String programStr = ta.getText();
-	byte imageData[] = dbrp.runners[dbrp.current].dbg.getPixels();
-
-	try {
-	    URL appletUrl = app.getDocumentBase();
-	    String document = appletUrl.getFile();
-	    document = document.substring(0, document.lastIndexOf("?"));
-	    URL url = new URL("http", appletUrl.getHost(), document);
-
-	    URLConnection conn = url.openConnection();
-	    conn.setDoInput(true);
-	    conn.setDoOutput(true);
-	    conn.setUseCaches(false);
-	    conn.setRequestProperty("Content-Type", 
-				    "application/x-www-form-urlencoded");
+    try {
+      FileInputStream input = new FileInputStream(file);
+      int length = (int) file.length();
+      byte data[] = new byte[length];
 	    
-	    DataOutputStream printout = 
-		new DataOutputStream(conn.getOutputStream());
-
-	    String saveAs = DbnProperties.get("save_as");
-	    String imageStr = 
+      int count = 0;
+      while (count != length) {
+	data[count++] = (byte) input.read();
+      }
+      // set the last dir and file, so that they're
+      // the defaults when you try to save again
+      lastDirectory = directory;
+      lastFile = filename;
+	
+      // once read all the bytes, convert it to the proper
+      // local encoding for this system.
+      //textarea.setText(app.languageEncode(data));
 #ifdef JDK11
-		new String(makePgmData(imageData, 101, 101));
+      if (app.encoding == null)
+	textarea.setText(new String(data));
+      else 
+	textarea.setText(new String(data, app.encoding));
 #else
-	        new String(makePgmData(imageData, 101, 101), 0);
+      textarea.setText(new String(data, 0));
 #endif
-	    String content = 
-		"save_as=" + URLEncoder.encode(saveAs) + 
-		"&save_image=" + URLEncoder.encode(imageStr) +
-		"&save_program=" + URLEncoder.encode(programStr);
 
-	    printout.writeBytes(content);
-	    printout.flush();
-	    printout.close();
-	    
-	    // what did they say back?
-	    DataInputStream input = 
-		new DataInputStream(conn.getInputStream());
-	    String str = null;
-	    while ((str = input.readLine()) != null) {
-		//System.out.println(str);
-	    }
-	    input.close();	    
-	    dbcp.msg("Done saving file.");
-
-	} catch (Exception e) {
-	    e.printStackTrace();
-	    dbcp.msg("Problem: Your work could not be saved.");
-	}
+    } catch (FileNotFoundException e1) {
+      e1.printStackTrace();
+	
+    } catch (IOException e2) {
+      e2.printStackTrace();
     }
+    buttons.clear();
+  }
 
-    static public byte[] makePgmData(byte inData[], int width, int height) {
-	//String headerStr = "P6 " + width + " " + height + " 255\n"; 
-	String headerStr = "P5 " + width + " " + height + " 255\n";
+
+  public void doSave() {
+    message("Saving file...");
+    String s = textarea.getText();
+    FileDialog fd = new FileDialog(new Frame(), 
+				   "Save DBN program as...", 
+				   FileDialog.SAVE);
+    fd.setDirectory(lastDirectory);
+    fd.setFile(lastFile);
+    fd.show();
+	
+    String directory = fd.getDirectory();
+    String filename = fd.getFile();
+    if (filename == null) {
+      buttons.clear();
+      return; // user cancelled
+    }
+    File file = new File(directory, filename);
+
+    try {
 #ifdef JDK11
-	byte header[] = headerStr.getBytes();
+      FileWriter writer = new FileWriter(file);
+      writer.write(s);
+      writer.flush();
+      writer.close();
 #else
-	byte header[] = new byte[headerStr.length()];
-	headerStr.getBytes(0, header.length, header, 0);
+      System.err.println("untested code in doLocalWrite");
+
+      FileOutputStream output = new FileOutputStream(file); 
+      // no I18N, just blat out the low byte of each char
+      byte data[] = new byte[s.length()]; 
+      s.getBytes(0, s.length()-1, data, 0); 
+      output.write(data); 
+      output.flush(); 
+      // NOT TESTED
 #endif
-	//int count = width * height * 3;
-	int count = width * height;
-	byte outData[] = new byte[header.length + count];
-	System.arraycopy(header, 0, outData, 0, header.length);
-	System.arraycopy(inData, 0, outData, header.length, count);
-	return outData;
+      lastDirectory = directory;
+      lastFile = filename;
+      message("Done saving file.");
+
+    } catch (IOException e) {
+      e.printStackTrace();
+      message("Did not write file.");
     }
+    buttons.clear();
+  }
 
+  public void doSnapshot() {
+    //dbcp.msg("Sending your file to the server...");
+    message("Sending your file to the server...");
 
-    public void doSave() {
-	dbcp.msg("Saving file...");
-	String s = ta.getText();
-	FileDialog fd = new FileDialog(new Frame(), 
-				       "Save DBN program as...", 
-				       FileDialog.SAVE);
-	fd.setDirectory(lastDirectory);
-	fd.setFile(lastFile);
-	fd.show();
-	
-	String directory = fd.getDirectory();
-	String filename = fd.getFile();
-	if (filename == null) return false; // user cancelled
-	File file = new File(directory, filename);
+    String programStr = textarea.getText();
+    //byte imageData[] = dbrp.runners[dbrp.current].dbg.getPixels();
+    byte imageData[] = graphics.getPixels();
 
-	try {
+    try {
+      URL appletUrl = app.getDocumentBase();
+      String document = appletUrl.getFile();
+      document = document.substring(0, document.lastIndexOf("?"));
+      URL url = new URL("http", appletUrl.getHost(), document);
+
+      URLConnection conn = url.openConnection();
+      conn.setDoInput(true);
+      conn.setDoOutput(true);
+      conn.setUseCaches(false);
+      conn.setRequestProperty("Content-Type", 
+			      "application/x-www-form-urlencoded");
+	    
+      DataOutputStream printout = 
+	new DataOutputStream(conn.getOutputStream());
+
+      String saveAs = DbnApplet.get("save_as");
+      String imageStr = 
 #ifdef JDK11
-		FileWriter writer = new FileWriter(file);
-		writer.write(s);
-		writer.flush();
-		writer.close();
+	new String(makePgmData(imageData, 101, 101));
 #else
-		System.err.println("untested code in doLocalWrite");
-
-		FileOutputStream output = new FileOutputStream(file); 
-		// no I18N, just blat out the low byte of each char
-		byte data[] = new byte[s.length()]; 
-		s.getBytes(0, s.length()-1, data, 0); 
-		output.write(data); 
-		output.flush(); 
-		// NOT TESTED
+      new String(makePgmData(imageData, 101, 101), 0);
 #endif
-	    lastDirectory = directory;
-	    lastFile = filename;
-	    dbcp.msg("Done saving file.");
+      String content = 
+	"save_as=" + URLEncoder.encode(saveAs) + 
+	"&save_image=" + URLEncoder.encode(imageStr) +
+	"&save_program=" + URLEncoder.encode(programStr);
 
-	} catch (IOException e) {
-	    e.printStackTrace();
-	    dbcp.msg("Did not write file.");
-	}
-    }
-
-
-    public void doOpen() {
-	FileDialog fd = new FileDialog(new Frame(), 
-				       "Open a DBN program...", 
-				       FileDialog.LOAD);
-	fd.setDirectory(lastDirectory);
-	fd.setFile(lastFile);
-	fd.show();
-	
-	String directory = fd.getDirectory();
-	String filename = fd.getFile();
-	if (filename == null) return null; // user cancelled
-	File file = new File(directory, filename);
-
-	try {
-	    FileInputStream input = new FileInputStream(file);
-	    int length = (int) file.length();
-	    byte data[] = new byte[length];
+      printout.writeBytes(content);
+      printout.flush();
+      printout.close();
 	    
-	    int count = 0;
-	    while (count != length) {
-		data[count++] = (byte) input.read();
-	    }
-	    // set the last dir and file, so that they're
-	    // the defaults when you try to save again
-	    lastDirectory = directory;
-	    lastFile = filename;
-	
-	    // once read all the bytes, convert it to the proper
-	    // local encoding for this system.
-	    ta.setText(app.languageEncode(data));
+      // what did they say back?
+      DataInputStream input = 
+	new DataInputStream(conn.getInputStream());
+      String str = null;
+      while ((str = input.readLine()) != null) {
+	//System.out.println(str);
+      }
+      input.close();	    
+      message("Done saving file.");
 
-	} catch (FileNotFoundException e1) {
-	    e1.printStackTrace();
-	
-	} catch (IOException e2) {
-	    e2.printStackTrace();
-	}
+    } catch (Exception e) {
+      e.printStackTrace();
+      message("Problem: Your work could not be saved.");
     }
+    buttons.clear();
+  }
 
 
-    public void doBeautify() {
-	String prog = ta.getText();
-	if ((prog.charAt(0) == '#') || (prog.charAt(0) == ';')) {
-	    dbcp.msg("Only DBN code can be made beautiful.");
-	    return;
-	}
-	char program[] = prog.toCharArray();
-	StringBuffer buffer = new StringBuffer();
-	boolean gotBlankLine = false;
-	int index = 0;
-	int level = 0;
+  static public byte[] makePgmData(byte inData[], int width, int height) {
+    //String headerStr = "P6 " + width + " " + height + " 255\n"; 
+    String headerStr = "P5 " + width + " " + height + " 255\n";
+#ifdef JDK11
+    byte header[] = headerStr.getBytes();
+#else
+    byte header[] = new byte[headerStr.length()];
+    headerStr.getBytes(0, header.length, header, 0);
+#endif
+    //int count = width * height * 3;
+    int count = width * height;
+    byte outData[] = new byte[header.length + count];
+    System.arraycopy(header, 0, outData, 0, header.length);
+    System.arraycopy(inData, 0, outData, header.length, count);
+    return outData;
+  }
+
+
+  public void doPrint() {
+#ifdef JDK11
+    Frame frame = new Frame(); // bullocks
+    int screenWidth = getToolkit().getScreenSize().width;
+    frame.reshape(screenWidth + 20, 100, screenWidth + 100, 200);
+    frame.show();
+
+    Properties props = new Properties();
+    PrintJob pj = getToolkit().getPrintJob(frame, "DBN", props);
+    if (pj != null) {
+      Graphics g = pj.getGraphics();
+      // jdk 1.1 is a piece of crap, the following 
+      // line works only half the time.
+      //g.drawImage(dbrp.runners[dbrp.current].dbg.image, 100, 100, null);
+      // so instead, brute force
+      graphics.print(g, 100, 100);
+
+      g.dispose();
+      g = null;
+      pj.end();
+    }
+    frame.dispose();
+    buttons.clear();
+#endif
+  }
+
+
+  public void doBeautify() {
+    String prog = textarea.getText();
+    if ((prog.charAt(0) == '#') || (prog.charAt(0) == ';')) {
+      message("Only DBN code can be made beautiful.");
+      buttons.clear();
+      return;
+    }
+    char program[] = prog.toCharArray();
+    StringBuffer buffer = new StringBuffer();
+    boolean gotBlankLine = false;
+    int index = 0;
+    int level = 0;
 	
-	while (index != program.length) {
-	    int begin = index;
-	    while ((program[index] != '\n') &&
-		   (program[index] != '\r')) {
-		index++;
-		if (program.length == index)
-		    break;
-	    }
-	    int end = index;
-	    if (index != program.length) {
-		if ((index+1 != program.length) &&
-		    // treat \r\n from windows as one line
-		    (program[index] == '\r') && 
-		    (program[index+1] == '\n')) {
-		    index += 2;
-		} else {
-		    index++;
-		}		
-	    } // otherwise don't increment
+    while (index != program.length) {
+      int begin = index;
+      while ((program[index] != '\n') &&
+	     (program[index] != '\r')) {
+	index++;
+	if (program.length == index)
+	  break;
+      }
+      int end = index;
+      if (index != program.length) {
+	if ((index+1 != program.length) &&
+	    // treat \r\n from windows as one line
+	    (program[index] == '\r') && 
+	    (program[index+1] == '\n')) {
+	  index += 2;
+	} else {
+	  index++;
+	}		
+      } // otherwise don't increment
 
-	    String line = new String(program, begin, end-begin);
-	    line = line.trim();
+      String line = new String(program, begin, end-begin);
+      line = line.trim();
 	    
-	    if (line.length() == 0) {
-		if (!gotBlankLine) {
-		    // let first blank line through
-		    buffer.append('\n');
-		    gotBlankLine = true;
-		}
-	    } else {
-		if (line.charAt(0) == '}') {
-		    level--;
-		}
-		for (int i = 0; i < level*3; i++) {
-		    buffer.append(' ');
-		}
-		buffer.append(line);
-		buffer.append('\n');
-		if (line.charAt(0) == '{') {
-		    level++;
-		}
-		gotBlankLine = false;
-	    }
+      if (line.length() == 0) {
+	if (!gotBlankLine) {
+	  // let first blank line through
+	  buffer.append('\n');
+	  gotBlankLine = true;
 	}
-	ta.setText(buffer.toString());
-    }
-
-
-    public void reportError(DbnException e) {
-	if (e.line >= 0) {
-            String s = ta.getText();
-            int len = s.length();
-            int lnum = e.line;
-            int st = -1, end = -1;
-            int lc = 0;
-            if (lnum == 0) st = 0;
-            for (int i = 0; i < len; i++) {
-                //if ((s.charAt(i) == '\n') || (s.charAt(i) == '\r')) {
-		boolean newline = false;
-		if (s.charAt(i) == '\r') {
-		    if ((i != len-1) && (s.charAt(i+1) == '\n')) i++;
-		    lc++;
-		    newline = true;
-		} else if (s.charAt(i) == '\n') {
-                    lc++;
-		    newline = true;
-		}
-		if (newline) {
-		    if (lc == lnum)
-			st = i+1;
-		    else if (lc == lnum+1) {
-			end = i;
-			break;
-		    }
-		}
-	    }
-            if (end == -1) end = len;
-	    //System.out.println("st/end: "+st+"/"+end);
-            ta.select(st, end+1);
-            //if (iexplorerp) {
-	    //ta.invalidate();
-	    //ta.repaint();
-	    //}
+      } else {
+	if (line.charAt(0) == '}') {
+	  level--;
 	}
-	dbcp.repaint(); // button should go back to 'play'
-	//System.err.println(e.getMessage());
-	dbcp.msg("Problem: " + e.getMessage());
-	//showStatus(e.getMessage());
+	for (int i = 0; i < level*3; i++) {
+	  buffer.append(' ');
+	}
+	buffer.append(line);
+	buffer.append('\n');
+	if (line.charAt(0) == '{') {
+	  level++;
+	}
+	gotBlankLine = false;
+      }
     }
+    textarea.setText(buffer.toString());
+    buttons.clear();
+  }
 
-    public void reportSuccess() {
-	dbcp.terminated();
-	dbcp.msg("Done.");
-    }
+
+  public void initiate() {
+    //System.out.println("dbngui initiated");
+    runner = new DbnRunner(textarea.getText(), graphics, this);
+    runner.start();
+    //dbrp.setProgram(textarea.getText());
+    //dbrp.initiate();
+    //dbrp.requestFocus();
+    //dbcp.initiated();
+  }
 
 
-    public void idle(long t) {
-	dbrp.idle(t);
-    }
+  public void terminate() {   // part of DbnEnvironment
+    //System.out.println("dbngui terminated");
+    //dbrp.terminate();
+    //dbcp.msg("");
+    runner.stop();
+    runner = null;
+    message("");
+  }
 
-    
-    public boolean getrunningp() {
-	//return dbrp.dbr.runningp();
-	return dbrp.runners[dbrp.current].isRunning();
-    }
-  
-    public void setProgram(String s) {
-	if (getrunningp()) terminate();
-	ta.setText(s);
-    }
 
-    public void initiate() {
-	//System.out.println("dbngui initiated");
-	dbrp.setProgram(ta.getText());
-	dbrp.initiate();
-	dbrp.requestFocus();
-	dbcp.initiated();
+  public void error(DbnException e) {   // part of DbnEnvironment
+    if (e.line >= 0) {
+      String s = textarea.getText();
+      int len = s.length();
+      int lnum = e.line;
+      int st = -1, end = -1;
+      int lc = 0;
+      if (lnum == 0) st = 0;
+      for (int i = 0; i < len; i++) {
+	//if ((s.charAt(i) == '\n') || (s.charAt(i) == '\r')) {
+	boolean newline = false;
+	if (s.charAt(i) == '\r') {
+	  if ((i != len-1) && (s.charAt(i+1) == '\n')) i++;
+	  lc++;
+	  newline = true;
+	} else if (s.charAt(i) == '\n') {
+	  lc++;
+	  newline = true;
+	}
+	if (newline) {
+	  if (lc == lnum)
+	    st = i+1;
+	  else if (lc == lnum+1) {
+	    end = i;
+	    break;
+	  }
+	}
+      }
+      if (end == -1) end = len;
+      //System.out.println("st/end: "+st+"/"+end);
+      textarea.select(st, end+1);
+      //if (iexplorerp) {
+      //textarea.invalidate();
+      //textarea.repaint();
+      //}
     }
-	
-    public void terminate() {
-	//System.out.println("dbngui terminated");
-	dbrp.terminate();
-	dbcp.msg("");
-    }
-	
-    //public void terminated() {
-	// tell when done
+    //dbcp.repaint(); // button should go back to 'play'
+    //System.err.println(e.getMessage());
+    message("Problem: " + e.getMessage());
+    //showStatus(e.getMessage());
+  }
+
+
+  public void finished() {  // part of DbnEnvironment
     //dbcp.terminated();
-    //}
+    //dbcp.msg("Done.");
+    message("Done.");
+  }
+
+
+  public void message(String msg) {  // part of DbnEnvironment
+    status.setText(msg);
+  }
+  
+
+  /*
+  public void idle(long t) {
+    dbrp.idle(t);
+  }
+  */
+
+  /*
+  public boolean getrunningp() {
+    //return dbrp.dbr.runningp();
+    return dbrp.runners[dbrp.current].isRunning();
+  }
+  */
+
+  /*
+  public void setProgram(String s) {
+    if (getrunningp()) terminate();
+    textarea.setText(s);
+  }
+  */
 	
-    public void heartbeat() {
-	// important to verify run
-	dbcp.idle();
-    }	
+  //public void terminated() {
+  // tell when done
+  //dbcp.terminated();
+  //}
 
+  /*	
+  public void heartbeat() {
+    // important to verify run
+    dbcp.idle();
+  }	
+  */
 
-    // uglyish hack for scheme, the fix is even uglier, though
-    static DbnGui currentDbnGui;
-    static public DbnGui getCurrentDbnGui() {
-	return currentDbnGui;
-    }
+  // uglyish hack for scheme, the fix is even uglier, though
+  /*
+  static DbnGui currentDbnGui;
+  static public DbnGui getCurrentDbnGui() {
+    return currentDbnGui;
+  }
+  */
 }
 
 #endif

@@ -9,7 +9,7 @@ rem -- win: jdk 1.1.8, navigator (sort of), and IE
 rm -f classes\*.class
 
 cd ..
-buzz.pl "jikes +D -nowarn -d application\classes" -dJDK11 *.java
+buzz.pl "jikes +D -nowarn -d application\classes" -dJDK11 -dEDITOR *.java
 cd application
 
 cd classes

@@ -703,12 +703,13 @@ public class DbnEngine {
     return deadMan;
   }
     
+#ifdef VIS
   public void setCurrent(DbnToken current) {
     System.out.println("M dbn " + current.serialName + " " +
 		       System.currentTimeMillis());
     System.out.println("Q 200");
   }
-
+#endif
 
 
   private void die(String message, DbnToken where) throws DbnException {

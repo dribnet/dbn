@@ -6,25 +6,25 @@ import java.awt.event.*;
 
 
 public class DbnKeyListener extends KeyAdapter {
-    DbnGui gui;
+  DbnEditor editor;
 
-    public DbnKeyListener(DbnGui gui) {
-	this.gui = gui;
-    }
+  public DbnKeyListener(DbnEditor editor) {
+    this.editor = editor;
+  }
 
-    public void keyPressed(KeyEvent event) {
-	switch ((int) event.getKeyChar()) {
-	case  2: gui.doBeautify(); break;  // control b for beautify
-	case 15: gui.doOpen(); break;  // control o for open
-	case 16: gui.doPrint(); break;  // control p for print
-	case 18: gui.initiate(); break;  // control r for run
-	case 19: gui.doSave(); break;  // control s for save
-	case 20: gui.doSnapshot(); break;  // control t for snapshot
-	    // escape only works from the runpanel, because that's
-	    // who's getting all the key events while running
-	    //case 27: gui.terminate(); break;  // escape to stop	
-	}
+  public void keyPressed(KeyEvent event) {
+    switch ((int) event.getKeyChar()) {
+    case  2: editor.doBeautify(); break;  // control b for beautify
+    case 15: editor.doOpen(); break;  // control o for open
+    case 16: editor.doPrint(); break;  // control p for print
+    case 18: editor.initiate(); break;  // control r for run
+    case 19: editor.doSave(); break;  // control s for save
+    case 20: editor.doSnapshot(); break;  // control t for snapshot
+      // escape only works from the runpanel, because that's
+      // who's getting all the key events while running
+      //case 27: editor.terminate(); break;  // escape to stop	
     }
+  }
 }
 
 
