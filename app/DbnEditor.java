@@ -27,9 +27,9 @@ public class DbnEditor extends Panel implements DbnEnvironment {
   String lastDirectory;
   String lastFile;
 
-#ifdef RECORDER
-  boolean shiftDown;
-#endif
+  //#ifdef RECORDER
+  //boolean shiftDown;
+  //#endif
 
 
   public DbnEditor(DbnApplet app, String program) {
@@ -108,20 +108,27 @@ public class DbnEditor extends Panel implements DbnEnvironment {
 
   public void doPlay() {
     doStop();
+    buttons.play();
 
     runner.setProgram(textarea.getText());
     runner.start();
 
 #ifdef RECORDER
-    if (shiftDown) {
-      DbnRecorder.start(graphics.width, graphics.height);
-    }
+    //if (shiftDown) {
+    //DbnRecorder.start(graphics.width, graphics.height);
+    //}
 #endif
 
     // required so that key events go to the panel and <key> works
     graphics.requestFocus();
   }
 
+#ifdef RECORDER
+  public void doRecord() {
+    doPlay();
+    DbnRecorder.start(this, graphics.width, graphics.height);
+  }
+#endif
 
   public void doStop() {
     terminate();

@@ -91,9 +91,10 @@ public class DbnEditorGraphics extends DbnGraphics {
 	screenImageGraphics.drawImage(image, gx, gy, null);
     }
     // blit to screen
-    if (screen != null) {
-      screen.drawImage(screenImage, 0, 0, null);
-    }
+    //if (screen != null) {
+    //screen.drawImage(screenImage, 0, 0, null);
+    //}
+    screen.drawImage(image, gx, gy, null);
   }
 
 
@@ -110,6 +111,12 @@ public class DbnEditorGraphics extends DbnGraphics {
   public boolean updateMouse(Event e, int x, int y) {
     x -= gx;
     y -= gy;
+
+#ifdef RECORDER
+    if (e.controlDown() && (mouse[2] == 100)) {
+      Experimental.screenGrab(image, pixels, width, height);
+    }
+#endif
 
     if (e.shiftDown() /*&& (mouse[2] == 100)*/) {
       //System.out.println(getLine(x, height1 - y));

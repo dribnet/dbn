@@ -269,9 +269,9 @@ public class DbnEditorButtons extends Panel {
     if (sel == -1) return false;
     currentRollover = -1;
 
-#ifdef RECORDER
-    editor.shiftDown = e.shiftDown(); 
-#endif
+    //#ifdef RECORDER
+    //editor.shiftDown = e.shiftDown(); 
+    //#endif
 
     setState(sel, ACTIVE, true);
     switch (which[sel]) {
@@ -300,6 +300,12 @@ public class DbnEditorButtons extends Panel {
       setState(i, INACTIVE, false);
     }
     update();
+  }
+
+  public void play() {
+    if (inactive == null) return;
+    clear();
+    setState(0, ACTIVE, true);
   }
 
   public void clearPlay() {

@@ -64,23 +64,30 @@ public class DbnEngine {
   }
 
 
-  int lastNight;
+  long lastNight;
 
   void execStatement(DbnToken statement) throws DbnException {
     if (watchCurrent) setCurrent(statement);
 
-    //long t = System.currentTimeMillis();
-    //if (t - lastNight > 1000) {
-    // don't let the ui starve
-#ifndef KVM
+    /*
+    long t = System.currentTimeMillis();
+    if (t - lastNight > 5000) {
+      // don't let the ui starve
+      try {
+	Thread.sleep(5);
+      } catch (InterruptedException e) { }
+      lastNight = t;
+    }
+    */
+    /*
     lastNight++;
-    if ((lastNight % 20) == 0) {
+    if ((lastNight % 100) == 0) {
       try {
 	Thread.sleep(5);
       } catch (InterruptedException e) { }
       lastNight = 0;
     }
-
+    */
 
     DbnToken current = statement.children[0];
     switch (current.kind) {
