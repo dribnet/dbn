@@ -18,9 +18,13 @@ cd ..
 buzz.pl "jikes +D -nowarn -d organic2\classes" -dJDK11 -dPYTHON -dSCHEME -dFANCY *.java scheme\*.java python\*.java
 cd organic2
 
+rm -f lib\dbn.jar
+cd classes
+zip -r0q ..\lib\dbn.jar *.dbn *.class jscheme\*.class 
+cd ..
+
 set CLASSPATH=%CLASSPATH2%
 
-
-
+rem cab.bat
 
 

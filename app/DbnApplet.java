@@ -51,13 +51,14 @@ public class DbnApplet extends Applet
 
 
     public void init() {
-	//Properties p = System.getProperties();
-	//p.list(System.out);
 	String file, prog = null;
 	String progs[] = null;
 	String defaultProgram = "// enter program\n";
 
 	setLayout(new BorderLayout());
+	System.getProperties().list(System.out);
+	//System.out.println("home = " + System.getProperty("user.home"));
+	//System.out.println("prefix = " + System.getProperty("sys.prefix"));
 
 #ifdef JDK11
 	initLanguage();
@@ -84,9 +85,9 @@ public class DbnApplet extends Applet
 		    progs = new String[cnt];
 		    for (i = 0; i < cnt; i++) {
 			String fname = getParameter("program"+i);
-			System.err.println("reading program #" + i);
+			//System.err.println("reading program #" + i);
 			progs[i] = readFile(fname);
-			System.err.println("done reading");
+			//System.err.println("done reading");
 		    }
 		}
 	    } else {

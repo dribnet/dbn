@@ -5,11 +5,6 @@ rem --- creates full downloadable dbn for the organic course
 rem --- there is no applet version for this stuff (yet)
 rem --- this is where most development is being done
 
-rm -f lib\dbn.jar
-cd classes
-zip -r0q ..\lib\dbn.jar *.dbn *.class jscheme\*.class 
-cd ..
-
 rm -f dbn.zip
 zip -rq dbn.zip run.bat bin\*.dll bin\*.exe lib\*.properties lib\*.jar lib\security\java.security lib\*.py lib\pawt\*.py
 

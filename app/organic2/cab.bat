@@ -1,9 +1,15 @@
 @echo off
 
+unzip -q -d classes lib\jpython.jar
+
 cd classes
-rm dbn.cab
+rm -f dbn.cab
 
 cabarc -r -p N dbn.cab *.dbn *.class jscheme\*.class org\python\compiler\*.class org\python\core\*.class org\python\modules\*.class org\python\parser\*.class org\python\rmi\*.class org\python\util\*.class
+
+rem -- remove the crap extracted from jpython.jar
+rm -rf org
+rm -rf com
 
 cd ..
 
