@@ -54,6 +54,8 @@ public class DbnRunner implements Runnable {
 #ifdef SCHEME
 	engine = new SchemeEngine(program);
 	engine.start();
+#else
+	System.err.println("scheme support not compiled!");
 #endif
       } else if (program.charAt(0) == '#') {
 #ifdef PYTHON
@@ -61,6 +63,8 @@ public class DbnRunner implements Runnable {
 	engine = new PythonEngine(program);
 	engine.start();
 	forceStop = false;
+#else
+	System.err.println("python support not compiled!");
 #endif
       } else if (program.indexOf("extends DbnPlayer") != -1) {
 #ifdef JAVAC
@@ -75,7 +79,7 @@ public class DbnRunner implements Runnable {
 	engine = new DbnEngine(parser.getRoot(), graphics);
 	engine.start();
       }
-      System.out.println("finished");
+      //System.out.println("finished");
       state = RUNNER_FINISHED;
       env.finished();
       graphics.update();

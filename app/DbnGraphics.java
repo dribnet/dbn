@@ -984,7 +984,7 @@ public class DbnGraphics extends Panel {
   public boolean keyDown(Event ev, int n) {
     //if (n == 27) app.gui.terminate();  // ooh.. ugly
 
-    System.out.println("got key " + n);
+    //System.out.println("got key " + n);
     int which = letterKey(n);
     if (which == -1) return false;
     keyTime[which] = System.currentTimeMillis();
@@ -1004,6 +1004,7 @@ public class DbnGraphics extends Panel {
 
 
   public boolean mouseDown(Event e, int x, int y) {
+    //System.out.println("mouse down in graphics");
     mouse[2] = 100;
     return updateMouse(e, x, y);
   }
