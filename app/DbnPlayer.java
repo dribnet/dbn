@@ -78,12 +78,14 @@ abstract public class DbnPlayer extends Panel implements Runnable {
 	}
     }
 
+    /*
     public void paint(Graphics g) {
 	if (state == RUNNER_ERROR) {
 	    g.setColor(Color.red);
 	    g.fillRect(0, 0, size().width, size().height);
 	}
     }
+    */
 
     public boolean mouseDown(Event e, int x, int y) {
 	if (state == RUNNER_FINISHED) {
