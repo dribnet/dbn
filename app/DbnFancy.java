@@ -40,7 +40,9 @@ public class DbnFancy extends DbnApplet implements ActionListener {
     }
     int width = Integer.parseInt(app.properties.getProperty("width"));
     int height = Integer.parseInt(app.properties.getProperty("height"));
-    frame.add(app);
+    // ms jdk requires that BorderLayout is set explicitly
+    frame.setLayout(new BorderLayout());
+    frame.add("Center", app);
     app.init();
     Insets insets = frame.getInsets();
     frame.reshape(50, 50, width + insets.left + insets.right, 
@@ -54,15 +56,24 @@ public class DbnFancy extends DbnApplet implements ActionListener {
 
 
   static final String problems[] = {
-    "7A", "7B", "7C", "8A", "8B", "8C"
+    //"7A", "7B", "7C", "8A", "8B", "8C"
+    "2A", "2B", "2C"
   };
   String currentProblem = problems[0];
 
   static final String people[] = {
-    "akilian", "ben", "cameron", "carsonr", "casey",
-    "dana", "darkmoon", "dc", "elise", "golan", "hannes",
-    "james", "jared", "kelly", "ppk", "shyam", "tom"
+    "a_goel", "anne", "awchau", "b_piper", "beck", "bernie", "btking", 
+    "escudero", "girit", "govango", "jarnold", "jaylee", "jeeeee5", 
+    "jeppig", "jic", "jleblanc", "jpatten", "jroth", "jshafer", 
+    "leeh", "lfsulliv", "lintina", "megan", "mlpriebe", "mpalmer", 
+    "mshah", "mstmegs", "mstring", "neptune", "nhsia", "okhan", "potato", 
+    "ross186426", "rstreit", "sini", "sloan2", "tony", "xxiang"
+
+    //"akilian", "ben", "cameron", "carsonr", "casey",
+    //"dana", "darkmoon", "dc", "elise", "golan", "hannes",
+    //"james", "jared", "kelly", "ppk", "shyam", "tom"
   };
+    
   String currentPerson = people[0];
 
   DbnApplet applet;
@@ -102,7 +113,8 @@ public class DbnFancy extends DbnApplet implements ActionListener {
     } else {
       currentPerson = cmd;
     }
-    String course = "\\\\hub\\mas\\acg\\web\\docroot\\projects\\dbncourseware\\cgi-bin\\courseware\\courses\\mas961";
+    String course = "courses\\fcmd";
+    //String course = "\\\\hub\\mas\\acg\\web\\docroot\\projects\\dbncourseware\\cgi-bin\\courseware\\courses\\mas961";
     String title = course + File.separator + 
       currentPerson + File.separator + currentProblem + ".dbn";
     File file = new File(title);
