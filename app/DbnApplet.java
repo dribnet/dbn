@@ -62,14 +62,17 @@ public class DbnApplet extends Applet
       } else {
         program = get("inline_program"); 
       } 
-      if (program != null) { 
-	// don't convert ; to \n if scheme  
-	if (program.charAt(0) != ';') {  
-	  program = program.replace(';', '\n'); 
-	  // not scheme, but don't beautify if it's python 
-	  if (program.charAt(0) != '#') 
-	    beautify = true; 
-	}  
+      if (program != null) {
+	// don't beautify if it's java code
+	if (program.indexOf("extends DbnPlayer") == -1) {
+	  // don't convert ; to \n if scheme  
+	  if (program.charAt(0) != ';') {  
+	    program = program.replace(';', '\n'); 
+	    // not scheme, but don't beautify if it's python 
+	    if (program.charAt(0) != '#') 
+	      beautify = true; 
+	  }  
+	}
       } 
       //add(hostess = new DbnEditor(this, program));
       DbnEditor editor = new DbnEditor(this, program);

@@ -46,6 +46,8 @@ public class DbnRecorder {
   }
   */
 
+  static long then = 0;
+
   static public void addFrame(byte pixels[]) {
     //System.out.println("got frame");
     if (recorder == null) return;
@@ -279,7 +281,7 @@ class DbnRecorderFrame {
   }
 
   static boolean equivalent(DbnRecorderFrame one, DbnRecorderFrame two) {
-    int count = pixels.length;
+    int count = one.pixels.length;
     byte a[] = one.pixels;
     byte b[] = two.pixels;
 

@@ -69,13 +69,12 @@ public class DbnEngine {
   void execStatement(DbnToken statement) throws DbnException {
     if (watchCurrent) setCurrent(statement);
 
-
     //long t = System.currentTimeMillis();
     //if (t - lastNight > 1000) {
     // don't let the ui starve
 #ifndef KVM
     lastNight++;
-    if ((lastNight % 40) == 0) {
+    if ((lastNight % 20) == 0) {
       try {
 	Thread.sleep(5);
       } catch (InterruptedException e) { }

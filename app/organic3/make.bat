@@ -1,17 +1,20 @@
 @echo off
 
-rem -- this is dbn for the organic course exhibition
+rem -- this is ben's experimental dbn
 
 rem -- cleanup the stuff that changes the most
 rm -f classes\*.class 
 
+set ME=organic3
 set CLASSPATH2=%CLASSPATH%
-set CLASSPATH=organic3\lib\jpython.jar;%CLASSPATH%
+set CLASSPATH=%ME%\lib\jpython.jar;%CLASSPATH%
+set OPTIONS=-dJDK11 -dPYTHON -dJAVAC -dPLAYER_CLASS -dFANCY -dEDITOR -dRECORDER
 
 cd ..
-rem buzz.pl "javac -nowarn -d organic3\classes" -dJDK11 -dPYTHON -dSCHEME -dCONVERTER *.java scheme\*.java python\*.java
-buzz.pl "jikes +D -nowarn -d organic3\classes" -dJDK11 -dPYTHON -dSCHEME -dCONVERTER *.java scheme\*.java python\*.java
-cd organic3
+
+buzz.pl "jikes +D -nowarn -d %ME%\classes" %OPTIONS% *.java python\*.java javac\*.java
+
+cd %ME%
 
 rm -f lib\dbn.jar
 cd classes

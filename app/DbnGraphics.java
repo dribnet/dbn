@@ -917,6 +917,7 @@ public class DbnGraphics extends Panel {
   }
 
   public void paint(Graphics screen) {
+    System.out.println("painting");
     if (image == null) {
       //System.out.println("creating new image");
       image = createImage(width, height);

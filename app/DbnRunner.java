@@ -71,12 +71,20 @@ public class DbnRunner implements Runnable {
 	engine.start();
 	forceStop = false;
 #endif
+      } else if (program.indexOf("extends DbnPlayer") != -1) {
+#ifdef JAVAC
+	engine = new JavacEngine(program, graphics);
+	engine.start();
+	//System.out.println("going");
+	//forceStop = true;
+#endif
       } else {
 	DbnParser parser = 
 	  new DbnParser(DbnPreprocessor.process(program));
 	engine = new DbnEngine(parser.getRoot(), graphics);
 	engine.start();
       }
+      System.out.println("finished");
       state = RUNNER_FINISHED;
       env.finished();
       graphics.update();
@@ -93,6 +101,7 @@ public class DbnRunner implements Runnable {
 #endif
       this.stop();
     }	
+    //System.out.println("gone");
     //render();
     //gui.terminated();
   }

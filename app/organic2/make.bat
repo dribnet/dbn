@@ -1,6 +1,6 @@
 @echo off
 
-rem -- this is dbn for the organic course exhibition
+rem -- this is downloadable dbn for courses
 
 rem -- cleanup the stuff that changes the most
 rm -f classes\*.class 

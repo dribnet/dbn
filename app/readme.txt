@@ -107,6 +107,8 @@ CHANGES (technical section that you're welcome to ignore)
 Version 2.X: Changes since 2.0.1
 
 - made fixes so that the new DBN works with the courseware
+- changed threading so that DBN stops hesitating every
+  once in a while while running.
 
 
 Version 2.0.1: Changes since 2.0
