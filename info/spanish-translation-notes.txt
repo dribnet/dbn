@@ -1,0 +1,45 @@
+From creas@media.mit.edu Sat Mar 10 23:44:16 2001
+Date: Mon, 29 Jan 2001 19:06:07 -0500 (EST)
+From: Casey Reas <creas@media.mit.edu>
+To: dbn-feedback@media.mit.edu
+Subject: DBN- other (fwd)
+
+
+
+---------- Forwarded message ----------
+Date: Mon, 29 Jan 2001 15:26:30 -0800
+From: Sandro Alberti <salberti@fen-om.com>
+To: creas@media.mit.edu
+Subject: DBN- other
+
+A few years ago, I had planned to implement DBN in the design courses I
+teach in Mexico.
+
+I never did start, and am finally returning to that purpose. Although I
+am interested in utilizing DBN in the US, I am also interested in
+programs that allow for 'programming' in Spanish (this seldom happens,
+and Mexican students are forced to learn English, just to be able to
+program). Briefly, I have been reviewing your overview of the Spanish
+translation in DBN and need to express a few doubts that might improve
+your product:
+1. The translation of some terms does not seem to be the most
+appropriate (I would translate 'pen' to 'pluma', instead of 'stilo',
+'refresh' to 'refresque', instead of 'refrese', and 'net' to 'red',
+instead of 'internet').
+2. I would forego the use of accents and inverted symbols (question and
+exclamation marks). These are an important formal and traditional part
+of the language, but many people are not knowledgeable about their use
+(I myself have a good grasp of the Spanish language, but resort to using
+the Spanish spell-checker whenever I use MSWord). Many contemporary
+Hispanic authors point to the fact that Spanish should be streamlined,
+via the elimination of these, excessive, symbols (of course, it has been
+pointed out that such streamlining to be pushed to a ridiculous limit,
+with the elimination of the letter 'h' at the beginning of words, the
+substitution of 'c' and 'k' in some cases, and 'll' with 'y', etc., but
+that is another story, for another time-place).
+
+Of course, I have yet to use your program in its original English
+version, and, after that, to use it in Spanish. I will see what I find,
+later.
+
+Sandro Alberti

@@ -1,0 +1,115 @@
+
+since whrandom is not included with jpython by default:
+
+#
+from java.lang import Math
+print Math.random()
+
+
+# B.
+
+
+
+From fry@media.mit.edu Thu Mar 02 13:54:08 2000
+Date: Sat, 13 Nov 1999 16:12:19 -0500 (Eastern Standard Time)
+From: Ben Fry <fry@media.mit.edu>
+To: organic@media.mit.edu
+Subject: more jpython action, less headache
+
+i've posted a new version of dbn at
+http://acg.media.mit.edu/courses/organic/dbn/991113.zip
+
+new features/fixes:
++ actually tells you the line number where your python code dies,
+  rather than just hanging with a blinking 'play' button.
++ whrandom (from python) is included.
++ a fixed 'play' button (it turns into a 'stop' button when running)
++ semiauto-indenting (indents as many spaces as the line before, 
+  can be turned off by changing lib\dbn.properties)
++ tab conversion to spaces (by default, tab == 2 spaces, can be
+  changed in lib\dbn.properties)
+
+other notes:
++ you can add any python module you want to the 'lib' directory, 
+  and it will work just fine. if you do this, send me mail so that
+  i'll make sure it gets included with the standard stuff and that
+  you're project will continue to work in class.
+
+also, g.getConnector('time', n) is a really slow way to get the current
+time, especially if you want rhythm. you might try either of the following
+methods, both of which should provide better performance:
+
+# returns milliseconds as a long integer
+from java.lang import System
+while (1):
+ print System.currentTimeMillis()
+
+# the python way, time.clock() returns
+# seconds (and a fraction thereof)
+# as a floating point number
+import time
+while (1):
+ print time.clock();
+
+have fun,
+
+
+B.
+
+
+
+
+From fry@media.mit.edu Thu Mar 02 13:53:22 2000
+Date: Thu, 4 Nov 1999 00:00:09 -0500 (Eastern Standard Time)
+From: Ben Fry <fry@media.mit.edu>
+To: organic@media.mit.edu
+Subject: it just keeps getting better
+
+dbn welcomes PYTHON, the newest member of the dbn ecology.
+
+python is currently only available from downloadable dbn. hopefully this
+will be straightened out at some point. but fret not, the courseware will
+be rigged so that applets can be tested in class on monday. 
+
+(windows only) download location:
+http://acg.media.mit.edu/courses/organic/dbn/991103.zip
+mac people let me know if you need your own version. 
+
+previous dbn-esque commands are available from an object called 'g', which
+is short for DbnGraphics. see examples below.
+
+in the same way that scheme required a semicolon ; at the beginning of a
+program, python requires a # which is, not suprisingly, its comment
+marker.
+
+
+a few programs follow:
+
+# daringly complex, frighteningly basic
+g.paper(82)
+g.pen(22)
+g.line(30, 40, 20, 90)
+
+
+# loop forever, while reading a connector
+while 1:
+    g.field(10, 10, 90, 90, g.getConnector('mouse', 1))
+
+
+additional features, this is a matching game: 
+can you guess what they do?
+
+g.getConnector('key')
+g.getConnector('net')
+g.setConnector('net', 1, 200)
+
+g.norefresh()
+g.refresh()
+g.antialias(100)
+
+(i'd write more compelling examples but i don't know python yet ;-)
+
+have fun,
+
+B.
+

@@ -1,0 +1,48 @@
+From dsyer@algorithmics.com Wed Nov 17 10:49:57 1999
+Date: Wed, 17 Nov 1999 09:34:22 -0500
+From: dsyer <dsyer@algorithmics.com>
+To: jpython-interest@python.org
+Subject: Re: [JPython] Import problem
+
+    [ The following text is in the "iso-8859-1" character set. ]
+    [ Your display is set for the "US-ASCII" character set.  ]
+    [ Some characters may be displayed incorrectly. ]
+
+
+----- Original Message -----
+From: Corneil du Plessis <Corneil@afa.co.za>
+> My Java application hosts the JPython Interpreter.
+> In my scripts I cannot import user-defined packages no
+matter what I try.
+
+You should be able to append to sys.path using the
+PythonInterpreter.exec() method.
+
+> I have noticed that the jar is not in the list of packages
+in cachedir.
+> Even though the jar is in the class-path and in my
+application-jars
+> MANIFEST:Class-Path
+
+Sounds to me like your application jar is not on the
+CLASSPATH when the app runs, or you are looking in the wrong
+place for the cache.  Inside your app, use the interpreter
+to print java.lang.System.getProperty('java.class.path') and
+see what the result is.
+
+> I can access java classes from the same jar inside my
+application.
+
+How can you be sure they are coming from the jar file in
+question?  If that jar file really isn't in the cache, then
+it's unlikely.  If that jar file isn't even on the
+java.class.path then maybe you're running from a directory
+package without realising it?
+
+Dave.
+
+
+
+_______________________________________________
+JPython-Interest maillist  -  JPython-Interest@python.org
+http://www.python.org/mailman/listinfo/jpython-interest
