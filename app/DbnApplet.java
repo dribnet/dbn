@@ -82,7 +82,7 @@ public class DbnApplet extends Applet
       add("Center", editor);
       environment = editor;
 
-      convert();
+      //convert();
 #endif
 
     } else if (mode.equals("grid")) {

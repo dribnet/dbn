@@ -212,7 +212,7 @@ public class DbnGraphics extends Panel {
   // "Computer Graphics for Java Programmers"
 
   public void intensifyPixel(int x, int y, float dist) {
-    System.out.println(this);
+    //System.out.println(this);
     int oldVal, newVal, val, index;
 	
     //System.err.println("setting " + x + ", " + y);
@@ -917,7 +917,8 @@ public class DbnGraphics extends Panel {
 #ifdef RECORDER
     // maybe this should go inside DbnEditorGraphics, 
     // but i'm not sure
-    DbnRecorder.addFrame(pixels);
+    //DbnRecorder.addFrame(pixels);
+    DbnRecorder.addFrame(image);
 #endif
   }
 

@@ -3,16 +3,18 @@
 rem -- this is ben's experimental dbn
 
 rem -- cleanup the stuff that changes the most
-rm -f classes\*.class 
+rm -f classes/*.class 
 
 set ME=experimental
 set CLASSPATH2=%CLASSPATH%
-set CLASSPATH=%ME%\lib\jpython.jar;%CLASSPATH%
-set OPTIONS=-dJDK11 -dJAVAC -dPLAYER_CLASS -dFANCY -dEDITOR  -dGRAPHICS2 -dPYTHON -dCONVERTER
+set CLASSPATH=%ME%\lib\jpython.jar;%ME%\lib\QTJava.zip;%CLASSPATH%
+set OPTIONS=-dJDK11 -dPLAYER_CLASS -dFANCY -dEDITOR -dPYTHON -dCONVERTER -dRECORDER
+
+rem -dGRAPHICS2 -dJAVAC
 
 cd ..
 
-buzz.pl "jikes +D -nowarn -d %ME%\classes" %OPTIONS% *.java python\*.java javac\*.java
+buzz.pl "jikes +D -nowarn -d %ME%\classes" %OPTIONS% *.java python\*.java javac\*.java %ME%\*.java
 
 cd %ME%
 

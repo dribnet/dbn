@@ -1,5 +1,6 @@
 #ifdef RECORDER
 
+import java.awt.*;
 import java.io.*;
 
 
@@ -18,40 +19,107 @@ import quicktime.app.image.*;
 import quicktime.app.QTFactory;
 
 
-public class DbnRecorder implements Paintable {
+public class DbnRecorder implements Paintable, StdQTConstants, Errors {
   static DbnRecorder recorder;
 
   int width, height;
   long lastTime;
+  Image lastImage;
 
   QTCanvas canvas;
-  QTImageDrawer drawer;
+  QTImageDrawer qid;
   
   Rectangle updateRects[];
   QTFile movieFile;
   Movie movie;
   Track videoTrack;
   VideoMedia videoMedia;
+  RawEncodedImage compressedImage;
+  QDRect rect;
+  QDGraphics gw;
+  QTHandle imageHandle;
+  CSequence sequence;
+  ImageDescription description;
+  //boolean started;
+  static boolean finishing;
 
+  // a finalizer should call canvas.removeClient() 
+  // and then QTSession.close(), frame.dispose() could come after that too
 
   public DbnRecorder(int width, int height) {
+    // CreateMovie.<init>
+    //per("DbnRecorder");
     this.width = width;
     this.height = height;
 
-    lastTime = System.currentTimeMillis();
+    FileDialog fd = new FileDialog(new Frame(), "Save Movie As...", 
+				   FileDialog.SAVE);
+    fd.show();
+    if (fd.getFile() == null) System.exit(0);
 
-    updateRects = new Rectangle[1];
-    updateRects[0] = new Rectangle(0, 0, width, height);
+    System.out.println("creating recorder");
+    try {
+      QTSession.open();
 
-    //QTFile f = new QTFile(fd.getDirectory() + fd.getFile());
-    movieFile = new QTFile("outfile.mov");
-    movie = Movie.createMovieFile(movieFile, kMoviePlayer, 
-				  createMovieFileDeleteCurFile | 
-				  createMovieFileDontCreateResFile);
+      // NumberPainter.<init>, because setClient will call paint()
+      updateRects = new Rectangle[1];
+      updateRects[0] = new Rectangle(width, height);
 
-    videoTrack = movie.addTrack(width, height, 0);  // no volume
-    videoMedia = new VideoMedia(videoTrack, 1000);  // timescale
-    videoMedia.beginEdits();
+      Frame frame = new Frame("DbnRecorder");
+      //frame.show();
+
+      canvas = new QTCanvas(QTCanvas.kInitialSize, 0.5f, 0.5f);
+      frame.add("Center", canvas);
+      //System.out.println("down here1");
+      //System.out.println("width, height = " + width + ", " + height);
+      qid = new QTImageDrawer(this, new Dimension(width, height),
+			      Redrawable.kMultiFrame);
+      qid.setRedrawing(true);
+      canvas.setClient(qid, true);
+      //System.out.println("down here");
+
+      frame.pack();
+      frame.setLocation(100, 550);
+      frame.show();
+
+      //throw new QTIOException (userCanceledErr, "");
+
+      movieFile = new QTFile(fd.getDirectory() + fd.getFile());
+      //movieFile = new QTFile("outfile.mov");
+      movie = Movie.createMovieFile(movieFile, kMoviePlayer, 
+				    createMovieFileDeleteCurFile | 
+				    createMovieFileDontCreateResFile);
+
+      // CreateMovie.addVideoTrack()
+      videoTrack = movie.addTrack(width, height, 0);  // no volume
+      videoMedia = new VideoMedia(videoTrack, 1000);  // timescale
+      videoMedia.beginEdits();
+
+      // CreateMovie.addVideoSample()
+      // add the actual frame to the qt movie
+      rect = new QDRect(width, height);
+      gw = new QDGraphics(rect);
+      int size = QTImage.getMaxCompressionSize(gw, rect, 
+					       gw.getPixMap().getPixelSize(),
+					       codecNormalQuality, 
+					       kAnimationCodecType, 
+					       CodecComponent.anyCodec);
+
+      imageHandle = new QTHandle(size, true);
+      imageHandle.lock();
+      compressedImage = RawEncodedImage.fromQTHandle(imageHandle);
+      sequence = new CSequence(gw, rect, gw.getPixMap().getPixelSize(), 
+			       kAnimationCodecType, 
+			       CodecComponent.bestFidelityCodec,
+			       codecNormalQuality, codecNormalQuality, 
+			       10, null, 0);
+      description = sequence.getDescription();
+
+      lastTime = System.currentTimeMillis();
+      //started = true;
+    } catch (QTException e) {
+      e.printStackTrace();
+    }
   }
 
 
@@ -60,94 +128,95 @@ public class DbnRecorder implements Paintable {
   }
 
 
-  static public void addFrame(byte pixels[]) {
+  static public void addFrame(Image image) {
+    if ((recorder != null) && !finishing) recorder.add(image);
+  }
+
+  public void add(Image image) {
     if (recorder == null) return;
 
     //int now = (int) (System.currentTimeMillis() - recorder.startTime);
-    int currentTime = System.currentTimeMillis();
+    long currentTime = System.currentTimeMillis();
     if (currentTime - lastTime < 1000/30) return; // limit to 30 fps
-
-    // add the actual frame to the qt movie
-    QDRect rect = new QDRect(width, height);
-    QDGraphics gw = new QDGraphics(rect);
-    int size = QTImage.getMaxCompressionSize(gw, rect, 
-					     gw.getPixMap().getPixelSize(),
-					     codecNormalQuality, 
-					     kAnimationCodecType, 
-					     CodecComponent.anyCodec);
-
-    QTHandle imageHandle = new QTHandle (size, true);
-    imageHandle.lock();
-    RawEncodedImage compressedImage = 
-      RawEncodedImage.fromQTHandle(imageHandle);
-    CSequence seq = new CSequence (gw, rect, 	
-				   gw.getPixMap().getPixelSize(),
-				   kAnimationCodecType, 
-				   CodecComponent.bestFidelityCodec,
-				   codecNormalQuality,	
-				   codecNormalQuality, 
-				   numFrames,	//1 key frame
-										null, //cTab,
-				   0);
-    ImageDescription desc = seq.getDescription();
-    
-    //redraw first...
-    np.setCurrentFrame (1);
-    qid.redraw(null);
-    
-    qid.setGWorld (gw);
-    qid.setDisplayBounds (rect);
-    
-    for (int curSample = 1; curSample <= numFrames; curSample++) {
-      np.setCurrentFrame (curSample);
-      qid.redraw(null);
-      CompressedFrameInfo info = seq.compressFrame (gw, 
-						    rect, 
-						    codecFlagUpdatePrevious, 
-						    compressedImage);
-      boolean isKeyFrame = info.getSimilarity() == 0;
-      System.out.println ("f#:" + curSample + ",kf=" + isKeyFrame + ",sim=" + info.getSimilarity());
-      vidMedia.addSample (imageHandle, 
-			  0, // dataOffset,
-			  info.getDataSize(),
-			  60, // frameDuration, 60/600 = 1/10 of a second, desired time per frame	
-			  desc,
-			  1, // one sample
-			  (isKeyFrame ? 0 : mediaSampleNotSync)); // no flags
+    if (lastTime == 0) {
+      lastImage = image;
+      lastTime = currentTime;
+      return;
     }
-    
-    //print out ImageDescription for the last video media data ->
-    //this has a sample count of 1 because we add each "frame" as an individual media sample
-    System.out.println (desc);
-    
-    //redraw after finishing...
-    qid.setGWorld (canv.getPort());
-    np.setCurrentFrame (numFrames);
-    qid.redraw(null);
-    
-    lastTime = currentTime;
+    int frameDuration = (int) (currentTime - lastTime);
+    if (frameDuration == 0) return;
+
+    System.out.println("frameDuration = " + frameDuration);
+
+    try {
+      // not sure if these lines go in 'start' or down here
+      //qid.redraw(null);
+
+      qid.setGWorld(gw);
+      qid.setDisplayBounds(rect);
+      
+      // draw something here using dbn's graphics
+      Image currentImage = image;
+      qid.redraw(null);
+      
+      CompressedFrameInfo info = 
+	sequence.compressFrame(gw, rect, codecFlagUpdatePrevious, 
+			       compressedImage);
+      boolean isKeyFrame = (info.getSimilarity() == 0);
+      // 0 is offset, 1 is the number of samples
+      // frameDuration is in units of timescale above/second
+      videoMedia.addSample(imageHandle, 0, info.getDataSize(), 
+			   frameDuration, description, 1, 
+			   (isKeyFrame ? 0 : mediaSampleNotSync));
+      //System.out.println("keyframe=" + isKeyFrame + 
+      //		 ", similarity=" + info.getSimilarity());
+      
+      //print out ImageDescription for the last video media data ->
+      //this has a sample count of 1 because we add each "frame" 
+      //as an individual media sample
+      //System.out.println(desc);
+      
+      //redraw after finishing...
+      qid.setGWorld(canvas.getPort());
+      //np.setCurrentFrame (numFrames);
+      qid.redraw(null);
+      
+      lastTime = currentTime;
+      lastImage = currentImage;
+
+    } catch (QTException e) {
+      e.printStackTrace();
+    }
   }
 
 
   public void finish() {
+    //if (finishing) return;
+
     try {
+      // the end of CreateMovie.addVideoTrack()
       videoMedia.endEdits();
       // trackstart, mediatime, duration, mediarate
+      System.out.println("duration = " + videoMedia.getDuration());
       videoTrack.insertMedia(0, 0, videoMedia.getDuration(), 1);
 
       OpenMovieFile outStream = OpenMovieFile.asWrite(movieFile); 
       movie.addResource(outStream, movieInDataForkResID, movieFile.getName());
       outStream.close();
+
+      QTSession.close();
     } catch (QTException e) {
-      e.printsStackTrace();
+      e.printStackTrace();
     }
   }
 
   static public void stop() {
-    if (recorder == null) return;
-    System.out.println("stopped recorder");
+    if ((recorder == null) || finishing) return;
+    System.out.println("stopping recorder");
 
+    finishing = true;
     recorder.finish();
+    finishing = false;
     recorder = null;
   }
 
@@ -155,14 +224,20 @@ public class DbnRecorder implements Paintable {
   // paintable methods
 
   public void newSizeNotified(QTImageDrawer drawer, Dimension d) {
+    //System.out.println("notified size");
     if ((d.width != width) || (d.height != height)) {
       System.err.println("notified of size " + 
-			 d.width = ", " + d.height + ", instead of " +
+			 d.width + ", " + d.height + ", instead of " +
 			 width + ", " + height);
     }
   }
 
   public Rectangle[] paint(Graphics g) {
+    //System.out.println("painting");
+    g.setColor(Color.red);
+    g.fillRect(0, 0, 90, 90);
+    //if (lastImage != null)
+    //g.drawImage(lastImage, 0, 0, null);
     return updateRects;
   }
 }
