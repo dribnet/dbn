@@ -12,9 +12,6 @@ TODO make griddify version load more quickly
 
 TODO click and drag scrolls textarea
 
-TODO reduce the amount of flashing that the applet does
-     especially on the mac (reduce number of components involved)
-
 TODO make more static objects where possible, rather than creating 
      new instances each time a piece is run
 
@@ -132,3 +129,6 @@ DONE date < 1970 causes big trouble and exceptions
 DONE fixed bug where field didn't update pixels
 
 DONE fixed bug where recursion didn't happen
+
+DONE reduce the amount of flashing that the applet does
+     especially on the mac (reduce number of components involved)

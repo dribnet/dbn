@@ -9,7 +9,7 @@ rem -- win: jdk 1.1.8, navigator (sort of), and IE
 del classes\*.class
 del classes\dbn.jar
 
-buzz.pl "jikes +D -nowarn -d classes" -dJDK11 *.java
+buzz.pl "jikes +D -nowarn -d applet\classes" -dJDK11 *.java
 cd classes
 zip -0q dbn.jar *.class *.dbn
 cd ..
