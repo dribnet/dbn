@@ -50,6 +50,11 @@ public class DbnRunner implements Runnable {
 	dispx = x; dispy = y;
     }
 	
+    public boolean insidep(int x, int y)
+    {
+	return (dispx<x&&x<(dispx+dispw)&&dispy<y&&y<(dispy+disph));
+    }
+
     public void setProgram(String program)
     {
 	prog = program;

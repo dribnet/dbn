@@ -332,6 +332,9 @@ class DbnRunButton extends Panel {
 
 class DbnRunPanel extends Panel {
     DbnApplet app;
+    Vector dbrv;
+    int dbrvlen=0;
+
     public DbnRunner dbr;
     public int emouse[], ekey[], etime[];
 
@@ -342,7 +345,7 @@ class DbnRunPanel extends Panel {
     Font fb = new Font("Helvetica", Font.BOLD, 10);
     Image pat;
     Color fgcol, bgcol;
-	
+
     public void idle(long curt)
     {
 	Date d = new Date();
@@ -354,16 +357,35 @@ class DbnRunPanel extends Panel {
 	etime[3] = (int) (curt%1000)/10;
     }
 	
-    public DbnRunPanel(DbnApplet app, DbnGui gui, String prog)
+    public void setcurdbr(DbnRunner db)
     {
-	this.app = app;
-	dbr = new DbnRunner(app, gui, this, 0, 0, 101, 101, prog);
-		
-	//System.out.println("db is:-->" +dbr.db);
+	dbr = db;
+
 	Hashtable exthash = dbr.dbg.getexthash();
 	emouse = (int[])exthash.get("mouse");
 	ekey = (int[])exthash.get("key");
 	etime = (int[])exthash.get("time");
+    }
+
+    public DbnRunner newdbr_at(DbnApplet app, DbnGui gui, String prog, 
+			       int x, int y, int w, int h)
+    {
+	DbnRunner db = new DbnRunner(app, gui, this, x,y,w,h, prog);
+	dbrv.addElement(db);
+	return db;
+    }
+
+    public DbnRunPanel(DbnApplet app, DbnGui gui, String []progs)
+    {
+	int i;
+	int x, y, w, h ;
+	this.app = app;
+	dbrv = new Vector();
+	for(i=0;i<progs.length;i++)  { // doesn't look at x and y actually
+	    setcurdbr(newdbr_at(app,gui,progs[i],0,0,101,101));
+	}
+	dbrvlen = progs.length;
+
     }
     
     public boolean keyDown(Event ev, int n)
@@ -436,61 +458,124 @@ class DbnRunPanel extends Panel {
 	
     public boolean mouseDown(Event ev, int x, int y)
     {
+	int i; 
+
+	if (dbrvlen == 1) {
+	} else {
+	    DbnRunner df = null;
+	    for(i=0;i<dbrvlen;i++) {
+		DbnRunner db = (DbnRunner)dbrv.elementAt(i);
+		if (db.insidep(x,y)) {
+		    df = db; break;
+		}
+	    }
+	    if (df!=null) {
+		if (df!=dbr) {
+		    // hit something new
+		    // terminate old
+		    terminate();
+		    setcurdbr(df);
+		    initiate();
+		} else {
+		    // if it is not running, initiate it again
+		    if (!dbr.runningp()) {
+			initiate();
+		    }
+		}
+	    }
+	}
+	
+	updatemouse(x,y);
 	emouse[2] = 100;
 	return true;
     }
 	
     public boolean mouseUp(Event ev, int x, int y)
     {
+	updatemouse(x,y);
 	emouse[2] = 0;
 	return true;
     }
 	
     public boolean mouseEnter(Event ev, int x, int y)
     {
-	if (app.gui.run_mode!=null) 
+
+	updatemouse(x,y);
+	/* if (app.gui.run_mode!=null) 
 	    if (app.gui.run_mode.equals("mouse_inside")) {
 		initiate();
-	    }
+		}*/
 	return true;
     }
 	
     public boolean mouseExit(Event ev, int x, int y)
     {
-	if (app.gui.run_mode!=null) 
+	updatemouse(x,y);
+	/*if (app.gui.run_mode!=null) 
 	    if (app.gui.run_mode.equals("mouse_inside")) {
 		terminate();
-	    }
+		}*/
 	return true;
     }
-	
-    public boolean mouseMove(Event ev, int x, int y)
+
+    public void updatemouse(int x, int y)
     {
-	//System.out.println(x+"/"+y);
 	x-=dbr.dispx;
 	y-=dbr.dispy;
 	y=dbr.disph-y;
 	emouse[0] = x; emouse[1] = y;
-	//dbr.db.arr1[0] = x; dbr.db.arr1[1]=y;
+    }
+
+    public boolean mouseMove(Event ev, int x, int y)
+    {
+	updatemouse(x,y);
 	return true;
     }
  
     public boolean mouseDrag(Event ev, int x, int y)
     {
-	//System.out.println(x+"/"+y);
-	x -= dbr.dispx;
-	y -= dbr.dispy;
-	y = dbr.disph-y;
-	emouse[0] = x; emouse[1] = y;
-	//dbr.db.arr1[0] = x; dbr.db.arr1[1]=y;
+	updatemouse(x,y);
 	return true;
     }
- 
+
+    public void griddify(int cbw, int cbh)
+    {
+	// make compliant
+	int i,x=0,y=0;
+	int j;
+	int nrows, ncols;
+	int dbw = dbr.dispw;
+	int dbh = dbr.disph;
+	int marg = 20;
+	int xmarg, ymarg;
+	int tw;
+
+	ncols = (cbw-marg)/(dbw+marg);
+	xmarg = (cbw-ncols*(dbw+marg)+marg)/2;
+	ymarg = xmarg;
+	
+	if (dbrv.size()==1) {
+	    xmarg = (cbw-dbw)/2;
+	    ymarg = (cbh-dbh)/2;
+	}
+	//	System.err.println("cols is: "+ncols +" in "+cbw+"/"+cbh);
+	for(i=0;i<dbrv.size();i++) {
+	    DbnRunner db = (DbnRunner)dbrv.elementAt(i);
+	    db.setDisplayXY(x+xmarg,y+ymarg);
+	    if ((((i+1)%ncols)==0)) {
+		y+=(db.disph+marg);
+		x = 0;
+	    } else
+		x+=(db.dispw+marg);
+	}
+    }
+
     public void paint(Graphics g)
     {
 	Rectangle r = bounds();
 	int i, j;
-	
+
+
 	if (fgcol == null) {
 	    String colorStr = null;
 	    if ((colorStr = app.getParameter("bg_color")) != null) {
@@ -518,9 +603,11 @@ class DbnRunPanel extends Panel {
 		bgcol = fgcol; 
 	    }
 	}
-		
-	dbr.setDisplayXY((r.width-dbr.dispw)/2,(r.height-dbr.disph)/2);
 
+	// notify dbr of display dimensions
+	griddify(r.width,r.height);
+
+	// build stipple
         if (pat == null) {
             pat = createImage(16,16);
             Graphics pg = pat.getGraphics();
@@ -531,20 +618,19 @@ class DbnRunPanel extends Panel {
                 }
 
         }
-
+	// render it
         for(i=0;i<r.width/16+1;i++)
             for(j=0;j<r.height/16+1;j++)
 		g.drawImage(pat,i*16,j*16,this);
 
-	//		g.setColor(Color.gray);
-	//		g.fillRect(0,0,r.width,r.height);
-
 	// blast to screen
-	dbr.render(g);
-		
-	// surround with frame
-	g.setColor(Color.black);
-	g.drawRect(dbr.dispx-1,dbr.dispy-1,dbr.dispw+1,dbr.disph+1);
+	for(i=0;i<dbrv.size();i++) {
+	    DbnRunner db = (DbnRunner)dbrv.elementAt(i);
+	    db.render(g);
+	    // surround with frame
+	    g.setColor(Color.black);
+	    g.drawRect(db.dispx-1,db.dispy-1,db.dispw+1,db.disph+1);
+	}
 		
 	// put ticks around
 	int yoff = 2;
@@ -675,7 +761,7 @@ public class DbnGui extends Panel {
     Color panelBgColor;
 
   
-    public DbnGui(DbnApplet app, String prog)
+    public DbnGui(DbnApplet app, String []progs)
     {
 	this.app = app;
 	setLayout(new BorderLayout());
@@ -705,16 +791,17 @@ public class DbnGui extends Panel {
 	    }
 	}
 	if (run_mode == null) {
-	    buildeditgui(prog);
+	    buildeditgui(progs);
 	} else if (run_mode.equals("immediate") || 
 		   run_mode.equals("mouse_inside")) {
-	    add("Center", dbrp = new DbnRunPanel(app,this,prog));
-	    ta = new TextArea(prog,80,24); // don't display
+	    
+	    add("Center", dbrp = new DbnRunPanel(app,this,progs));
+	    ta = new TextArea("",80,24); // don't display
 	    dbcp = new DbnControlPanelNull(app,this);
 
 	} else {
 	    run_mode = null;
-	    buildeditgui(prog);
+	    buildeditgui(progs);
 	}
     }
 
@@ -743,7 +830,7 @@ public class DbnGui extends Panel {
 	}
     }
 
-    public void buildeditgui(String prog)
+    public void buildeditgui(String []progs)
     {
 	/*
 	 * +-----------------------+
@@ -765,10 +852,10 @@ public class DbnGui extends Panel {
 
 	Panel p1 = new Panel();
 	p1.setLayout(new GridLayout(1,2));
-	p1.add(dbrp = new DbnRunPanel(app, this, prog));
+	p1.add(dbrp = new DbnRunPanel(app, this, progs));
 	// this was messing up the layout
 	//p1.add(ta = new TextArea(prog,80,24));
-	p1.add(ta = new TextArea(prog, 20, 40));
+	p1.add(ta = new TextArea(progs[0], 20, 40));
 	// has to be capitalized. argh.
 	ta.setFont(new Font("Monospaced", Font.PLAIN, 12));
 	add("Center", p1);

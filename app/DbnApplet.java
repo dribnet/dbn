@@ -85,6 +85,9 @@ public class DbnApplet extends Applet
 
     public void init() {
 	String file, prog = null;
+	String []progs=null;
+	String defprogram = new String("// enter program\n");
+
 	setLayout(new BorderLayout());
 
 	if (I18N) initLanguage();
@@ -93,18 +96,45 @@ public class DbnApplet extends Applet
 	prog = getParameter("inline_program");
 	if (prog == null) {
 	    file = getParameter("program");
-	    if (file != null && file.length() > 0) {
-		prog = readFile(file);
-	    }
-	    if (prog == null || prog.length() == 0) {
-		prog = new String("// type program here\n");
+	    if (file==null) {
+		// check if sequence of files exist
+		// prog0, prog1, etc.
+		int i=0, cnt=0;
+		boolean donep = false;
+		while(!donep) {
+		    String f = "program"+i;
+		    if (getParameter(f)==null) break;
+		    i++;
+		}
+		if (i==0) {
+		    prog=defprogram;
+		} else {
+		    cnt = i;
+		    progs = new String[cnt];
+		    for(i=0;i<cnt;i++) {
+			String fname = getParameter("program"+i);
+			progs[i] = readFile(fname);
+		    }
+		}
+	    } else {
+		// else single file
+		if (file != null && file.length() > 0) {
+		    prog = readFile(file);
+		}
+		if (prog == null || prog.length() == 0) {
+		    prog = defprogram;
+		}
 	    }
 	} else {
 	    prog = prog.replace(';','\n');
 	    wasInline = true;
 	}
-	
-	add("Center", gui = new DbnGui(this, prog));
+	if (progs==null) {
+	    progs = new String[1];
+	    progs[0] = prog;
+	}
+	add("Center", gui = new DbnGui(this, progs));
+
 	if (wasInline) gui.beautify(); // inline progs will look scary
     }
 
