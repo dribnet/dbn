@@ -2,7 +2,156 @@
 
 import java.io.*;
 
+public class DbnRecorder implements Paintable {
+  static DbnRecorder recorder;
 
+  int width, height;
+  long lastTime;
+
+  QTCanvas canvas;
+  QTImageDrawer drawer;
+  
+  Rectangle updateRects[];
+  QTFile movieFile;
+  Movie movie;
+  Track videoTrack;
+  VideoMedia videoMedia;
+
+
+  public DbnRecorder(int width, int height) {
+    this.width = width;
+    this.height = height;
+
+    lastTime = System.currentTimeMillis();
+
+    updateRects = new Rectangle[1];
+    updateRects[0] = new Rectangle(0, 0, width, height);
+
+    //QTFile f = new QTFile(fd.getDirectory() + fd.getFile());
+    movieFile = new QTFile("outfile.mov");
+    movie = Movie.createMovieFile(movieFile, kMoviePlayer, 
+				  createMovieFileDeleteCurFile | 
+				  createMovieFileDontCreateResFile);
+
+    videoTrack = movie.addTrack(width, height, 0);  // no volume
+    videoMedia = new VideoMedia(videoTrack, 1000);  // timescale
+    videoMedia.beginEdits();
+  }
+
+
+  static public void start(int width, int height) {
+    recorder = new DbnRecorder(width, height);
+  }
+
+
+  static public void addFrame(byte pixels[]) {
+    if (recorder == null) return;
+
+    //int now = (int) (System.currentTimeMillis() - recorder.startTime);
+    int currentTime = System.currentTimeMillis();
+    if (currentTime - lastTime < 1000/30) return; // limit to 30 fps
+
+    // add the actual frame to the qt movie
+    QDRect rect = new QDRect(width, height);
+    QDGraphics gw = new QDGraphics(rect);
+    int size = QTImage.getMaxCompressionSize(gw, rect, 
+					     gw.getPixMap().getPixelSize(),
+					     codecNormalQuality, 
+					     kAnimationCodecType, 
+					     CodecComponent.anyCodec);
+
+    QTHandle imageHandle = new QTHandle (size, true);
+    imageHandle.lock();
+    RawEncodedImage compressedImage = 
+      RawEncodedImage.fromQTHandle(imageHandle);
+    CSequence seq = new CSequence (gw, rect, 	
+				   gw.getPixMap().getPixelSize(),
+				   kAnimationCodecType, 
+				   CodecComponent.bestFidelityCodec,
+				   codecNormalQuality,	
+				   codecNormalQuality, 
+				   numFrames,	//1 key frame
+										null, //cTab,
+				   0);
+    ImageDescription desc = seq.getDescription();
+    
+    //redraw first...
+    np.setCurrentFrame (1);
+    qid.redraw(null);
+    
+    qid.setGWorld (gw);
+    qid.setDisplayBounds (rect);
+    
+    for (int curSample = 1; curSample <= numFrames; curSample++) {
+      np.setCurrentFrame (curSample);
+      qid.redraw(null);
+      CompressedFrameInfo info = seq.compressFrame (gw, 
+						    rect, 
+						    codecFlagUpdatePrevious, 
+						    compressedImage);
+      boolean isKeyFrame = info.getSimilarity() == 0;
+      System.out.println ("f#:" + curSample + ",kf=" + isKeyFrame + ",sim=" + info.getSimilarity());
+      vidMedia.addSample (imageHandle, 
+			  0, // dataOffset,
+			  info.getDataSize(),
+			  60, // frameDuration, 60/600 = 1/10 of a second, desired time per frame	
+			  desc,
+			  1, // one sample
+			  (isKeyFrame ? 0 : mediaSampleNotSync)); // no flags
+    }
+    
+    //print out ImageDescription for the last video media data ->
+    //this has a sample count of 1 because we add each "frame" as an individual media sample
+    System.out.println (desc);
+    
+    //redraw after finishing...
+    qid.setGWorld (canv.getPort());
+    np.setCurrentFrame (numFrames);
+    qid.redraw(null);
+    
+    lastTime = currentTime;
+  }
+
+
+  public void finish() {
+    try {
+      videoMedia.endEdits();
+      // trackstart, mediatime, duration, mediarate
+      videoTrack.insertMedia(0, 0, videoMedia.getDuration(), 1);
+
+      OpenMovieFile outStream = OpenMovieFile.asWrite(movieFile); 
+      movie.addResource(outStream, movieInDataForkResID, movieFile.getName());
+      outStream.close();
+    } catch (QTException e) {
+      e.printsStackTrace();
+    }
+  }
+
+  static public void stop() {
+    if (recorder == null) return;
+    System.out.println("stopped recorder");
+
+    recorder.finish();
+    recorder = null;
+  }
+
+
+  // paintable methods
+
+  public void newSizeNotified(QTImageDrawer drawer, Dimension d) {
+    if ((d.width != width) || (d.height != height)) {
+      System.err.println("notified of size " + 
+			 d.width = ", " + d.height + ", instead of " +
+			 width + ", " + height);
+    }
+  }
+
+  public Rectangle[] paint(Graphics g) {
+    return updateRects;
+  }
+}
+
+/*
 public class DbnRecorder {
   static DbnRecorder recorder;
   //static DbnRecorder lastRecorder;
@@ -40,12 +189,6 @@ public class DbnRecorder {
     recorder.startTime = System.currentTimeMillis();
     //System.out.println("starting dbnrecorder");
   }
-
-  /*
-  static public boolean isRecording() {
-    return (recorder != null);
-  }
-  */
 
   static long then = 0;
 
@@ -107,12 +250,6 @@ public class DbnRecorder {
     System.out.println("done stopping.");
   }
 
-  /*
-  static public DbnRecorderFrame getMovie() {
-    return lastRecorder.head;
-  }
-  */
-
   static public void writePgmFiles(DbnRecorder rec) throws IOException {
     FileOutputStream smilfos = new FileOutputStream("sequence.smi");
     PrintStream smil = new PrintStream(smilfos);
@@ -139,12 +276,9 @@ public class DbnRecorder {
       fos.write(DbnEditor.makePgmData(f.pixels, rec.width, rec.height));
       fos.close();
 
-      /*
-	<head> <layout> <region id="blah" width="101" height="101" />
-	</layout> </head>
-
-	dur="5s" region="blah"/>
-       */
+      // <head> <layout> <region id="blah" width="101" height="101" />
+      // </layout> </head>
+      // dur="5s" region="blah"/>
 
       // subframes are 100ths of a frame
       int theSubframe = (f.timestamp / 3) % 100;
@@ -226,12 +360,12 @@ public class DbnRecorder {
       }
       smil.println(" />");
 
-/* 00:" + 
-		   zeroPad(theMinute, 2) + ":" + 
-		   zeroPad(theSecond, 2) + ":" + 
-		   zeroPad(theFrame, 2) + "." +
-		   zeroPad(theSubframe, 2) + "\" />");
-*/
+// 00:" + 
+//		   zeroPad(theMinute, 2) + ":" + 
+//		   zeroPad(theSecond, 2) + ":" + 
+//		   zeroPad(theFrame, 2) + "." +
+//		   zeroPad(theSubframe, 2) + "\" />");
+//
 
       frameIndex++;
       f = f.next;
@@ -293,5 +427,6 @@ class DbnRecorderFrame {
     return true;
   }
 }
+*/
 
 #endif
