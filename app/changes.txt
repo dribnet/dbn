@@ -1,3 +1,12 @@
+Changes and fixes since version 1.01
+
+- Multi-file viewing by John
+
+- Won't show snapshot option if "user" parameter not specified
+
+- pgm file i/o methods
+
+
 Changes and fixes since version 1.0
 
 - Fixed end of line bug. If a program had a comment at

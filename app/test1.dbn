@@ -1,4 +1,4 @@
 repeat a 0 100
 {
-paper a
+  paper a
 }
