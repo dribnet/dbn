@@ -1,0 +1,506 @@
+<html>
+<head>
+<title>Courseware Documentation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body bgcolor="#FFFFFF" link="#003366" text="#333333" vlink="#003366" alink="#CC6600">
+<center>
+<p>&nbsp;</p>
+      
+  <table border="0" width="600" cellspacing="0" cellpadding="0">
+    <tr> 
+      <td width="120" valign="top">&nbsp;</td>
+      <td width="480" valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><b><font color="#000000" size="4"><br>
+        Design By Numbers</font></b></font> </td>
+    </tr>
+  </table>
+  <br>
+  <table border="0" width="600" cellspacing="0" cellpadding="0">
+    <tr> 
+      <td width="120">&nbsp;</td>
+      <td width="480"><font face="Arial, Helvetica, sans-serif" size="1">Design 
+        By Numbers is Copyright 1999, Massachusetts Institute of Technology.<br>
+        DBN is developed by the <a href="http://acg.media.mit.edu">Aesthetics 
+        and Computation Group</a> at the MIT Media Laboratory.</font><font face="Arial, Helvetica, sans-serif" size="-3"><br>
+        </font></td>
+    </tr>
+  </table>
+  <br>
+  <table border="0" width="600" cellspacing="0" cellpadding="0">
+    <tr> 
+      <td width="120" valign="top">&nbsp;</td>
+      <td width="480" valign="top"> <font face="Arial, Helvetica, sans-serif" size="2"><b><font color="#666666" size="3">
+		  <a name="menu">&nbsp;</a><br>
+        Courseware 1.0 Documentation : : 021199</font></b><br>
+        <a href="#summary"><br>
+        Summary</a><br>
+        <br>
+        <a href="#configure">Configure / Making it work</a><br>
+        <br>
+        <a href="#creation">Creating a course</a><br>
+        <br>
+        <a href="#contact">Contact information</a><br>
+        <br>
+        <br>
+        <a href="#appendixA">Appendix A -- Directory Structures</a> <br>
+        <br>
+        <a href="#appendixB">Appendix B -- The CGI Scripts</a><br>
+        <br>
+        <a href="#appendixC">Appendix C -- Course Data</a></font> <br>
+      </td>
+    </tr>
+  </table>
+  <br>
+  <br>
+  <table border="0" width="600" cellspacing="0" cellpadding="0">
+    <tr> 
+      <td width="120" valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><br>
+        [ <a href="#menu">Menu</a> ]</font></td>
+      <td width="480" valign="top"> <font face="Arial, Helvetica, sans-serif" size="2"><b><font color="#666666" size="3">
+        <a name="summary">&nbsp;</a><br>
+        Summary</font></b><br>
+        <br>
+        The Design By Numbers Courseware is an experimental work-in-progress. 
+        A web-based environment built to facilitate the use of Design By Numbers 
+        as an educational tool. It provides educators with an interface for inputting/editing 
+        problem statements and students with the ability to work in Design By 
+        Numbers and save their work directly to the server. Most importantly it 
+        presents a unique viewing environment where students can see each other's 
+        work in progress and critique their work within the context with the entire 
+        class. To date, the Courseware has been used in both formal classroom 
+        settings and informal seminars. <br>
+        <br>
+        The Courseware is a group of CGI scripts written in Perl. Individuals/institutions 
+        planning on using the Courseware should have access to both Perl and a 
+        web-server (either WebTen for Mac, or Apache for PC and UNIX). <br>
+        <br>
+        It is highly recommended that the Design By Numbers Courseware is used 
+        with 4.0+ browsers. <br>
+        <br>
+        Additional information about Design By Numbers can be found at "http://dbn.media.mit.edu".</font><font face="Arial, Helvetica, sans-serif" size="3"> 
+        <br>
+        </font></td>
+    </tr>
+  </table>
+  <br>
+  <br>
+  <table border="0" width="600" cellspacing="0" cellpadding="0">
+    <tr> 
+      <td width="120" valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><br>
+        [ <a href="#menu">Menu</a> ]</font></td>
+      <td width="480" valign="top"> <font face="Arial, Helvetica, sans-serif" size="2"><b><font color="#666666" size="3"> 
+        <a name="configure">&nbsp;</a><br>
+        Configure / Making it work</font></b><br>
+        <br>
+        Setting up the Courseware requires some knowledge about web servers and 
+        CGI scripts. The Courseware has been tested with the following configurations: 
+        Mac OS8/WebTen Server, Windows98/Apache/Perl, Digital Unix/Apache/Perl. 
+        Before configuring the Courseware, make sure your server and Perl are 
+        both working. <br>
+        <br>
+        The Courseware is comprised of three primary directories (dbn, courses, 
+        and images) and a set of CGI scripts. The Courseware download includes 
+        all of the CGI scripts in a directory called 'cgi-bin'. The 'dbn' directory 
+        includes the java classes and text files required to run Design By Numbers. 
+        The 'courses' directory includes only a sample problem set as a text file, 
+        but will include all of the course data (see Appendix C) as more courses 
+        are added. The 'images' directory includes the four images that the courseware 
+        uses. <br>
+        <br>
+        <br>
+        There are six basic tasks involved in setting up the Courseware. <br>
+        <br>
+        1. Uncompress the file you downloaded (either 'dbncourseware.zip' for 
+        unix/windows or 'dbncourseware.sea.bin' for macintosh.)<br>
+        <br>
+        2. Copy the directories and their contents onto your webserver. The major 
+        decisions that need to be made are the locations of the CGI scripts and 
+        the other primary directories. I think a good organization is to place 
+        the 'dbn', 'courses', 'images', and 'cgi-bin' directories into a directory 
+        called 'dbncourseware', which is in the root level of the server. (Consult 
+        Appendix A for more information) <br>
+        <br>
+        3. Input directory structure and URL information into 'globals.pl'. Edit 
+        'globals.pl' in a text editor and update the path and URL information 
+        at the top of the file. This will set up the relationship between the 
+        CGI scripts, the Design By Numbers applet, and the course data. <br>
+        <br>
+        4. Update the CGI scripts so that they can find Perl. To do this change 
+        the first line of all the '.cgi' files to reflect Perl's location on the 
+        server. For example: #!/usr/bin/perl is a likely target on Unix and #!/perl/bin/perl 
+        would point to c:\perl\bin\perl.exe on windows. <br>
+        <br>
+        5. If your web server is running on a Unix variant, make sure that the 
+        permissions for your directories all allow appropriate access. Specifically, 
+        make sure the '.cgi' scripts are executable by everyone (chmod 755) and 
+        the 'courses' directory is writable by everyone (chmod 777). <br>
+        <br>
+        6. Alter the 'index.html' file to redirect to the location of 'login.cgi' 
+        on your server. Put this file in any directory in which you wish to obscure 
+        its contents. <br>
+        <br>
+        <br>
+        To test and see if everything is working, try opening 'create.cgi' in 
+        your web browser.</font><font face="Arial, Helvetica, sans-serif" size="3"><br>
+        </font></td>
+    </tr>
+  </table>
+  <br>
+  <br>
+  <table border="0" width="600" cellspacing="0" cellpadding="0">
+    <tr> 
+      <td width="120" valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><br>
+        [ <a href="#menu">Menu</a> ]</font></td>
+      <td width="480" valign="top"> <font face="Arial, Helvetica, sans-serif" size="2"><b><font color="#666666" size="3"> 
+        <a name="creation">&nbsp;</a><br>
+        Creating a course</font></b><br>
+        <br>
+        To create a course, open the 'create.cgi' file in your web browser and 
+        follow the instructions. If you receive an error message during the creation 
+        of the course, your CGI scripts are either not configured correctly or 
+        not compatible with your hardware/software configuration.</font><font face="Arial, Helvetica, sans-serif" size="3"><br>
+        </font></td>
+    </tr>
+  </table>
+  <br>
+  <br>
+  <table border="0" width="600" cellspacing="0" cellpadding="0">
+    <tr> 
+      <td width="120" valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><br>
+        [ <a href="#menu">Menu</a> ]</font></td>
+      <td width="480" valign="top"> <font face="Arial, Helvetica, sans-serif" size="2"><b><font color="#666666" size="3"> 
+        <a name="contact">&nbsp;</a><br>
+        Contact Information</font></b><br>
+        <br>
+        If you have questions or comments, please send email to: <br>
+        dbn-courseware@media.mit.edu</font><font face="Arial, Helvetica, sans-serif" size="3"><br>
+        </font></td>
+    </tr>
+  </table>
+  <br>
+  <br>
+  <br>
+  <br>
+  <table border="0" width="600" cellspacing="0" cellpadding="0">
+    <tr> 
+      <td width="120" valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><br>
+        [ <a href="#menu">Menu</a> ]</font></td>
+      <td width="480" valign="top"> <font face="Arial, Helvetica, sans-serif" size="2"><b><font color="#666666" size="3"> 
+        <a name="appendixA">&nbsp;</a><br>
+        Appendix A -- Directory Structure</font></b><br>
+        <br>
+        <b>Windows/Unix Server</b><br>
+        Below is a recommended directory structure for the UNIX and Windows platform. 
+        A good variation would be to place the 'cgi-bin' and 'dbncourseware' directory 
+        at separate locations on the server. For this to work, the cgi-bin directory 
+        MUST know its relation to 'dbncourseware' directory (this relation defined 
+        in the 'globals.pl' file). <br>
+        <br>
+        <font face="Courier New, Courier, mono" size="3"> 
+        <pre>
+dbncourseware
+  |
+  | -- cgi-bin
+  |
+  | -- dbn
+  |
+  | -- images
+  |
+  | -- courses
+       |
+       | -- course X
+       |    |
+       |    | -- student A
+       |    |
+       |    | -- student B
+       |    |
+       |    | -- student n
+       | 
+       | -- course Y 
+       |    |
+       |    | -- student A 
+       |    |
+       |    | -- student B
+       |    |
+       |    | -- student n
+       | 
+       | -- course n
+        </pre>
+        </font><font face="Arial, Helvetica, sans-serif" size="2"><b>Macintosh 
+        Server</b><br>
+        Below is a recommended directory structure for Macintosh/WebTen. It unfortunately 
+        requires a directory structure where all course data must be included 
+        in the 'cgi-bin' directory.<br></font>
+
+<font face="Courier New, Courier, mono" size="3">
+        <pre>
+dbncourseware
+  |
+  | -- dbn
+  |
+  | -- images
+  |
+  | -- cgi-bin
+       |
+       | -- courseware
+            |
+            | -- courses
+                 |
+                 | -- course X
+                 |    |
+                 |    | -- student A
+                 |    |
+                 |    | -- student B
+                 |    |
+                 |    | -- student n
+                 | 
+                 | -- course Y 
+                 |    |
+                 |    | -- student A 
+                 |    |
+                 |    | -- student B 
+                 |    |
+                 |    | -- student n
+                 |
+                 | -- course n
+</pre>
+        </font></font></td>
+    </tr>
+  </table>
+  <br>
+  <br>
+  <table border="0" width="600" cellspacing="0" cellpadding="0">
+    <tr> 
+      <td width="120" valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><br>
+        [ <a href="#menu">Menu</a> ]</font></td>
+      <td width="480" valign="top"> <font face="Arial, Helvetica, sans-serif" size="2"><b><font color="#666666" size="3"> 
+        <a name="appendixB">&nbsp;</a><br>
+        Appendix B -- The CGI Scripts</font></b><br>
+        <br>
+        The Design by Numbers Courseware is comprised of twelve CGI scripts and 
+        a Perl file that contains functions and data common to all of the scripts.<br>
+        <br>
+        </font>
+        <table border="0" width="460" cellpadding="4" cellspacing="0">
+          <tr bgcolor="#CCCCCC"> 
+            <td width="160" valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><b>create.cgi</b></font></td>
+            <td width="10" valign="top" bgcolor="#E2E2E2">&nbsp;</td>
+            <td width="290" bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif" size="2">accepts 
+              info required to create the course, writes data files and directories</font></td>
+          </tr>
+          <tr> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><b>problems.cgi</b></font></td>
+            <td valign="top">&nbsp;</td>
+            <td><font face="Arial, Helvetica, sans-serif" size="2">deletion and 
+              creation of problem sets </font></td>
+          </tr>
+          <tr bgcolor="#CCCCCC"> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><b>editproblems.cgi</b></font></td>
+            <td valign="top" bgcolor="#E2E2E2">&nbsp;</td>
+            <td bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif" size="2">facilitates 
+              creation/editing of problem sets, sends updates to 'updateprob.cgi' 
+              </font></td>
+          </tr>
+          <tr> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><b>people.cgi</b></font></td>
+            <td valign="top">&nbsp;</td>
+            <td><font face="Arial, Helvetica, sans-serif" size="2">edit/delete 
+              students </font></td>
+          </tr>
+          <tr bgcolor="#CCCCCC"> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><b>home.cgi</b></font></td>
+            <td valign="top" bgcolor="#E2E2E2">&nbsp;</td>
+            <td bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif" size="2">different 
+              for each category of user. guests can chose what problems they want 
+              to see. students can choose to view problems or work. the admin 
+              can select the edit features. </font></td>
+          </tr>
+          <tr> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><b>showproblems.cgi</b> 
+              </font></td>
+            <td valign="top">&nbsp;</td>
+            <td><font face="Arial, Helvetica, sans-serif" size="2">displays the 
+              problem statements </font></td>
+          </tr>
+          <tr bgcolor="#CCCCCC"> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><b>view.cgi</b></font></td>
+            <td valign="top" bgcolor="#E2E2E2">&nbsp;</td>
+            <td bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif" size="2">displays 
+              solutions to problem sets</font></td>
+          </tr>
+          <tr> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><b>login.cgi</b></font></td>
+            <td valign="top">&nbsp;</td>
+            <td><font face="Arial, Helvetica, sans-serif" size="2">user inputs 
+              name and password, links to 'home.cgi' if information is valid</font></td>
+          </tr>
+          <tr bgcolor="#CCCCCC"> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><b>selectproblem.cgi</b></font></td>
+            <td valign="top" bgcolor="#E2E2E2">&nbsp;</td>
+            <td bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif" size="2">student 
+              selects the problem they want to work on </font></td>
+          </tr>
+          <tr> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><b>work.cgi</b> 
+              </font></td>
+            <td valign="top">&nbsp;</td>
+            <td><font face="Arial, Helvetica, sans-serif" size="2">displays the 
+              DBN programming environment, user can save work to server</font></td>
+          </tr>
+          <tr bgcolor="#CCCCCC"> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><b>globals.pl</b></font></td>
+            <td valign="top" bgcolor="#E2E2E2">&nbsp;</td>
+            <td bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif" size="2">contains 
+              global data, global functions </font></td>
+          </tr>
+          <tr> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><b>fetch.cgi</b></font></td>
+            <td valign="top">&nbsp;</td>
+            <td><font face="Arial, Helvetica, sans-serif" size="2">retrieves file 
+              information </font></td>
+          </tr>
+          <tr bgcolor="#CCCCCC"> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><b>updateprob.cgi</b></font></td>
+            <td valign="top" bgcolor="#E2E2E2">&nbsp;</td>
+            <td bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif" size="2">saves 
+              changes to problems in 'problems.txt' </font></td>
+          </tr>
+        </table>
+        <font face="Arial, Helvetica, sans-serif" size="2"><br>
+        <br>
+        There are three different categories of users for the Courseware: the 
+        course administrator, the students, and guests. Below is a table decribing 
+        each class of users' permissions. <br>
+        <br>
+        </font>
+        <table border="0" width="300" cellspacing="0" cellpadding="4">
+          <tr bgcolor="#CCCCCC"> 
+            <td width="70" valign="top"><font face="Arial, Helvetica, sans-serif" size="2"> 
+              <b>A</b></font></td>
+            <td width="10" bgcolor="#E2E2E2">&nbsp;</td>
+            <td width="240" bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif" size="2">create.cgi 
+              </font></td>
+          </tr>
+          <tr> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2"> 
+              <b>A</b></font></td>
+            <td>&nbsp;</td>
+            <td><font face="Arial, Helvetica, sans-serif" size="2">problems.cgi 
+              </font></td>
+          </tr>
+          <tr bgcolor="#CCCCCC"> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><b>A</b></font></td>
+            <td bgcolor="#E2E2E2">&nbsp;</td>
+            <td bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif" size="2">editproblems.cgi 
+              </font></td>
+          </tr>
+          <tr> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><b>A</b></font></td>
+            <td>&nbsp;</td>
+            <td><font face="Arial, Helvetica, sans-serif" size="2">people.cgi 
+              </font></td>
+          </tr>
+          <tr bgcolor="#CCCCCC"> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><b>A</b></font></td>
+            <td bgcolor="#E2E2E2">&nbsp;</td>
+            <td bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif" size="2">updateprob.cgi 
+              </font></td>
+          </tr>
+          <tr> 
+            <td valign="top"> 
+              <p><font face="Arial, Helvetica, sans-serif" size="2"><b>A, S, G</b></font></p>
+              </td>
+            <td>&nbsp;</td>
+            <td><font face="Arial, Helvetica, sans-serif" size="2">home.cgi </font></td>
+          </tr>
+          <tr bgcolor="#CCCCCC"> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><b>A, 
+              S, G</b></font></td>
+            <td bgcolor="#E2E2E2">&nbsp;</td>
+            <td bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif" size="2">showproblems.cgi 
+              </font></td>
+          </tr>
+          <tr> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><b>A, 
+              S, G</b></font></td>
+            <td>&nbsp;</td>
+            <td><font face="Arial, Helvetica, sans-serif" size="2">view.cgi </font></td>
+          </tr>
+          <tr bgcolor="#CCCCCC"> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><b>A, 
+              S, G</b></font></td>
+            <td bgcolor="#E2E2E2">&nbsp;</td>
+            <td bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif" size="2">fetch.cgi 
+              </font></td>
+          </tr>
+          <tr> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2" color="#FFFFFF">A, 
+              </font><font face="Arial, Helvetica, sans-serif" size="2"><b>S</b></font></td>
+            <td>&nbsp;</td>
+            <td><font face="Arial, Helvetica, sans-serif" size="2">login.cgi </font></td>
+          </tr>
+          <tr bgcolor="#CCCCCC"> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2" color="#CCCCCC">A, 
+              </font><font face="Arial, Helvetica, sans-serif" size="2"><b>S</b></font></td>
+            <td bgcolor="#E2E2E2">&nbsp;</td>
+            <td bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif" size="2">selectproblem.cgi 
+              </font></td>
+          </tr>
+          <tr> 
+            <td valign="top"><font face="Arial, Helvetica, sans-serif" size="2" color="#FFFFFF">A, 
+              </font><font face="Arial, Helvetica, sans-serif" size="2"><b>S</b></font></td>
+            <td>&nbsp;</td>
+            <td><font face="Arial, Helvetica, sans-serif" size="2">work.cgi </font></td>
+          </tr>
+        </table>
+        <font face="Arial, Helvetica, sans-serif" size="2"><br>
+        </font><font face="Arial, Helvetica, sans-serif" size="2"><b>A</b> = pages 
+        accessible to or used by the '<b>A</b>'dministrator <br>
+        <b>S</b> = pages accessible to or used by '<b>S</b>'tudents <br>
+        <b>G</b> = pages accessible to or used by '<b>G</b>'uests </font></td>
+    </tr>
+  </table>
+  <br>
+  <br>
+  <table border="0" width="600" cellspacing="0" cellpadding="0">
+    <tr> 
+      <td width="120" valign="top"><font face="Arial, Helvetica, sans-serif" size="2"><br>
+        [ <a href="#menu">Menu</a> ]</font></td>
+      <td width="480" valign="top"> <font face="Arial, Helvetica, sans-serif" size="2"><b><font color="#666666" size="3"> 
+        <a name="appendixC">&nbsp;</a><br>
+        Appendix C -- Course Data</font></b><br>
+        <br>
+        The data for each course you create is stored in that course's directory. 
+        Each course has three data files: <br>
+        <b>admin.txt</b> -- contains the course title, user names, and passwords 
+        <br>
+        <b>people.txt</b> -- a list of the people in the course <br>
+        <b>problems.txt</b> -- an annotated list describing all of the assignments<br>
+        <br>
+        In addition, each student has their own directory into which their work 
+        is stored. When a student saves their work, it is stored as a text file 
+        with a '.dbn' extension and as a '.pgm' image.<br>
+        </font></td>
+    </tr>
+  </table>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <table border="0" width="600" cellspacing="0" cellpadding="0">
+    <tr> 
+      <td width="120">&nbsp;</td>
+      <td width="480"><font face="Arial, Helvetica, sans-serif" size="1">Design 
+        By Numbers is Copyright 1999, Massachusetts Institute of Technology.<br>
+        DBN is developed by the <a href="http://acg.media.mit.edu">Aesthetics 
+        and Computation Group</a> at the MIT Media Laboratory.</font><font face="Arial, Helvetica, sans-serif" size="-3"><br>
+        </font></td>
+    </tr>
+  </table>
+</center>
+
+</body>
+</html>
+

@@ -70,15 +70,17 @@ print<<END_of_middle1;
 	 <param name="save_as" value="$save_as">	 
 END_of_middle1
 
-	  $program = "courses/$course/$user/$set$num.dbn";
+    $program = "courses/$course/$user/$set$num.dbn";
+    srand(time()^($$ + ($$ << 15)));
+    $randomizer = rand 65535;
           #my $inline_program = fetch_program($program);
 	  #print("<param name=\"inline_program\" value=\"$inline_program\">");
           if ($platform eq "mac") {
-	      print("<param name=\"program\" value=\"$cgiurl/fetch.cgi?file=$program\">\n");
+	      print("<param name=\"program\" value=\"$cgiurl/fetch.cgi?nothing=$randomizer&file=$program\">\n");
 	  } else {
 	     if (-f "$path/$program") { 
 		 #print("<param name=\"program\" value=\"$path/$program\">\n");
-		 print("<param name=\"program\" value=\"$url/$program\">\n");
+		 print("<param name=\"program\" value=\"$url/$program?$randomizer\">\n");
 	     } else {
 		 print("<param name=\"program\" value=\"\">\n");
 	     }  

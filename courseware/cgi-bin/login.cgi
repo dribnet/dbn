@@ -132,7 +132,7 @@ print<<END_of_nocourse;
       </td>
       <td width="605" height="100" valign="top" align="left">
 	  <font size="2" face="arial,helvetica,san-serif" color="#666666">
-	  <font color="CC9900"><b>An error occurred.</b></font>
+	  <!--<font color="CC9900"><b>An error occurred.</b></font>-->
 	  <br>
 	  <br>Please select the name of the course you are trying to access and press 'continue'.<br>
 	  <form method=post>
