@@ -24,7 +24,7 @@ public class DbnGui extends Panel {
     DbnIO io;  // object to take care of input/output
 
 
-    public DbnGui(DbnApplet app, String progs[]) {
+    public DbnGui(DbnApplet app, String progs[], String proglids[], String progrems[]) {
 	this.app = app;
 	setLayout(new BorderLayout());
 
@@ -46,7 +46,8 @@ public class DbnGui extends Panel {
 	Color tickColor = null;
 
 	if (runMode.equals("immediate") || runMode.equals("mouse_inside")) {
-	    dbrp = new DbnRunPanel(app, this, progs, titling, titlingColor, 
+	    dbrp = new DbnRunPanel(app, this, progs, proglids, 
+				   progrems, titling, titlingColor, 
 				   tickColor, bgColor, bgStippleColor);
 	    add("Center", dbrp);
 	    ta = new TextArea("", 20, 40); // doesn't display
@@ -63,7 +64,8 @@ public class DbnGui extends Panel {
 	    //p1.setLayout(new FlowLayout());
 	    //p1.setLayout(new GridLayout(1,2));
 	    p1.add("West", dbrp = 
-		   new DbnRunPanel(app, this, progs, titling, titlingColor, 
+		   new DbnRunPanel(app, this, progs, proglids, 
+				   progrems, titling, titlingColor, 
 				   tickColor, bgColor, bgStippleColor));
 	    p1.add("Center", ta = new TextArea(progs[0], 20, 48));
 	    

@@ -55,6 +55,8 @@ public class DbnApplet extends Applet
 
 	String file, prog = null;
 	String progs[] = null;
+	String proglids[] = null; // titles for program -jm
+	String progrems[] = null; // program remarks -jm
 	String defaultProgram = "// enter program\n";
 
 	setLayout(new BorderLayout());
@@ -85,10 +87,14 @@ public class DbnApplet extends Applet
 		} else {
 		    cnt = i;
 		    progs = new String[cnt];
+		    proglids = new String[cnt];
+		    progrems = new String[cnt];
 		    for (i = 0; i < cnt; i++) {
 			String fname = getParameter("program"+i);
 			//System.err.println("reading program #" + i);
 			progs[i] = readFile(fname);
+			proglids[i] = getParameter("programL"+i);
+			progrems[i] = getParameter("programR"+i);
 			//System.err.println("done reading");
 		    }
 		}
@@ -111,9 +117,12 @@ public class DbnApplet extends Applet
 	}
 	if (progs == null) {
 	    progs = new String[1];
+	    proglids = new String[1];
+	    progrems = new String[1];
 	    progs[0] = prog;
+	    proglids[0] = progrems[0] = "";
 	}
-	add("Center", gui = new DbnGui(this, progs));
+	add("Center", gui = new DbnGui(this, progs, proglids, progrems));
 	// otherwise inline progs will look scary
 	if (shouldBeautify) gui.doBeautify();
     }

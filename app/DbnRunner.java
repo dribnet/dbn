@@ -10,6 +10,8 @@ public class DbnRunner implements Runnable {
     Graphics cachedg;
 
     String program;
+    String proglid;
+    String progrem;
 
     DbnPreprocessor preprocessor;
     DbnEngine engine;
@@ -23,10 +25,11 @@ public class DbnRunner implements Runnable {
 	    
     Thread thread;
     boolean forceStop;
-
+    
 
     public DbnRunner(DbnApplet app, DbnGui gui, DbnRunPanel dbrp, 
-		     int width, int height, String program) {
+		     int width, int height, String program, 
+		     String _proglid, String _progrem) {
 	super();
 	this.app = app;
 	this.gui = gui;
@@ -48,10 +51,16 @@ public class DbnRunner implements Runnable {
 			      app.getHost(), displayMode);
 	//render();
 	setProgram(program);
+	proglid = (_proglid==null)?"unnamed":_proglid;
+	progrem = (_progrem==null)?"unremed":_progrem;
 
 	preprocessor = new DbnPreprocessor(gui, app);
     }
 
+    public boolean emptyp()
+    {
+	return (program == null) || program.equals("") || program.equals("\n");
+    }
     /*
     public void setDisplayXY(int x, int y) {
 	this.x = x;

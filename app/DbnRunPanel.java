@@ -35,6 +35,7 @@ public class DbnRunPanel extends Panel {
 
 
     public DbnRunPanel(DbnApplet app, DbnGui gui, String progs[],
+		       String proglids[], String progrems[],
 		       String titling, Color titlingColor, Color tickColor,
 		       Color bgColor, Color bgStippleColor) {
 	this.app = app;
@@ -55,7 +56,7 @@ public class DbnRunPanel extends Panel {
 	for (int i = 0; i < runnerCount; i++) {
 	    runners[i] = new DbnRunner(app, gui, this, 
 				       runnerWidth, runnerHeight, 
-				       progs[i]);
+				       progs[i], proglids[i], progrems[i]);
 	}
 	runnerX = new int[runnerCount];
 	runnerY = new int[runnerCount];
@@ -67,6 +68,37 @@ public class DbnRunPanel extends Panel {
 	runners[current].setProgram(s);
     }
 
+    // reaches inside program for 'lid' (cover) and reminfo (remarks)
+    public void autodrawallrunners()
+    {
+	Graphics g = this.getGraphics();
+	boolean gimmetheworks = true; // always for now
+
+	g.setColor(Color.black);
+	for (int i = 0; i < runnerCount; i++) {
+	    if (!runners[i].emptyp()) // only prep screen for areas with drawing
+		g.drawRect(runnerX[i]-1, runnerY[i]-1,
+			   runnerWidth+1, runnerHeight+1);
+	}		
+
+	if (gimmetheworks) {
+	    // do the lids and comments
+	    for (int i = 0; i < runnerCount; i++) {
+		if (!runners[i].emptyp()) { // only prep screen for areas with drawing
+		    
+		    g.setColor(Color.gray);
+		    g.fillRect(runnerX[i], runnerY[i],
+			       runnerWidth-1, runnerHeight-1);
+		    g.setColor(Color.black);
+		    // should do AI layout where it determines 
+		    // whether to draw REMARK above, below, to the left, or to the right
+		    // for just the current fellow
+		    g.drawString(runners[i].proglid+"/"+runners[i].progrem,
+				 runnerX[i]+runnerWidth/2, runnerY[i]+runnerHeight/2);
+		}
+	    }		
+	}
+    }
 
     public void initiate() {
         for (int i = 0; i < 26; i++) {
@@ -76,6 +108,8 @@ public class DbnRunPanel extends Panel {
         for (int i = 0; i < 3; i++) {
 	    emouse[i] = 0;
 	}
+
+	autodrawallrunners();
 	runners[current].start();
     }
 
@@ -158,14 +192,17 @@ public class DbnRunPanel extends Panel {
 		}
 	    }
 	    if (clicked != -1) {
-		if (clicked != current) {
-		    // hit something new, terminate old
-		    terminate();
-		    setRunner(clicked);
-		    initiate();
-		} else {
-		    // if it is not running, initiate it again
-		    if (!runners[current].isRunning()) initiate();
+		if (!runners[clicked].emptyp()) { 
+		    // clicked on a program that is non-null-> significant event jm
+		    if (clicked != current) {
+			// hit something new, terminate old
+			terminate();
+			setRunner(clicked);
+			initiate();
+		    } else {
+			// if it is not running, initiate it again
+			if (!runners[current].isRunning()) initiate();
+		    }
 		}
 	    } else {
 		// didn't hit anything, terminate 
@@ -325,12 +362,17 @@ public class DbnRunPanel extends Panel {
 	    }
 	    // draw DbnRunners
 	    //runners[current].render(); // hmph
-	    for (int i = 0; i < runnerCount; i++) {
+	    // made into unified function jm
+	    
+	    /*	        for (int i = 0; i < runnerCount; i++) {
 		//runners[i].render();  // doesn't really draw..
 		g.setColor(Color.black);
-		g.drawRect(runnerX[i]-1, runnerY[i]-1,
-			   runnerWidth+1, runnerHeight+1);
+		if (!runners[i].emptyp()) // only prep screen for areas with drawing
+		    g.drawRect(runnerX[i]-1, runnerY[i]-1,
+			       runnerWidth+1, runnerHeight+1);
 	    }		
+	    */
+	    autodrawallrunners();
 	}
 	screen.drawImage(offscreen, 0, 0, this);
 	//runners[current].render();
