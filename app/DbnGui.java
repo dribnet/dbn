@@ -914,12 +914,13 @@ public class DbnGui extends Panel {
 		beautify();
 
 	    } else if (cmds.getSelectedItem().equals(SNAPSHOT_ITEM)) {
+		msg("Saving file...");
 		DbnIO io = new DbnIO(app);
-		int dim = 20;
+		//int dim = 20;
 		if (!io.doSnapshot(ta.getText(), dbrp.dbr.dbg.getPixels())) {
-		//if (!io.doSnapshot(ta.getText(),
-		//	   dbrp.dbr.dbg.gethexthumbnail(dim), dim)) {
-		    // error
+		    msg("Could not save file.");
+		} else {
+		    msg("Done saving file.");
 		}
 
 	    } else if (cmds.getSelectedItem().equals(SAVE_ITEM)) {

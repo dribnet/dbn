@@ -77,7 +77,7 @@ public class DbnIO
 	return true; // succesful
     }
 
-
+    /*
     public boolean doLocalWritePgm(byte grayData[], int width, int height) {
 	FileDialog fd = new FileDialog(new Frame(), 
 				       "Save DBN program as...", 
@@ -103,7 +103,7 @@ public class DbnIO
 	}
 	return true; // succesful
     }
-    
+    */    
     
     // width and height for imageData are always 101x101
     public boolean doSnapshot(String programStr, byte imageData[]) {

@@ -67,6 +67,14 @@ public class DbnParser {
 	
 	parseStatements(root);
 
+	// see if there are leftovers, if so, then it's an error
+	while (index != p.length) {
+	    if (!Character.isSpace(p[index])) {
+		die("not a valid statement");
+	    }
+	}
+	//root.convert();
+
 	//root.print();
 	//System.out.println("over here");
     }
@@ -100,6 +108,10 @@ public class DbnParser {
 	DbnToken current = parent.addChild(DbnToken.STATEMENT);
 	
 	switch (word.charAt(0)) {
+	case 'a':
+	    if (word.equals("antialias"))
+		return parseAntiAlias(current);
+	    break;
 	case 'c':
 	    if (word.equals("command"))
 		return parseFunctionDef(current, false);
@@ -121,10 +133,12 @@ public class DbnParser {
 	    break;
 	case 'p':
 	    if (word.equals("paper")) return parsePaper(current);
+	    else if (word.equals("pause")) return parsePause(current);
 	    else if (word.equals("pen")) return parsePen(current);
 	    break;
 	case 'r':
 	    if (word.equals("repeat")) return parseRepeat(current); 
+	    else if (word.equals("refresh")) return parseRefresh(current);
 	    break;
 	case 's':
 	    if (word.equals("set")) 
@@ -549,6 +563,39 @@ public class DbnParser {
 		die("field must be followed by 5 values");
 	    }
 	}
+	return true;
+    }
+
+
+    boolean parsePause(DbnToken parent) throws DbnException {
+	if (!consumeSpaces()) {
+	    die("incomplete pause statement");
+	}
+	DbnToken current = parent.addChild(DbnToken.PAUSE);
+	if (!parseValue(current)) {
+	    die("pause must be followed by a value");
+	}
+	return true;
+    }
+
+
+    boolean parseAntiAlias(DbnToken parent) throws DbnException {
+	if (!consumeSpaces()) {
+	    die("incomplete antialias statement");
+	}
+	DbnToken current = parent.addChild(DbnToken.ANTIALIAS);
+	if (!parseValue(current)) {
+	    die("antialias must be followed by a value");
+	}
+	return true;
+    }
+
+
+    boolean parseRefresh(DbnToken parent) throws DbnException {
+	DbnToken current = parent.addChild(DbnToken.REFRESH);
+	//if (!parseValue(current)) {
+	//  die("antialias must be followed by a value");
+	//}
 	return true;
     }
 

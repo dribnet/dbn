@@ -585,7 +585,18 @@ public class DbnGraphics
 	    }
 	}
     }
-    
+
+
+    public void pause(int amount) {
+	long stopTime = System.currentTimeMillis() + (amount*10);
+	do { } while (System.currentTimeMillis() < stopTime);
+    }
+
+
+    public void refresh() {
+	forceFlush();
+    }
+
 
     public byte[] getPixels() {
 	return pixels;

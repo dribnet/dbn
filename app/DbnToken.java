@@ -47,11 +47,14 @@ public class DbnToken {
     static final int REPEAT  = 40;
     static final int FOREVER = 41;
 
-    static final int SET     = 50;
-    static final int PAPER   = 51;
-    static final int PEN     = 52;
-    static final int LINE    = 53;
-    static final int FIELD   = 54;
+    static final int SET       = 50;
+    static final int PAPER     = 51;
+    static final int PEN       = 52;
+    static final int LINE      = 53;
+    static final int FIELD     = 54;
+    static final int PAUSE     = 55;
+    static final int ANTIALIAS = 56;
+    static final int REFRESH   = 57;
 
     static final int SMALLER     = 60;
     static final int NOT_SMALLER = 61;
@@ -62,8 +65,6 @@ public class DbnToken {
     static final int STATEMENT   = 71;
     static final int STATEMENTS  = 72;
 
-
-    //DbnToken() { }
 
     DbnToken(int kind) {
 	this.kind = kind;
@@ -190,6 +191,9 @@ public class DbnToken {
 	case PEN: buffer.append("PEN"); break;
 	case LINE: buffer.append("LINE"); break;
 	case FIELD: buffer.append("FIELD"); break;
+	case PAUSE: buffer.append("PAUSE"); break;
+	case ANTIALIAS: buffer.append("ANTIALIAS"); break;
+	case REFRESH: buffer.append("REFRESH"); break;
 
 	case SMALLER: buffer.append("SMALLER"); break;
 	case NOT_SMALLER: buffer.append("NOT_SMALLER"); break;
@@ -219,5 +223,244 @@ public class DbnToken {
 	    buffer.append(children[i].toString(indentCount + 2));
 	}
 	return buffer.toString();
+    }
+
+
+    public void convert() {
+	switch (kind) {
+
+	case ROOT:
+	    cbuffer = new StringBuffer();
+	    outputln("import java.awt.*;");
+	    outputln();
+	    outputln();
+	    outputln("public class ConvertedProgram extends DbnProgram {");
+	    moreIndent();
+	    convertChildren();
+	    lessIndent();
+	    outputln("}");
+	    System.out.println(cbuffer.toString());
+	    break;
+	    
+	case NUMBER: output(String.valueOf(number)); break;
+	case NAME: output(name); break;
+
+	case PIXEL: 
+	    output("getPixel(");
+	    convertChild(0);
+	    output(", ");
+	    convertChild(1);
+	    output(")");
+	    break;
+
+	case VARIABLE: output(name); break;
+
+	case BLOCK: 
+	    outputln("{");
+	    moreIndent();
+	    convertChildren();
+	    lessIndent();
+	    outputln("}");
+	    break;
+	    
+	case VALUE: convertChild(0); break;
+	
+	case MATH:
+	    output("(");
+	    convertChildren();
+	    output(")");
+	    break;
+
+	case ADD: output("+"); break;
+	case SUBTRACT: output("-"); break;
+	case MULTIPLY: output("*"); break;
+	case DIVIDE: output("/"); break;
+
+	case OPERATOR: convertChild(0); break;
+
+	case INPUT_CONNECTOR: 
+	    output("getConnector(\"");
+	    convertChild(0);
+	    output("\")");
+	    break;
+
+	case OUTPUT_CONNECTOR:
+	    output("setConnector(\"");
+	    convertChild(0);
+	    output("\", ");
+	    convertChild(1);
+	    output(")");
+	    break;
+
+	case COMMAND_DEF: 
+	case FUNCTION_DEF: 
+	    if (kind == COMMAND_DEF) 
+		output("void " + name + "(");
+	    else 
+		output("int " + name + "(");
+	    int paramCount = childCount-1;
+	    for (int i = 0; i < paramCount; i++) {
+		output("int " + children[i].name);
+		if (i != paramCount-1) output(", ");
+	    }
+	    outputln(")");
+	    convertChild(paramCount); // it's a block
+	    break;
+
+	case RETURN_VALUE: 
+	    output("return ");
+	    convertChild(0);
+	    outputln(";");
+	    break;
+
+	case FUNCTION:
+	case COMMAND:
+	    output(name + "(");
+	    for (int i = 0; i < childCount; i++) {
+		convertChild(0);
+		if (i != childCount-1) output(", ");
+	    }
+	    output(")");
+	    if (kind == COMMAND) outputln(";");
+	    break;
+	    
+	case REPEAT:
+	    // doesn't check to see if it's local 
+	    // cannot do loops going downward
+	    output("for (int ");
+	    convertChild(0);
+	    output(" = ");
+	    convertChild(1);
+	    output("; ");
+	    convertChild(0);
+	    output(" < ");
+	    convertChild(2);
+	    output("; ");
+	    convertChild(0);
+	    outputln("++)");
+	    convertChild(3);
+	    break;
+
+	case FOREVER: 
+	    outputln("while (true)");
+	    convertChild(0);
+	    break;
+
+	case SET: 
+	    convertChild(0);
+	    output(" = ");
+	    convertChild(1);
+	    outputln(";");
+	    break;
+	    
+	case PAPER:
+	    output("graphics.paper(");
+	    convertChild(0);
+	    outputln(");");
+	    break;
+
+	case PEN:
+	    output("graphics.pen(");
+	    convertChild(0);
+	    outputln(");");
+	    break;
+
+	case LINE: 
+	case FIELD:
+	    output((kind == LINE) ? "graphics.line(" : "graphics.field(");
+	    convertChild(0);
+	    output(", ");
+	    convertChild(1);
+	    output(", ");
+	    convertChild(2);
+	    output(", ");
+	    convertChild(3);
+	    outputln(");");
+	    break;
+
+	case SMALLER:
+	case NOT_SMALLER:
+	case SAME:
+	case NOT_SAME:
+	    output("if (");
+	    convertChild(0);
+	    if (kind == SMALLER) output(" < ");
+	    else if (kind == NOT_SMALLER) output(" >= ");
+	    else if (kind == SAME) output(" == ");
+	    else if (kind == NOT_SAME) output(" != ");
+	    convertChild(1);
+	    output(")");
+	    convertChild(2);
+	    break;
+
+	case STATEMENT: 
+	case STATEMENTS: 
+	    convertChildren(); 
+	    break;
+
+	default: 
+	    System.err.println("not handled: " + kind);
+	    System.exit(1);
+	}
+	/*
+	if (variables != null) {
+	    buffer.append(" variables: ");
+	    Enumeration e = variables.keys();
+	    while (e.hasMoreElements()) {
+		buffer.append((String) e.nextElement());
+		buffer.append(' ');
+	    }
+	}
+	*/
+	
+	//for (int i = 0; i < childCount; i++) {
+	//  buffer.append(children[i].toString(indentCount + 2));
+	//}
+	//return buffer.toString();
+    }
+    
+
+    private void convertChild(int which) {
+	children[which].convert();
+    }
+
+    private void convertChildren() {
+	for (int i = 0; i < childCount; i++) {
+	    children[i].convert();
+	}
+    }
+
+    int indentCount = 0;
+    String indent = "";
+
+    private void moreIndent() {
+	indentCount += 2;
+    }
+    
+    private void lessIndent() {
+	indentCount -= 2;
+    }
+    
+    private void updateIndent() {
+	for (int i = 0; i < indentCount; i++) {
+	    cbuffer.append(' ');
+	}
+    }    
+
+    StringBuffer cbuffer;
+
+    
+    private void outputln() {
+	cbuffer.append(System.getProperty("line.separator"));
+    }
+
+    private void output(String str) {
+	cbuffer.append(indent);
+	cbuffer.append(str);
+    }
+
+    private void outputln(String str) {
+	output(str);
+	outputln();
     }
 }

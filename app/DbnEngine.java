@@ -68,6 +68,9 @@ public class DbnEngine {
 	case DbnToken.PEN: execPen(current); break;
 	case DbnToken.LINE: execLine(current); break;
 	case DbnToken.FIELD: execField(current); break;
+	case DbnToken.PAUSE: execPause(current); break;
+	case DbnToken.ANTIALIAS: execAntiAlias(current); break;
+	case DbnToken.REFRESH: execRefresh(current); break;
 
 	case DbnToken.SMALLER: 
 	case DbnToken.NOT_SMALLER: 
@@ -199,6 +202,22 @@ public class DbnEngine {
 	int y2 = getValue(current.children[3]);
 	int color = getValue(current.children[4]);
 	graphics.field(x1, y1, x2, y2, color);
+    }
+
+
+    void execPause(DbnToken current) throws DbnException {
+	int amount = getValue(current.children[0]);
+	graphics.pause(amount);
+    }
+
+
+    void execAntiAlias(DbnToken current) throws DbnException {
+	graphics.setAntiAlias(getValue(current.children[0]));
+    }
+
+
+    void execRefresh(DbnToken current) throws DbnException {
+	graphics.refresh();
     }
 
 
