@@ -1,4 +1,4 @@
-public class BlahBlah extends DbnPlayer {
+public class JavacTest extends DbnPlayer {
   public void execute() {
     while (true) {
       graphics.paper(graphics.getMouse(1));

@@ -2,6 +2,22 @@
 
 import java.io.*;
 
+
+import quicktime.*;
+import quicktime.io.*;
+import quicktime.qd.*;
+import quicktime.std.*;
+import quicktime.sound.*;
+import quicktime.std.image.*;
+import quicktime.std.movies.*;
+import quicktime.std.movies.media.*;
+import quicktime.util.*;
+
+import quicktime.app.display.*;
+import quicktime.app.image.*;
+import quicktime.app.QTFactory;
+
+
 public class DbnRecorder implements Paintable {
   static DbnRecorder recorder;
 
