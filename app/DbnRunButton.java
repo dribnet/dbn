@@ -32,11 +32,10 @@ public class DbnRunButton extends Panel {
     }
 	
     public void initiated() {
-	//repaint();
+	repaint();  // re-added for key commands
     }
 
-    public void terminated()
-    {
+    public void terminated() {
 	repaint();
     }
 	
