@@ -918,7 +918,7 @@ public class DbnGraphics extends Panel {
     // maybe this should go inside DbnEditorGraphics, 
     // but i'm not sure
     //DbnRecorder.addFrame(pixels);
-    DbnRecorder.addFrame(image, mouse[0], mouse[1], (mouse[2] == 100));
+    DbnRecorder.addFrame(image, pixels, mouse[0], mouse[1], (mouse[2] == 100));
 #endif
   }
 

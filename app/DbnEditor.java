@@ -11,15 +11,13 @@ import java.util.*;
 
 public class DbnEditor extends Panel implements DbnEnvironment {
   static final String DEFAULT_PROGRAM = "// enter program\n";
+  
+  // otherwise, if the window is resized with the message label
+  // set to blank, it's preferredSize() will be fukered
   static final String EMPTY = "                                                                                                                                                             ";
-
-  // set explicitly because different platforms use different colors
-  //static final Color panelBgColor = new Color(204, 204, 204);
-
   DbnApplet app;
 
   DbnEditorButtons buttons;
-  //DbnEditorGraphics graphics;
   DbnGraphics graphics;
   DbnRunner runner;
 
@@ -28,6 +26,10 @@ public class DbnEditor extends Panel implements DbnEnvironment {
 
   String lastDirectory;
   String lastFile;
+
+#ifdef RECORDER
+  boolean shiftDown;
+#endif
 
 
   public DbnEditor(DbnApplet app, String program) {
@@ -51,9 +53,6 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     int gheight = DbnApplet.getInteger("graphics_height", 101);
 
     add("North", new DbnEditorLicensePlate());
-    //Panel vert = new Panel();
-    //vert.setLayout(new BorderLayout());
-    //vert.add("North", new DbnEditorLicensePlate());
 
     Panel left = new Panel();
     left.setLayout(new BorderLayout());
@@ -75,9 +74,6 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     }
     left.add("Center", graphics);
 
-    //Panel gutter = new Panel();
-    //gutter.setBackground(gutterBgColor);
-    //left.add("South", gutter);
     left.setBackground(gutterBgColor);
 
     Panel right = new Panel();
@@ -85,7 +81,7 @@ public class DbnEditor extends Panel implements DbnEnvironment {
 
     Panel statusPanel = new Panel();
     statusPanel.setBackground(statusBgColor);
-    statusPanel.setLayout(new FlowLayout(FlowLayout.LEFT)); //new GridLayout(1, 1));
+    statusPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
     statusPanel.add(status = new Label(EMPTY));
     right.add("North", statusPanel);
 
@@ -94,17 +90,8 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     textarea.setFont(DbnApplet.getFont("editor"));
     right.add("Center", textarea);
 
-    //Panel leftright = new Panel();
-    //leftright.setLayout(new FlowLayout(FlowLayout.LEFT));
     this.add("West", left);
     this.add("Center", right);
-    //this.add("East", right);
-    //leftright.add(left);
-    //leftright.add(right);
-
-    //vert.add("Center", leftright);
-    //this.add("North", vert);
-    //this.add("Center", leftright);
 
 #ifdef JDK11
     if (!DbnApplet.isMacintosh()) {
@@ -120,11 +107,15 @@ public class DbnEditor extends Panel implements DbnEnvironment {
 
 
   public void doPlay() {
+    doStop();
+
     runner.setProgram(textarea.getText());
     runner.start();
 
 #ifdef RECORDER
-    DbnRecorder.start(graphics.width, graphics.height);
+    if (shiftDown) {
+      DbnRecorder.start(graphics.width, graphics.height);
+    }
 #endif
 
     // required so that key events go to the panel and <key> works
@@ -139,13 +130,6 @@ public class DbnEditor extends Panel implements DbnEnvironment {
 #ifdef RECORDER
     DbnRecorder.stop();
 #endif
-    /*
-    try {
-      DbnRecorder.writeFiles();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    */
   }
 
 
@@ -412,17 +396,9 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     buttons.clear();
   }
 
-  /*
-  public void initiate() {
-    runner = new DbnRunner(textarea.getText(), graphics, this);
-    runner.start();
-  }
-  */
 
   public void terminate() {   // part of DbnEnvironment
     runner.stop();
-    //System.out.println("stopping runner");
-    //runner = null;
     message(EMPTY);
   }
 
@@ -483,9 +459,6 @@ public class DbnEditor extends Panel implements DbnEnvironment {
 #ifdef RECORDER
     DbnRecorder.stop();
 #endif
-    //System.err.println("i'm done");
-    //dbcp.terminated();
-    //dbcp.msg("Done.");
     buttons.clearPlay();
     message("Done.");
   }
@@ -499,56 +472,7 @@ public class DbnEditor extends Panel implements DbnEnvironment {
   public void messageClear(String msg) {
     if (status.getText().equals(msg)) status.setText(EMPTY);
   }
-
-
-  /*
-  public void idle(long t) {
-    dbrp.idle(t);
-  }
-  */
-
-  /*
-  public boolean getrunningp() {
-    //return dbrp.dbr.runningp();
-    return dbrp.runners[dbrp.current].isRunning();
-  }
-  */
-
-  /*
-  public void setProgram(String s) {
-    if (getrunningp()) terminate();
-    textarea.setText(s);
-  }
-  */
-	
-  //public void terminated() {
-  // tell when done
-  //dbcp.terminated();
-  //}
-
-  /*	
-  public void heartbeat() {
-    // important to verify run
-    dbcp.idle();
-  }	
-  */
-
-  // uglyish hack for scheme, the fix is even uglier, though
-  /*
-  static DbnGui currentDbnGui;
-  static public DbnGui getCurrentDbnGui() {
-    return currentDbnGui;
-  }
-  */
 }
-
-/*
-class GutterPanel extends Panel {
-  public Dimension preferredSize() {
-    return new Dimension(300, 300);
-  }
-}
-*/
 
 #endif
 

@@ -1,7 +1,3 @@
-//import java.awt.*;
-//import java.applet.Applet;
-
-
 public class DbnRunner implements Runnable {
   DbnGraphics graphics;
   DbnEnvironment env;
@@ -27,18 +23,13 @@ public class DbnRunner implements Runnable {
     this.program = program;
     this.graphics = graphics;
     this.env = env;
-
-    //this.start();
   }
-    
-  //public boolean isRunning() {
-  //System.out.println("state of runner is " + state);
-  //return (state == RUNNER_STARTED);
-  //}
+
 
   public void setProgram(String program) {
     this.program = program;
   }
+
 
   public void start() {
     if (thread != null) {
@@ -116,18 +107,8 @@ public class DbnRunner implements Runnable {
       }
       engine = null;
     }
-    //gui.msg(""); 
   }
 
-
-  /*
-    public void render() {
-    //System.out.println(dbg);
-    //System.out.println(dbg.image);
-    //System.out.println(dbrp);
-    dbrp.update(dbg.image);
-    }
-  */
 
   // the dbn engine calls this function which will 
   // make the little guy blink intermittently

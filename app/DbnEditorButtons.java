@@ -269,8 +269,13 @@ public class DbnEditorButtons extends Panel {
     if (sel == -1) return false;
     currentRollover = -1;
 
+#ifdef RECORDER
+    editor.shiftDown = e.shiftDown(); 
+#endif
+
     setState(sel, ACTIVE, true);
     switch (which[sel]) {
+      // shift crap is for DbnRecorder
     case PLAY: editor.doPlay(); break;
     case STOP: setState(PLAY, INACTIVE, true); editor.doStop(); break;
     case OPEN: editor.doOpen(); break;
