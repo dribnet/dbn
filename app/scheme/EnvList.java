@@ -614,7 +614,7 @@ class reflectionFunc extends FunctionObj
 		// why not call idle now as io gets critical
 		(DbnGui.getCurrentDbnGui()).idle(System.currentTimeMillis());
 		try {
-		    return new Integer(((DbnGraphics)obj).connectorGet(args[2].toString(),((Number)args[3]).intValue()));	 	
+		    return new Integer(((DbnGraphics)obj).getConnector(args[2].toString(),((Number)args[3]).intValue()));	 	
 		} catch (Exception e) {
 		    System.err.println("can't do a get on "+(args[2].toString()));
 		    return new Integer(0);

@@ -4,218 +4,82 @@ import java.net.*;
 import java.util.*;
 
 
-public class DbnGraphics
-{
-    static Color grays[];
+public class DbnGraphics {
+    // haha, don't want anybody fiddling with the grays
+    static private Color grays[];  
     static {
 	grays = new Color[101];
 	for (int i = 0; i < 101; i++) {
-	    int gray = i*255/100;
+	    int gray = (i*255/100);
 	    grays[i] = new Color(gray, gray, gray);
 	}
     }
-
     Image image;
-    Graphics g;
-    long lastpapert;
-    
+    Graphics g;    
     byte[] pixels;
     byte penColor;
     int pixelCount;
     boolean antialias;
-    
-    DbnRunner dbr;
-    
+        
     int width, height;
     int width1, height1;
 
-    Panel dad;
+    DbnRunner dbr;
     
     Hashtable connectorTable;
     String hostname;
-    
+
+    long lastpapert;
+
+    boolean explicitRefresh = false;
     int FDOT = 10;
     int FPAPER = 100;
-    // need to tweak these for different purposes --> 
-    // if interactive, want this to be 0
     int FLINE = 10; 
     int FFIELD = 10;
     int FMAX = 100;
     
-    /********* block detection for 'ai' double buffering ***********/
     boolean insideforeverp = false;
     boolean aiflushp = false;
     short flushfire = -1; // 0 is paper, 1 is field
     short lastflushfire = -1;
     boolean insiderepeatp = false;
     boolean autoflushenablep = true;
-    int repeatlevel = 0;
-    
+    int repeatlevel = 0;    
     int flushCount = 0;
 
-
-    public void flushNormal() {
-	FDOT = 10;
-	FPAPER = 100;
-	FLINE = 10; 
-	FFIELD = 50;
-	FMAX = 100;
-    }    
+    static final int DISPLAY_PLAIN = 0;
+    static final int DISPLAY_FLUSH = 1;
+    static final int DISPLAY_FLUSH_MORE = 2;
+    static final int DISPLAY_AUTO = 3;
 
 
-    public void flushReduced(int lev) {
-	FDOT=10/lev; 
-	FLINE=10/lev; 
-	FFIELD=50/lev; 
-	FPAPER=100;
-    }
-    
+    public DbnGraphics(Image image, int width, int height,
+		       DbnRunner dbr, String hostname, int displayMode) {
+	this.image = image;
+	g = image.getGraphics();
 
-    public void resetBlockDetect() { 
-	insideforeverp = false; 
-	lastflushfire = flushfire = -1;
-	insiderepeatp = false;
-	autoflushenablep = true;
-	repeatlevel = 0;
-	flushNormal();
-    }
-    
-
-    public void beginForever() {
-	// fired on a '{'
-	//System.out.println("begin forever");
-	insideforeverp = true;
-	flushfire = -1;
-	autoflushenablep = false;
-    }
-    
-
-    public void endForever() {
-	// fired on a '}'
-	//System.out.println("end->"+flushfire);
-	if (flushfire == -1) {
-	    // did not flush during a forever
-	    // force it
-	    refresh();
-	    autoflushenablep= true;
-	}
-	flushfire = -1;
-    }
-    
-
-    public void beginRepeat() {
-	// if within a forever, should be disabled anyways
-	//System.out.println("--****begrepeat");
-	insiderepeatp = true;
-	repeatlevel++;
-	//System.out.println("repeatlevel: "+repeatlevel+"/"+autoflushenablep);
-	if (insideforeverp) {
-	    // not much to do except for default
-	    if (repeatlevel == 1) { // special case
-		flushNormal();
-	    } else if (repeatlevel>1) {
-		flushReduced(repeatlevel);
-	    }
-	} else  {
-	    // disable flush, count up how much flush activity gets
-	    if (repeatlevel == 1) { // special case
-		autoflushenablep = true;
-		flushNormal();
-	    } else if (repeatlevel>1) {
-		autoflushenablep = false;
-		flushReduced(repeatlevel);
-	    }
-	}
-	
-    }
-    
-
-    public void endRepeat() {
-	//System.out.println("--****endrepeat");
-	if (repeatlevel==1)
-	    insiderepeatp = false;
-	repeatlevel--;
-	flushNormal();
-	if (!insideforeverp) {
-	    if (flushCount>0 && flushfire==-1) {
-		refresh();
-	    }
-	}
-    }
-    
-
-    public void paperFlush() {	
-	//	  System.out.println("paperflush request");
-	if (insideforeverp&&aiflushp) {
-	    if (flushfire==-1) {
-		flushfire = 0; // paper was first
-		refresh();
-	    } else {
-		if (lastflushfire == 0) {
-		    // could be consecutive paper -> legalize
-		    refresh();
-		} else {
-   		    // ignore flush
-		}
-	    }
-	} else {
-	    myFlush(FPAPER);
-	}
-	lastflushfire = flushfire;
-    }
-
-    
-    public void fieldFlush() {
-	if (insideforeverp&&aiflushp) {
-	    if (flushfire==-1) {
-		flushfire = 1; // field was first
-		refresh();
-	    } else {
-		// ignore flush
-	    }
-	} else {
-	    myFlush(FFIELD);
-	}
-	lastflushfire = flushfire;
-    }	
-    
-    /********** end ai double refresh *****/
-
-    
-    public DbnGraphics(Panel parent, int width, int height,
-		       DbnRunner dbr, String hostname) {
-	this.dbr = dbr;
-	this.hostname = hostname;
-
-	// when dbngraphics comes up, query applet for parameters
-	// this is to maintain illusion of a perfect 
-	// automatic double buffer, of course elusive ...
-	String s;			
-	if ((s = dbr.app.getParameter("display_mode"))!=null) {
-	    if (s.equals("plain")) {
-
-	    } else if (s.equals("flush")) { // mainly flushes when ets paper
-		FLINE = 0;
-		FDOT = 0;
-
-	    } else if (s.equals("flush_more")) {
-		FLINE = 10;
-		FDOT = 10;
-		aiflushp = true; // 'ai is on'
-		//System.out.println("auto flush is on");
-
-	    } else if (s.equals("auto")) {
-		aiflushp = true; // 'ai is on'
-		//System.out.println("auto flush is on");
-	    }
-	}
+	g.setColor(Color.white);
+	g.fillRect(0, 0, width, height);
 
 	this.width = width;
 	this.height = height;
 	width1 = width - 1;
 	height1 = height - 1;
-	dad = parent;
 	
+	this.dbr = dbr;
+	this.hostname = hostname;
+
+	switch (displayMode) {
+	case DISPLAY_PLAIN: 
+	    break;
+	case DISPLAY_FLUSH: 
+	    FLINE = 0; FDOT = 0; break;
+	case DISPLAY_FLUSH_MORE: 
+	    FLINE = 10; FDOT = 10; aiflushp = true; break;
+	case DISPLAY_AUTO: 
+	    aiflushp = true; break;
+	}
+
 	pixelCount = width * height;
 	pixels = new byte[pixelCount];
 	
@@ -233,68 +97,43 @@ public class DbnGraphics
         connectorTable.put("key", new int[26]);
         connectorTable.put("time", new int[4]);
         connectorTable.put("net", new Object()); // int values not useful here
+	connectorTable.put("array", new int[1000]);
+
+	// #ifdef CRICKET
+	connectorTable.put("sensor", new Object());
+	openSensor();	
 
 	currentDbnGraphics = this;
+	//dbr.render();
     }
 
-    // uglyish hack for scheme, the fix is even uglier, though
+    // uglyish hack for scheme/python, the fix is even uglier, though
     static DbnGraphics currentDbnGraphics;
 
     static public DbnGraphics getCurrentGraphics() {
 	return currentDbnGraphics;
     }
 
-    static void setCurrentGraphics(DbnGraphics dbg) {
+    static public void setCurrentGraphics(DbnGraphics dbg) {
 	currentDbnGraphics = dbg;
     }
 
 
-    // used by dbngui to get/set stuff
-    public Hashtable getConnectorTable() {
-	return connectorTable; 
+    /////////////////////////////////////////////////////////////
+
+    // actual methods relating to dbn calls
+
+    
+    public void norefresh() {
+	explicitRefresh = true;
     }
 
-	
+
     public void refresh() {
 	flushCount = flushCount % 100; //im.flush(); 
 	flushCount = 0;
 	dbr.render(); 
     }
-
-
-    public void myFlush(int v) {
-	flushCount+=v;
-	if (autoflushenablep) {	
-	    if (flushCount>99) { 
-		refresh();
-	    }
-	}
-    }
-    
-    public void buildBuffers() {
-	if (image == null) { 
-	    //some sync problem forces this sequence to be important
-	    image = dad.createImage(width, height);
-	    g = image.getGraphics(); 
-	    reset();
-	}
-    }
-
-
-    public void reset() {
-	penColor = 100;
-	g.setColor(grays[penColor]);
-
-	for (int i = 0; i < pixelCount; i++) 
-	    pixels[i] = 0;
-	g.fillRect(0,0,width,height);
-
-	antialias = false;
-
-	flushCount = 0;
-	resetBlockDetect();
-    }
-    
 
 
     public void paper(int val) {
@@ -310,7 +149,7 @@ public class DbnGraphics
 	    if (sleept<10)
 		sleept = 10-sleept;
 	    else
-		sleept=0;
+		sleept = 0;
 	    Thread.sleep(sleept);
 	    lastpapert = curt;
 	} catch (Exception e) { }
@@ -335,15 +174,22 @@ public class DbnGraphics
 	
 	byte bVal = (byte) val;
 	for (int j = y1; j <= y2; j++) {
-	    int pp = width*j;
+	    int pp = width*(height1-j);
 	    for (int i = x1; i <= x2; i++) {
 		pixels[pp+i] = bVal;
 	    }
 	}		
-	g.setColor(grays[100-bVal]);
-	g.fillRect(x1,height-y1-(y2-y1)-1,(x2-x1)+1,(y2-y1)+1);
+	g.setColor(grays[100 - bVal]);
+
+	// don't look at this code too long, you'll hurt your head
+	y1 = height1 - y1;
+	y2 = height1 - y2;
+	int w = x2 - x1 + 1;
+	int h = y1 - y2 + 1;
+	g.fillRect(x1, y2, w, h);
     }
-    
+
+
     public void pen(int val) {
         if (val > 100) 
 	    val = 100;
@@ -353,40 +199,15 @@ public class DbnGraphics
     }
 
 
-    public byte getPen() {
-	return penColor;
-    }
-
-    public void setPixel(int x, int y, int val) {
-	//int checkX, checkY, checkVal;
-	
-        myFlush(FDOT);
-        // NOTE::*******
-	// ideally for optimize step here, should draw 
-	// directly to screen without flushing
-	// as drawing dots is so laborious...
-	
-	if (x < 0 || x > width1 || y < 0 || y > height1) return;
-	int checkVal = bound(val, 100);
-	pixels[(height1-y)*width + x] = (byte)checkVal;
-	g.setColor(grays[100-checkVal]);
-	g.drawLine(x, height1-y, x, height1-y);
-    }
-
-
-    public int getPixel(int x, int y) {
-	return (int) 
-	    pixels[(height1-((y<0)?0:((y>height1)?height1:y)))*width + 
-		  ((x<0)?0:((x>width1)?width1:x))];
-    }
-
-
-    public void setAntiAlias(int m) {
+    public void antialias(int m) {
 	antialias = (m > 50);
     }
 
 
-    void intensifyPixel(int x, int y, float dist) {
+    // line clipping code appropriated from 
+    // "Computer Graphics for Java Programmers"
+
+    private void intensifyPixel(int x, int y, float dist) {
 	int oldVal, newVal, val, index;
 	
 	//System.err.println("setting " + x + ", " + y);
@@ -397,20 +218,16 @@ public class DbnGraphics
 		
 	val = (int)(pixels[index]*dist + penColor*(1.0f-dist));
 
-	if(val>100) val = 100;
-	else if(val < 0) val = 0;
-	
+	val = bound(val, 100);
+	//if(val>100) val = 100;
+	//else if(val < 0) val = 0;
 	pixels[index] = (byte)val;
 	
 	if (antialias) {
-	    g.setColor(grays[100-val]);
+	    g.setColor(grays[100 - val]);
 	    g.drawLine(x,height1-y,x,height1-y);
 	}
     }
-
-
-    // line clipping code appropriated from 
-    // "Computer Graphics for Java Programmers"
 
     private int clipCode(float x, float y) {
 	return ((x < 0 ? 8 : 0) | (x > width1 ? 4 : 0) |
@@ -468,7 +285,7 @@ public class DbnGraphics
 	myFlush(FLINE);
 	
 	if (!antialias) { 
-	    g.setColor(grays[100-penColor]);
+	    g.setColor(grays[100 - penColor]);
 	    g.drawLine(ox1,height1-oy1,ox2,height1-oy2);
 	}
 	
@@ -606,10 +423,10 @@ public class DbnGraphics
     }
 
 
-    public byte[] getPixels() {
-	return pixels;
-    }
+    ////////////////////////////////////////////////////////////
 
+    // related methods, or likely to be called by alternate 
+    // implementations like scheme and python
 
     static private int bound(int input, int upper) {
 	if (input > upper) return upper;
@@ -618,16 +435,62 @@ public class DbnGraphics
     }
 
 
-    // -------------------------------------------------------------    
-
-    public boolean isConnector(String s) {
-	return connectorTable.containsKey(s);
-    }	
+    public byte[] getPixels() {
+	return pixels;
+    }
 
 
-    public int connectorGet(String name, int slot) throws DbnException {
+    // used by dbngui to get/set stuff
+    public Hashtable getConnectorTable() {
+	return connectorTable; 
+    }
+
+
+    public void reset() {
+	penColor = 100;
+
+	g.setColor(grays[100]);
+	for (int i = 0; i < pixelCount; i++) 
+	    pixels[i] = 0;
+	g.fillRect(0,0,width,height);
+
+	antialias = false;
+	explicitRefresh = false;
+
+	flushCount = 0;
+	resetBlockDetect();
+    }
+   
+
+    public void setPixel(int x, int y, int val) {
+	//int checkX, checkY, checkVal;
+	
+        myFlush(FDOT);
+        // NOTE::*******
+	// ideally for optimize step here, should draw 
+	// directly to screen without flushing
+	// as drawing dots is so laborious...
+	
+	if (x < 0 || x > width1 || y < 0 || y > height1) return;
+	int checkVal = bound(val, 100);
+	pixels[(height1-y)*width + x] = (byte)checkVal;
+	g.setColor(grays[100-checkVal]);
+	g.drawLine(x, height1-y, x, height1-y);
+    }
+
+
+    public int getPixel(int x, int y) {
+	return (int) 
+	    pixels[(height1-((y<0)?0:((y>height1)?height1:y)))*width + 
+		  ((x<0)?0:((x>width1)?width1:x))];
+    }
+
+
+    public int getConnector(String name, int slot) throws DbnException {
 	if (name.equals("net")) {
-	    return networkGet(slot);
+	    return getNetwork(slot);
+	} else if (name.equals("sensor")) {
+	    return getSensor(slot);
 	}
 	int values[] = (int[]) connectorTable.get(name);
 	if (values == null) {
@@ -642,10 +505,13 @@ public class DbnGraphics
     }
 
 
-    public void connectorSet(String name, int slot, int value) 
+    public void setConnector(String name, int slot, int value) 
 	throws DbnException {
 	if (name.equals("net")) {
-	    networkSet(slot, value); 
+	    setNetwork(slot, value); 
+	    return;
+	} else if (name.equals("sensor")) {
+	    setSensor(slot, value);
 	    return;
 	}
 	int values[] = (int[]) connectorTable.get(name);
@@ -655,10 +521,21 @@ public class DbnGraphics
 	try {
 	    values[slot-1] = value;
 	} catch (Exception e) {
+	    //System.out.println("should throw error here");
 	    throw new DbnException("error setting " + name + " " + slot + 
 				   " to " + value);
 	}
     }
+
+
+
+    ////////////////////////////////////////////////////////////
+
+    // other connector-related items
+
+    public boolean isConnector(String s) {
+	return connectorTable.containsKey(s);
+    }	
 
 
     // networking support
@@ -673,7 +550,7 @@ public class DbnGraphics
     boolean secondAttempt; 
 
 
-    protected void networkOpen() throws DbnException {
+    protected void openNetwork() throws DbnException {
 	try {
 	    //String hostname = app.isLocal() ? 
 	    //"localhost" : app.getCodeBase().getHost();
@@ -690,9 +567,9 @@ public class DbnGraphics
     }
 
 
-    protected int networkGet(int number) throws DbnException {
+    protected int getNetwork(int number) throws DbnException {
 	if (netInputStream == null) {
-	    networkOpen();
+	    openNetwork();
 	}
 
 	int val = -1; // !#$(*@#$ compiler
@@ -717,8 +594,8 @@ public class DbnGraphics
 	} catch (IOException e) {
 	    if (!secondAttempt) { // re-connect and try again
 		secondAttempt = true;
-		networkOpen();
-		return networkGet(number);
+		openNetwork();
+		return getNetwork(number);
 	    } else {
 		throw new DbnException("could not connect to server");
 	    }
@@ -727,9 +604,9 @@ public class DbnGraphics
     }
 
 
-    protected void networkSet(int number, int value) throws DbnException {
+    protected void setNetwork(int number, int value) throws DbnException {
 	if (netInputStream == null) {
-	    networkOpen();
+	    openNetwork();
 	}
 	try {
 	    netOutputStream.writeInt(1);
@@ -752,11 +629,166 @@ public class DbnGraphics
 	} catch (IOException e) {
 	    if (!secondAttempt) { // re-connect and try again
 		secondAttempt = true;
-		networkOpen();
-		networkSet(number, value);
+		openNetwork();
+		setNetwork(number, value);
 	    } else {
 		throw new DbnException("could not connect to server");
 	    }
 	}
     }
+
+
+    SensorConnector sensor;
+
+    protected void openSensor() {
+	sensor = new SensorConnector();
+    }
+
+    protected int getSensor(int slot) throws DbnException {
+	return sensor.getValue(slot);
+    }
+
+    protected void setSensor(int slot, int value) throws DbnException {
+	throw new DbnException("Cannot talk to sensor, only listen");
+    }
+
+
+    ////////////////////////////////////////////////////////////
+
+    // methods used by ai refresh (tm)
+
+    public void myFlush(int v) {
+	flushCount+=v;
+	if (autoflushenablep) {	
+	    if (flushCount>99) { 
+		if (!explicitRefresh) refresh();
+	    }
+	}
+    }
+
+
+    public void flushNormal() {
+	FDOT = 10;
+	FPAPER = 100;
+	FLINE = 10; 
+	FFIELD = 50;
+	FMAX = 100;
+    }    
+
+
+    public void flushReduced(int lev) {
+	FDOT=10/lev; 
+	FLINE=10/lev; 
+	FFIELD=50/lev; 
+	FPAPER=100;
+    }
+    
+
+    public void resetBlockDetect() { 
+	insideforeverp = false; 
+	lastflushfire = flushfire = -1;
+	insiderepeatp = false;
+	autoflushenablep = true;
+	repeatlevel = 0;
+	flushNormal();
+    }
+    
+
+    public void beginForever() {
+	// fired on a '{'
+	//System.out.println("begin forever");
+	insideforeverp = true;
+	flushfire = -1;
+	autoflushenablep = false;
+    }
+    
+
+    public void endForever() {
+	// fired on a '}'
+	//System.out.println("end->"+flushfire);
+	if (flushfire == -1) {
+	    // did not flush during a forever
+	    // force it
+	    if (!explicitRefresh) refresh();
+	    autoflushenablep= true;
+	}
+	flushfire = -1;
+    }
+    
+
+    public void beginRepeat() {
+	// if within a forever, should be disabled anyways
+	//System.out.println("--****begrepeat");
+	insiderepeatp = true;
+	repeatlevel++;
+	//System.out.println("repeatlevel: "+repeatlevel+"/"+autoflushenablep);
+	if (insideforeverp) {
+	    // not much to do except for default
+	    if (repeatlevel == 1) { // special case
+		flushNormal();
+	    } else if (repeatlevel>1) {
+		flushReduced(repeatlevel);
+	    }
+	} else  {
+	    // disable flush, count up how much flush activity gets
+	    if (repeatlevel == 1) { // special case
+		autoflushenablep = true;
+		flushNormal();
+	    } else if (repeatlevel>1) {
+		autoflushenablep = false;
+		flushReduced(repeatlevel);
+	    }
+	}
+	
+    }
+    
+
+    public void endRepeat() {
+	//System.out.println("--****endrepeat");
+	if (repeatlevel==1)
+	    insiderepeatp = false;
+	repeatlevel--;
+	flushNormal();
+	if (!insideforeverp) {
+	    if (flushCount>0 && flushfire==-1) {
+		if (!explicitRefresh) refresh();
+	    }
+	}
+    }
+    
+
+    public void paperFlush() {	
+	//	  System.out.println("paperflush request");
+	if (insideforeverp&&aiflushp) {
+	    if (flushfire==-1) {
+		flushfire = 0; // paper was first
+		if (!explicitRefresh) refresh();
+	    } else {
+		if (lastflushfire == 0) {
+		    // could be consecutive paper -> legalize
+		    if (!explicitRefresh) refresh();
+		} else {
+   		    // ignore flush
+		}
+	    }
+	} else {
+	    myFlush(FPAPER);
+	}
+	lastflushfire = flushfire;
+    }
+
+    
+    public void fieldFlush() {
+	if (insideforeverp&&aiflushp) {
+	    if (flushfire==-1) {
+		flushfire = 1; // field was first
+		if (!explicitRefresh) refresh();
+	    } else {
+		// ignore flush
+	    }
+	} else {
+	    myFlush(FFIELD);
+	}
+	lastflushfire = flushfire;
+    }	
 }

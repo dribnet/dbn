@@ -1,3 +1,4 @@
 @echo off
-jre -cp classes2 DbnApplication
+rem jre -nojit -cp classes2 DbnApplication
+java -nojit -classpath %CLASSPATH%;classes2 DbnApplication
 

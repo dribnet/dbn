@@ -5,7 +5,7 @@ import java.applet.Applet;
 public class DbnRunner implements Runnable {
     DbnApplet app;
     DbnGui gui;
-    Panel parent;
+    DbnRunPanel dbrp;
     DbnGraphics dbg;
     Graphics cachedg;
 
@@ -15,9 +15,6 @@ public class DbnRunner implements Runnable {
     DbnEngine engine;
     long heartbeatTime;
 
-    int dispx, dispy;
-    int dispw, disph;
-	
     static final int RUNNER_STARTED = 0;
     static final int RUNNER_FINISHED = 1;
     static final int RUNNER_ERROR = -1;
@@ -27,35 +24,51 @@ public class DbnRunner implements Runnable {
     Thread thread;
 
 
-    public DbnRunner(DbnApplet app, DbnGui gui, Panel parent, 
-		     int x, int y, int w, int h, String program) {
+    public DbnRunner(DbnApplet app, DbnGui gui, DbnRunPanel dbrp, 
+		     int width, int height, String program) {
 	super();
 	this.app = app;
 	this.gui = gui;
-	this.parent = parent;
-	
-	dispx = x; dispy = y;
-	dispw = w; disph = h;
-	dbg = new DbnGraphics(parent, w, h, this, app.getHost());
+	this.dbrp = dbrp;
+
+	int displayMode = 0;
+	String displayModeStr = app.getParameter("display_mode");
+	if ((displayModeStr == null) || (displayModeStr.equals("plain")))
+	    displayMode = DbnGraphics.DISPLAY_PLAIN;
+	else if (displayModeStr.equals("flush"))
+	    displayMode = DbnGraphics.DISPLAY_FLUSH;
+	else if (displayModeStr.equals("flush_more"))
+	    displayMode = DbnGraphics.DISPLAY_FLUSH_MORE;
+	else if (displayModeStr.equals("auto"))
+	    displayMode = DbnGraphics.DISPLAY_AUTO;
+
+	Image image = app.createImage(width, height);
+	dbg = new DbnGraphics(image, width, height, this, 
+			      app.getHost(), displayMode);
+	//render();
 	setProgram(program);
 
 	preprocessor = new DbnPreprocessor(gui, app);
     }
-	
+
+    /*
     public void setDisplayXY(int x, int y) {
-	dispx = x; dispy = y;
+	this.x = x;
+	this.y = y;
     }
 	
-    public boolean insidep(int x, int y) {
-	return (dispx<x&&x<(dispx+dispw)&&dispy<y&&y<(dispy+disph));
+    public boolean insidep(int mx, int my) {
+	return ((mx > x) && (mx < (x + width)) &&
+		(my > y) && (my < (y + height)));
     }
+    */
 
     public void setProgram(String program) {
 	this.program = program;
     }
     
-    public boolean runningp() {
-	return (state==RUNNER_STARTED);
+    public boolean isRunning() {
+	return (state == RUNNER_STARTED);
     }
 
     public void start() {
@@ -90,6 +103,11 @@ public class DbnRunner implements Runnable {
 	    if (program.charAt(0) == ';') {
 		engine = new SchemeEngine(dbg, program);
 		engine.start();
+	    } else if (program.charAt(0) == '#') {
+		/*
+		engine = new PythonEngine(dbg, program);
+		engine.start();
+		*/
 	    } else {
 		String processed = preprocessor.process(program);
 		DbnParser parser = new DbnParser(processed.toCharArray());
@@ -100,8 +118,11 @@ public class DbnRunner implements Runnable {
 	    gui.success();
 
 	} catch (DbnException e) { 
+	    //e.printStackTrace();
 	    state = RUNNER_ERROR;
+	    //System.out.println("stopping..");
 	    this.stop();
+	    //System.out.println("done stopping..");
 	    // must go below so that error msg shows
 	    gui.reporterror(e);
 
@@ -118,26 +139,22 @@ public class DbnRunner implements Runnable {
 	if (engine != null) {
 	    engine.stop();
 	    engine = null;
+	    /*
+	    if (engine instanceof PythonEngine) {
+		thread.stop();
+		thread = null;
+	    }
+	    */
 	}
 	msg(""); 
     }
 
 
     public void render() {
-	if (cachedg == null) cachedg = parent.getGraphics();
-	render(cachedg);
-    }
-
-
-    public void render(Graphics g) {
-	if (dbg.image == null) {
-	    dbg.buildBuffers();
-	}
-	// i think this was throwing an exception on close
-	//System.out.println("rendering at " + dispx + ", " + dispy);
-	if (g != null) {
-	    g.drawImage(dbg.image, dispx, dispy, parent);
-	}
+	//System.out.println(dbg);
+	//System.out.println(dbg.image);
+	//System.out.println(dbrp);
+	dbrp.update(dbg.image);
     }
 
 

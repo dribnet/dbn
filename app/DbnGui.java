@@ -9,66 +9,100 @@ public class DbnGui extends Panel {
     static final String SAVE_ITEM = "Save as...";
     static final String OPEN_ITEM = "Open...";
 
+    // set explicitly because different platforms use different colors
+    static final Color panelBgColor = new Color(204, 204, 204);
+
     DbnApplet app;
     TextArea ta;
     DbnRunPanel dbrp;
     DbnControlPanelNull dbcp;
     Button doitbut;
     Choice cmds;
-    boolean iexplorerp = false; // assume running navigator? ...
-    String run_mode; // default
-    String titlestr; // documentation string
-    Color textcol; // color to draw it in (incl grid)
-    Color panelBgColor;
+    boolean iexplorerp;
+    String runMode;
 
     DbnIO io;  // object to take care of input/output
 
-    // uglyish hack for scheme, the fix is even uglier, though
-    static DbnGui currentDbnGui;
-    static public DbnGui getCurrentDbnGui() {
-	return currentDbnGui;
-    }
 
     public DbnGui(DbnApplet app, String progs[]) {
 	this.app = app;
 	setLayout(new BorderLayout());
-		
+
+	runMode = (app.getParameter("run_mode"));
+
 	// if ie is just even mentioned assume it is IE
-	iexplorerp = (app.getParameter("ie")!=null); 
 	// this flag necessary because of textarea behavior 
 	// during syntax error signal for mac on IE
-	run_mode = (app.getParameter("run_mode"));
-	titlestr = (app.getParameter("title"));
+	iexplorerp = (app.getParameter("ie")!=null); 
 
-	panelBgColor = new Color(204, 204, 204);
-		
-	if (textcol == null) {
-	    String s;
-	    if ((s = app.getParameter("text_color"))!=null) {
-		if (s.indexOf("#") == 0) {
-		    try {
-			int v = Integer.parseInt(s.substring(1), 16);
-			textcol = new Color(v);
-		    } catch (Exception e) {
-		    }
-		}
-	    }
-	    if (textcol == null) {
-		textcol = Color.white;
-	    }
-	}
-	if (run_mode == null) {
-	    buildeditgui(progs);
-	} else if (run_mode.equals("immediate") || 
-		   run_mode.equals("mouse_inside")) {
-	    
-	    add("Center", dbrp = new DbnRunPanel(app,this,progs));
-	    ta = new TextArea("",80,24); // don't display
-	    dbcp = new DbnControlPanelNull(app,this);
+	String titling = (app.getParameter("title"));
+
+	Color titlingColor = 
+	    app.getColorParameter("text_color", Color.white);
+	Color bgColor = 
+	    app.getColorParameter("bg_color", new Color(0, 51, 102));
+	Color bgStippleColor = 
+	    app.getColorParameter("bg_stipple_color", bgColor);
+	Color tickColor = null;
+
+	if (runMode.equals("immediate") || runMode.equals("mouse_inside")) {
+	    dbrp = new DbnRunPanel(app, this, progs, titling, titlingColor, 
+				   tickColor, bgColor, bgStippleColor);
+	    add("Center", dbrp);
+	    ta = new TextArea("", 20, 40); // doesn't display
+	    dbcp = new DbnControlPanelNull(app, this);
 
 	} else {
-	    run_mode = null;
-	    buildeditgui(progs);
+	    runMode = null;
+	    tickColor = titlingColor;
+
+	    add("North", new DbnLicensePlate(this));
+
+	    Panel p1 = new Panel();
+	    p1.setLayout(new BorderLayout());
+	    //p1.setLayout(new FlowLayout());
+	    //p1.setLayout(new GridLayout(1,2));
+	    p1.add("West", dbrp = 
+		   new DbnRunPanel(app, this, progs, titling, titlingColor, 
+				   tickColor, bgColor, bgStippleColor));
+	    p1.add("Center", ta = new TextArea(progs[0], 20, 48));
+	    
+	    if (!app.isMacintosh()) {
+		DbnEditorListener listener = new DbnEditorListener(this);
+		ta.addKeyListener(listener);
+		ta.addFocusListener(listener);
+		ta.addKeyListener(new DbnKeyListener(this));
+	    }
+
+	    // has to be capitalized. argh. (nope, that's not it either)
+	    //ta.setFont(new Font("Monospaced", Font.PLAIN, 12));
+	    // that was causing problems, we'll go with the jdk 1.0 style
+	    // jdk 1.0 style is to call it 'courier'
+	    ta.setFont(new Font("monospaced", Font.PLAIN, 12));
+	    add("Center", p1);
+	    p1 = new Panel();
+	    p1.setLayout(new GridLayout(1,2));
+	    add("South",p1);
+	    Panel p2 = new Panel();
+	    p2.setBackground(getPanelBgColor());
+	    p2.add(new Label("Command:"));
+	    p2.add(cmds = new Choice());
+	    p2.add(doitbut = new Button(" Do it "));
+	    
+	    // can always beautify code
+	    cmds.addItem(BEAUTIFY_ITEM);
+	    
+	    // don't add snapshot command if running locally
+	    if (!app.isLocal() && (app.getParameter("save_as") != null)) {
+		cmds.addItem(SNAPSHOT_ITEM);
+	    }
+	    if (app.isLocal()) {
+		// only show these when run as a file
+		cmds.addItem(OPEN_ITEM);
+		cmds.addItem(SAVE_ITEM);
+	    }
+	    p1.add(dbcp = new DbnControlPanel(app,this)); 
+	    p1.add(p2);
 	}
 	currentDbnGui = this;
 	io = new DbnIO(app);
@@ -99,82 +133,20 @@ public class DbnGui extends Panel {
 	}
     }
 
-    public void buildeditgui(String []progs)
-    {
-	/*
-	 * +-----------------------+
-	 * |                       |
-	 * +-----------+-----------+
-	 * |           |           |
-	 * |           |           |
-	 * |           |           |
-	 * |           |           |
-	 * |           |           |
-	 * |           |           |
-	 * |           |           |
-	 * +-----------+-----------+
-	 * |           |           |
-	 * +-----------+-----------+
-	 */
 
-	add("North", new DbnLicensePlate(this));
-
-	Panel p1 = new Panel();
-	p1.setLayout(new GridLayout(1,2));
-	p1.add(dbrp = new DbnRunPanel(app, this, progs));
-	p1.add(ta = new TextArea(progs[0], 20, 40));
-
-	//DbnParenBalancer pb = new DbnParenBalancer(this);
-	DbnEditorListener listener = new DbnEditorListener(this);
-	ta.addKeyListener(listener);
-	ta.addFocusListener(listener);
-
-	ta.addKeyListener(new DbnKeyListener(this));
-
-	// has to be capitalized. argh. (nope, that's not it either)
-	//ta.setFont(new Font("Monospaced", Font.PLAIN, 12));
-	// that was causing problems, we'll go with the jdk 1.0 style
-	// jdk 1.0 style is to call it 'courier'
-	ta.setFont(new Font("monospaced", Font.PLAIN, 12));
-	//ta.setFont(new Font("dialog", Font.PLAIN, 24));
-	add("Center", p1);
-	p1 = new Panel();
-	p1.setLayout(new GridLayout(1,2));
-	add("South",p1);
-	Panel p2 = new Panel();
-	p2.setBackground(getPanelBgColor());
-	p2.add(new Label("Command:"));
-	p2.add(cmds = new Choice());
-	p2.add(doitbut = new Button(" Do it "));
-
-	// can always beautify code
-	cmds.addItem(BEAUTIFY_ITEM);
-	
-	// don't add snapshot command if running locally
-	if (!app.isLocal() && (app.getParameter("save_as") != null)) {
-	    cmds.addItem(SNAPSHOT_ITEM);
-	}
-	if (app.isLocal()) {
-	    // only show these when run as a file
-	    cmds.addItem(OPEN_ITEM);
-	    cmds.addItem(SAVE_ITEM);
-	}
-				
-	p1.add(dbcp = new DbnControlPanel(app,this)); 
-	p1.add(p2);
-    }
-	
+/*
     public void runpanelrefreshed()
     {
-	if (run_mode!=null)
-	    if (run_mode.equals("immediate")) {
+	if (runMode!=null)
+	    if (runMode.equals("immediate")) {
 		if (!getrunningp()) // kick it to start running
 		    {
 			//			dbrp.initiate();
 		    }
 	    }
     }
-	
+*/
+
     public boolean action(Event evt, Object arg) {
     	if (evt.target == cmds) {
 	    // could also do it here, i s'pose
@@ -191,7 +163,8 @@ public class DbnGui extends Panel {
 
     public void doSnapshot() {
 	msg("Taking snapshot...");
-	if (io.doSnapshot(ta.getText(), dbrp.dbr.dbg.getPixels())) {
+	if (io.doSnapshot(ta.getText(), 
+			  dbrp.runners[dbrp.current].dbg.getPixels())) {
 	    msg("Done taking snapshot.");
 	} else {
 	    msg("Could not make snapshot.");
@@ -219,7 +192,11 @@ public class DbnGui extends Panel {
     }
 
     public void doBeautify() {
-	char program[] = ta.getText().toCharArray();
+	String prog = ta.getText();
+	if (prog.charAt(0) == '#') return;  // python
+	if (prog.charAt(0) == ';') return;  // lisp
+
+	char program[] = prog.toCharArray();
 	StringBuffer buffer = new StringBuffer();
 	boolean gotBlankLine = false;
 	int index = 0;
@@ -315,13 +292,12 @@ public class DbnGui extends Panel {
 	//showStatus(e.getMessage());
     }
 
-    public boolean getrunningp()
-    {
-	return dbrp.dbr.runningp();
+    public boolean getrunningp() {
+	//return dbrp.dbr.runningp();
+	return dbrp.runners[dbrp.current].isRunning();
     }
   
-    public void setProgram(String s)
-    {
+    public void setProgram(String s) {
 	if (getrunningp()) terminate();
 	ta.setText(s);
     }
@@ -363,6 +339,13 @@ public class DbnGui extends Panel {
 	// important to verify run
 	dbcp.idle();
     }	
+
+
+    // uglyish hack for scheme, the fix is even uglier, though
+    static DbnGui currentDbnGui;
+    static public DbnGui getCurrentDbnGui() {
+	return currentDbnGui;
+    }
 }
 
 

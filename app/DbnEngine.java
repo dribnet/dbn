@@ -74,6 +74,7 @@ public class DbnEngine {
 	case DbnToken.PAUSE: execPause(current); break;
 	case DbnToken.ANTIALIAS: execAntiAlias(current); break;
 	case DbnToken.REFRESH: execRefresh(current); break;
+	case DbnToken.NOREFRESH: execNoRefresh(current); break;
 
 	case DbnToken.SMALLER: 
 	case DbnToken.NOT_SMALLER: 
@@ -215,12 +216,17 @@ public class DbnEngine {
 
 
     void execAntiAlias(DbnToken current) throws DbnException {
-	graphics.setAntiAlias(getValue(current.children[0]));
+	graphics.antialias(getValue(current.children[0]));
     }
 
 
     void execRefresh(DbnToken current) throws DbnException {
 	graphics.refresh();
+    }
+
+
+    void execNoRefresh(DbnToken current) throws DbnException {
+	graphics.norefresh();
     }
 
 
@@ -332,7 +338,6 @@ public class DbnEngine {
 	}
 	// do add and subtract
 	for (int i = 0; i < operationCount; i++) {
-	    //while (i < operationCount) {
 	    if ((operations[i] == DbnToken.ADD) ||
 		(operations[i] == DbnToken.SUBTRACT)) {
 
@@ -354,6 +359,25 @@ public class DbnEngine {
 		valueCount--;
 	    }
 	}
+	// do modulus
+	for (int i = 0; i < operationCount; i++) {
+	    if (operations[i] == DbnToken.MODULO) {
+		// mod val i and i+1 against each other
+		values[i] = values[i] % values[i+1];
+
+		// put result in i, scoot everything down
+		for (int j = i+1; j < valueCount-1; j++) {
+		    values[j] = values[j+1];
+		}
+		for (int j = i; j < operationCount-1; j++) {
+		    operations[j] = operations[j+1];
+		}
+		i--;
+		operationCount--;
+		valueCount--;
+	    }
+	}	
+
 	//System.out.println(values[0]);
 	return values[0];
 
@@ -380,11 +404,11 @@ public class DbnEngine {
 
 
     int getConnector(DbnToken current) throws DbnException {
-	if (graphics.isConnector(current.name))
-	    return graphics.connectorGet(current.name,
-					 getValue(current.children[0]));
-	die("connector not found", current);
-	return -1;
+	//if (graphics.isConnector(current.name))
+	return graphics.getConnector(current.name,
+				     getValue(current.children[0]));
+	//die("connector not found", current);
+	//return -1;
     }
 
 
@@ -459,7 +483,7 @@ public class DbnEngine {
 	case DbnToken.OUTPUT_CONNECTOR:
 	    //value.print();
 	    if (graphics.isConnector(value.name)) {
-		graphics.connectorSet(value.name,
+		graphics.setConnector(value.name,
 				      getValue(value.children[0]), 
 				      amount);
 	    } else {

@@ -35,7 +35,7 @@ public class DbnParser {
 		data[i] = (char)bytes[i];
 	    }
 	    DbnParser p = new DbnParser(data);
-	    p.root.print();
+	    //p.root.print();
 
 	} catch (Exception e) {
 	    e.printStackTrace();
@@ -122,6 +122,8 @@ public class DbnParser {
 		return parseComparison(current, DbnToken.NOT_SMALLER);
 	    if (word.equals("number")) 
 		return parseFunctionDef(current, true);
+	    if (word.equals("norefresh")) 
+		return parseNoRefresh(current);
 	    break;
 	case 'f':
 	    if (word.equals("field")) return parseField(current);
@@ -403,6 +405,7 @@ public class DbnParser {
 	case '/': index++; parent.addChild(DbnToken.DIVIDE); return true;
 	case '+': index++; parent.addChild(DbnToken.ADD); return true;
 	case '-': index++; parent.addChild(DbnToken.SUBTRACT); return true;
+	case '%': index++; parent.addChild(DbnToken.MODULO); return true;
 	}
 	return false;
     }
@@ -592,9 +595,12 @@ public class DbnParser {
 
     boolean parseRefresh(DbnToken parent) throws DbnException {
 	DbnToken current = parent.addChild(DbnToken.REFRESH);
-	//if (!parseValue(current)) {
-	//  die("antialias must be followed by a value");
-	//}
+	return true;
+    }
+
+
+    boolean parseNoRefresh(DbnToken parent) throws DbnException {
+	DbnToken current = parent.addChild(DbnToken.NOREFRESH);
 	return true;
     }
 
@@ -649,11 +655,12 @@ public class DbnParser {
 	}
 	DbnToken current = null;
 	int paramCount = 1; //input ? 1 : 2;
-	if (!input && !name.equals("net")) {
-	    die("only net can be set, " + name + " cannot");
+	if (!input && !name.equals("net") && !name.equals("array")) {
+	    die(name + " cannot be set");
 	}
 	if (name.equals("net") || name.equals("key") || 
-	    name.equals("mouse") || name.equals("time")) {
+	    name.equals("mouse") || name.equals("time") || 
+	    name.equals("array") || name.equals("sensor")) {
 	    current = parent.addChild(input ? DbnToken.INPUT_CONNECTOR : 
 				      DbnToken.OUTPUT_CONNECTOR, name);
 	} else {

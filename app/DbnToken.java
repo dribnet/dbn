@@ -34,6 +34,7 @@ public class DbnToken {
     static final int MULTIPLY = 12;
     static final int DIVIDE   = 13;
     static final int OPERATOR = 14;
+    static final int MODULO   = 15;
 
     static final int INPUT_CONNECTOR  = 20;
     static final int OUTPUT_CONNECTOR = 21;
@@ -55,6 +56,7 @@ public class DbnToken {
     static final int PAUSE     = 55;
     static final int ANTIALIAS = 56;
     static final int REFRESH   = 57;
+    static final int NOREFRESH = 58;
 
     static final int SMALLER     = 60;
     static final int NOT_SMALLER = 61;
@@ -171,6 +173,7 @@ public class DbnToken {
 	case MULTIPLY: buffer.append("MULTIPLY"); break;
 	case DIVIDE: buffer.append("DIVIDE"); break;
 	case OPERATOR: buffer.append("OPERATOR"); break;
+	case MODULO: buffer.append("MODULO"); break;
 
 	case INPUT_CONNECTOR: 
 	    buffer.append("INPUT_CONNECTOR " + name); break;
@@ -306,6 +309,7 @@ public class DbnToken {
 	case SUBTRACT: output("-"); break;
 	case MULTIPLY: output("*"); break;
 	case DIVIDE: output("/"); break;
+	case MODULO: output("%"); break;
 
 	case OPERATOR: convertChild(0); break;
 

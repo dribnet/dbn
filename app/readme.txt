@@ -100,6 +100,12 @@ CHANGES (technical section, can be ignored)
 
 IN PROGRESS: Version 1.X: Changes since 1.2.1
 
+- added norefresh to DbnGraphics
+
+- re-oriented the screen layout
+
+- disabled paren balancing code for mac (paste causes crash)
+
 - added parenthesis balancing code
 
 - default directory and filename for file saving are
@@ -110,6 +116,8 @@ IN PROGRESS: Version 1.X: Changes since 1.2.1
 
 - fixed a bug where field was not properly setting the 
   values of the screen's [x y] image array
+
+- refixed that bug again because it hadn't been completely fixed
 
 - fixed a bug where recursion was not working properly
 

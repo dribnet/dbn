@@ -54,6 +54,8 @@ public class DbnApplet extends Applet
 
 
     public void init() {
+	//Properties p = System.getProperties();
+	//p.list(System.out);
 	String file, prog = null;
 	String progs[] = null;
 	String defaultProgram = "// enter program\n";
@@ -62,7 +64,7 @@ public class DbnApplet extends Applet
 
 	if (I18N) initLanguage();
 	
-	boolean wasInline = false;
+	boolean shouldBeautify = false;
 	prog = getParameter("inline_program");
 	if (prog == null) {
 	    file = getParameter("program");
@@ -101,7 +103,9 @@ public class DbnApplet extends Applet
 	    // don't replace the semicolons if it was scheme
 	    if (prog.charAt(0) != ';') 
 		prog = prog.replace(';','\n');
-	    wasInline = true;
+	    shouldBeautify = true;
+	    if (prog.charAt(0) == '#') // don't want to beautify python
+		shouldBeautify = false;
 	}
 	if (progs == null) {
 	    progs = new String[1];
@@ -109,7 +113,7 @@ public class DbnApplet extends Applet
 	}
 	add("Center", gui = new DbnGui(this, progs));
 	// otherwise inline progs will look scary
-	if (wasInline) gui.doBeautify();
+	if (shouldBeautify) gui.doBeautify();
     }
 
     public String getParameter(String name) {
@@ -118,6 +122,21 @@ public class DbnApplet extends Applet
 	}
 	return properties.getProperty(name);
     }
+
+    public Color getColorParameter(String name, Color otherwise) {
+	Color parsed = null;
+	String s = getParameter(name);
+	if ((s != null) && (s.indexOf("#") == 0)) {
+	    try {
+		int v = Integer.parseInt(s.substring(1), 16);
+		parsed = new Color(v);
+	    } catch (Exception e) {
+	    }
+	}
+	if (parsed == null) return otherwise;
+	return parsed;
+    }
+
 
     public void destroy() {
 	if (gui != null) gui.terminate();
@@ -239,7 +258,11 @@ public class DbnApplet extends Applet
 	// counter-intuitive, but applet only set as application
 	return (applet == null);
     }
-	
+    
+    public boolean isMacintosh() {
+	return System.getProperty("os.name").toLowerCase().indexOf("mac") != -1;
+    }
+
     public boolean isLocal() {
 	if (!isApplet()) return true;
 	String codebase = getCodeBase().toString();
