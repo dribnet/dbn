@@ -25,7 +25,9 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
   int width, height;
   long lastTime;
   Image lastImage;
-  boolean firstFrame;
+  int lastX, lastY;
+  boolean lastButton;
+  //boolean firstFrame;
 
   QTCanvas canvas;
   QTImageDrawer qid;
@@ -44,6 +46,11 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
   //boolean started;
   static boolean finishing;
 
+  boolean cursorVisible;
+  Color cursorUpColor;
+  Color cursorDownColor;
+
+
   // a finalizer should call canvas.removeClient() 
   // and then QTSession.close(), frame.dispose() could come after that too
 
@@ -52,6 +59,10 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
     //per("DbnRecorder");
     this.width = width;
     this.height = height;
+
+    cursorVisible = DbnApplet.getBoolean("cursor_visible", false);
+    cursorDownColor = DbnApplet.getColor("cursor_down_color", Color.black);
+    cursorUpColor = DbnApplet.getColor("cursor_up_color", Color.gray);
 
     //FileDialog fd = new FileDialog(new Frame(), "Save Movie As...", 
     //			   FileDialog.SAVE);
@@ -146,27 +157,32 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
   }
 
 
-  static public void addFrame(Image image) {
-    if ((recorder != null) && !finishing) recorder.add(image);
+  static public void addFrame(Image image, int mouseX, 
+			      int mouseY, boolean mouseDown) {
+    if ((recorder != null) && !finishing) 
+      recorder.add(image, mouseX, mouseY, mouseDown);
   }
 
   // the synchronized makes sure that this function finished
   // before stop() and subsequently finish() get called
-  synchronized public void add(Image image) {
+  synchronized public void add(Image image, int mouseX, 
+			      int mouseY, boolean mouseDown) {
     if (recorder == null) return;
 
     //int now = (int) (System.currentTimeMillis() - recorder.startTime);
     long currentTime = System.currentTimeMillis();
     if (currentTime - lastTime < 1000/30) return; // limit to 30 fps
     if (lastTime == 0) {
-      //lastImage = image;
-      //lastTime = currentTime;
-      lastTime = -1;
-      return;
-    } else if (lastTime == -1) {
       lastImage = image;
       lastTime = currentTime;
+      //lastTime = -1;
       return;
+      /*
+    } else if (lastTime == -1) { 
+      lastImage = image; 
+      lastTime = currentTime; 
+      return;
+      */
     }
 	       
     int frameDuration = (int) (currentTime - lastTime);
@@ -210,6 +226,9 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
       
       lastTime = currentTime;
       lastImage = currentImage;
+      lastX = mouseX;
+      lastY = mouseY;
+      lastButton = mouseDown;
 
     } catch (QTException e) {
       e.printStackTrace();
@@ -265,8 +284,16 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
     //g.fillRect(0, 0, width, height);
     //g.setColor(Color.red);
     //g.fillRect(0, 0, 20, 20);
-    if (lastImage != null)
+    if (lastImage != null) {
       g.drawImage(lastImage, 0, 0, null);
+      if (cursorVisible) {
+	g.setColor(lastButton ? cursorDownColor : cursorUpColor);
+	g.drawLine(lastX - 5, lastY, lastX + 5, lastY);
+	g.drawLine(lastX, lastY - 5, lastX, lastY + 5);
+      }
+    } else {
+      System.out.println("drawing nothing");
+    }
     return updateRects;
   }
 }
