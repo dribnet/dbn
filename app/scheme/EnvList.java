@@ -246,12 +246,16 @@ public class EnvList extends ListNode implements Cloneable
 	"(define (dbnrefresh d) (instance_method d\"refresh\"))\n" +
 	"(define (dbnext d x y) (instance_method d \"ext\" x y))\n" +
 	"(define (dbnpaper d x) (instance_method d \"paper\" x))\n" +
+	"(define (dbngetpix d x y) (instance_method d \"getpix\" x y))\n" +
+	"(define (dbnsetpix d x y v) (instance_method d \"setpix\" x y v))\n" +
 	"(define dbg (dbngraphics))\n" +
 	"(define (ext x y) (dbnext dbg x y))\n" +
 	"(define (line x y w h) (dbnline dbg x y w h))\n" +
 	"(define (fillrect x y w h) (dbnfillrect dbg x y w h))\n" +
 	"(define (drawrect x y w h) (dbndrawrect dbg x y w h))\n" +
 	"(define (field x y w h v) (dbnfield dbg x y w h v))\n" +
+	"(define (getpix x y) (dbngetpix dbg x y))\n" +
+	"(define (setpix x y v) (dbnsetpix dbg x y v))\n" +
 	"(define (pen x) (dbnpen dbg x))\n" +
 	"(define (paper x) (dbnpaper dbg x))\n" +
 	"(define (refresh) (dbnrefresh dbg))\n" +
@@ -339,6 +343,11 @@ public class EnvList extends ListNode implements Cloneable
 	e.addEnv("list",new jschemeFunc(jschemeFunc.LIST));
 	e.addEnv("seq",new jschemeFunc(jschemeFunc.SEQ));
 	e.addEnv("eq",new jschemeFunc(jschemeFunc.EQ));
+
+	e.addEnv("not",new jschemeFunc(jschemeFunc.NOT));
+	e.addEnv("or",new jschemeFunc(jschemeFunc.OR));
+	e.addEnv("and",new jschemeFunc(jschemeFunc.AND));
+
 	e.addEnv("print",new jschemeFunc(jschemeFunc.PRINT));
 	e.addEnv("explode",new jschemeFunc(jschemeFunc.EXPLODE));
 	e.addEnv("implode",new jschemeFunc(jschemeFunc.IMPLODE));
@@ -634,8 +643,16 @@ class reflectionFunc extends FunctionObj
 	    if (obj instanceof DbnGraphics) {
 		((DbnGraphics)obj).field(((Number)args[2]).intValue(),((Number)args[3]).intValue(),((Number)args[4]).intValue(),((Number)args[5]).intValue(),((Number)args[6]).intValue());
 	    }
-	} 
-	/*
+	} else if (methodName.equals("setpix")) {
+	    if (obj instanceof DbnGraphics) {
+		((DbnGraphics)obj).setPixel(((Number)args[2]).intValue(),((Number)args[3]).intValue(),((Number)args[4]).intValue());
+	    }
+	} else if (methodName.equals("getpix")) {
+	    if (obj instanceof DbnGraphics) {
+		return new Integer(((DbnGraphics)obj).getPixel(((Number)args[2]).intValue(),((Number)args[3]).intValue()));
+	    }
+
+	    }/*
 	  else if (methodName.equals("add")) {
 	  ((MemWin)obj).add((Component) args[2]);
 	  }
@@ -810,6 +827,9 @@ class jschemeFunc extends FunctionObj
     static final int EXPLODE = 24; // added by JM
     static final int LENGTH = 25; // added by JM
     static final int IMPLODE = 26; // added by JM
+    static final int NOT = 27; // added by JM
+    static final int OR = 28; // added by JM
+    static final int AND = 29; // added by JM
 	
     int mode = 0;
     String op="0";
@@ -841,6 +861,9 @@ class jschemeFunc extends FunctionObj
 	case   PRINT: return printApply(names,args);
 	case   EXPLODE: return explodeApply(names,args);
 	case   IMPLODE: return implodeApply(names,args);
+	case   AND: return andApply(names,args);
+	case   OR: return orApply(names,args);
+	case   NOT: return notApply(names,args);
 	case   LENGTH: return lengthApply(names,args);
 	case   EVAL:  return evalApply(names,args);
 	case   PARSE: return parseApply(names,args);
@@ -988,6 +1011,38 @@ class jschemeFunc extends FunctionObj
 	return ((ListNode) args[0]).car();
     }
 
+    
+    public static final Boolean FALSE = new Boolean(false);
+    public static final Boolean TRUE = new Boolean(true);
+
+    public Object notApply(String[] names, Object args[]) {
+	if (args[0]==null || args[0].equals(FALSE)) return TRUE;
+	else return FALSE;
+    }
+
+    public Object andApply(String[] names, Object args[]) {
+	boolean v=true;
+
+	for(int i =0;i<args.length;i++)
+	    if (args[i]==null || args[i].equals(FALSE)) {
+		v=false;
+		break;
+	    }
+	return v?TRUE:FALSE;
+    }
+
+    public Object orApply(String[] names, Object args[]) {
+	boolean v=false;
+
+	for(int i =0;i<args.length;i++)
+	    if (args[i]!=null) {
+		v=true;
+		break;
+	    }
+	return v?TRUE:FALSE;
+    }
+
+    
     public Object cdrApply(String[] names, Object args[]) {
 	return ((ListNode) args[0]).cdr();
     }
@@ -1033,10 +1088,15 @@ class jschemeFunc extends FunctionObj
     }
 
     public Object printApply(String[] names, Object args[]) {
-	if (args[0]==null) 
-	    System.out.println("PRINT: null");
-	else
-	    System.out.println("PRINT: "+ args[0].toString());
+	String s;
+	if (args[0]==null) {
+	    s="PRINT: null";
+	}
+	else {
+	    s = "PRINT: "+args[0].toString();
+	}
+	(DbnGui.getCurrentDbnGui()).msg(s);
+	System.err.println(s);
 	return null;
     }
 

@@ -352,7 +352,6 @@ public class DbnGraphics
 	return penColor;
     }
 
-
     public void setPixel(int x, int y, int val) {
 	//int checkX, checkY, checkVal;
 	

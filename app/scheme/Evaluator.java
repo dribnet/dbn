@@ -63,6 +63,16 @@ public class Evaluator extends Thread
 	System.out.println("Callback has been completed");
     }
 
+    public boolean truth(Object x) { 
+	//	System.err.println("truth: "+x);
+	if (x==null) {// 	System.err.println(" false");
+	return false;} 
+	else if (x.equals(FALSE)){ //	System.err.println(" false");
+	return false;}
+	else{ 	//System.err.println(" true");
+	return true;}
+    }
+
     //now return Double, should be generic list-element type later
     public Object eval (Object L1, EnvList env1) {
 	Object L=L1; 
@@ -125,8 +135,7 @@ public class Evaluator extends Thread
 		    } else if (s.equals("if")) {
 			LN = (ListNode)LN.cdr();
 			
-			if (((tmp=eval(LN.car(),env)) == null) || 
-			    (!tmp.equals(FALSE))) {
+			if (truth(tmp=eval(LN.car(),env))){
 			    L = LN.second();
 			} else {
 			    L = LN.third();
@@ -143,8 +152,7 @@ public class Evaluator extends Thread
 			while (LN != null) {
 			    //			    System.out.println("this is first" + first);
 			    //			    System.out.println("car is:"+((ListNode)first).car());
-			    if ((tmp=eval(((ListNode)first).car(),env)) == null || 
-				(!tmp.equals(FALSE))) {
+			    if (truth(tmp=eval(((ListNode)first).car(),env))) {
 				//			    System.out.println("  cond is:"+((ListNode)first).second());				
 				L=eval(((ListNode)first).second(),env);
 				break;
@@ -167,7 +175,7 @@ public class Evaluator extends Thread
 
 		    } else if (s.equals("while")) {
 			LN = (ListNode)LN.cdr();
-			while (((tmp=eval(LN.car(),env)) == null) || 
+			while (((tmp=eval(LN.car(),env)) != null) || 
 			    (!tmp.equals(FALSE))) {
 			    //			    System.out.println(eval(LN.car(),env));
 			    L=(eval(LN.second(),env));

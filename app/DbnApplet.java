@@ -26,11 +26,26 @@ public class DbnApplet extends Applet
 	"mouse", "keyboard", "net", "time",
 	"same?", "notsame?", "smaller?", "notsmaller?"
     }, {
+	"ja", "\u304B\u307F", "\u30DA\u30F3", "\u305B\u3093",
+	"\u304F\u308A\u304B\u3048\u3057", "\u305A\u3063\u3068",
+
+	"\u304A\u304F", "\u30B3\u30DE\u30F3\u30C9", 
+	"\u3070\u3093\u3054\u3046", "\u308A\u3087\u3046\u3044\u304D", 
+	"\u30EA\u30D5\u30EC\u30C3\u30B7\u30E5",
+
+	"\u30DE\u30A6\u30B9", "\u30AD\u30FC\u30DC\u30FC\u30C9",
+	"\u30CD\u30C3\u30C8", "\u3058\u304B\u3093", 
+
+	"\u304A\u306A\u3058\uFF1F", 
+	"\u304A\u306A\u3058\u3067\u306A\u3044\uFF1F",
+	"\u3059\u304F\u306A\u3044\uFF1F",
+	"notsmaller?"
+    }, {
 	"es", "papel", "stilo", "l\u00EDnea", "repita", "siempre",
 	"ponga", "instruci\u00F3n", "n\u00FAmero", "\u00E1rea", "refrese",
 	"rat\u00F3n", "teclado", "internet", "hora",
 	"\u00BFigual?", "\u00BFnoigual?", "\u00BFmenos?", "\u00BFnomenos?"
-	}, {
+    }, {
 	"fr", "papier", "plume", "ligne", "r\u00E9peter", "toujours",
 	"mettre", "fonction", "num\u00E9ro", "r\u00E9gion", "\u00E0neuf",
 	"souris", "clef", "r\u00E9seau", "heure",
@@ -275,6 +290,7 @@ public class DbnApplet extends Applet
 	int keywordCount = getKeywordCount();
 	for (int i = 0; i < languageCount; i++) {
 	    String languageName = keywords[i][0];
+	    System.out.println("adding " + languageName + ".");
 	    char characters[][] = new char[keywordCount][];
 	    for (int j = 0; j < keywordCount; j++) {
 		characters[j] = keywords[i][j+1].toCharArray();
@@ -283,7 +299,8 @@ public class DbnApplet extends Applet
 	}
 
 	String parameter = getParameter("encoding");
-	if (parameter == null) languageEncoding = null;
+	//if (parameter == null) languageEncoding = null;
+	languageEncoding = parameter;
 
 	parameter = getParameter("language"); 
 	if (parameter == null) {
@@ -291,7 +308,9 @@ public class DbnApplet extends Applet
 	    languageTable = null;
 	} else {
 	    //System.out.println(language + " " + languageHash);
+	    System.out.println("param = " + parameter);
 	    languageTable = (char[][])languageHash.get(parameter);
+	    System.out.println("lang table = " + languageTable);
 	}
 	/*
 	for (int j = 0; j < languageHash.size()-1; j++) {

@@ -347,6 +347,8 @@ class DbnRunPanel extends Panel {
     Image pat;
     Color fgcol, bgcol;
 
+    //static String TEMPER;
+
     public void idle(long curt)
     {
 	Date d = new Date();
@@ -386,7 +388,7 @@ class DbnRunPanel extends Panel {
 	    setcurdbr(newdbr_at(app,gui,progs[i],0,0,101,101));
 	}
 	dbrvlen = progs.length;
-
+	//TEMPER = progs[0];
     }
     
     public boolean keyDown(Event ev, int n)
@@ -667,7 +669,16 @@ class DbnRunPanel extends Panel {
 	    yoff += 16;
 	} else yoff+=16;
 	
+	//app.gui.titlestr = TEMPER;
 	if (app.gui.titlestr!=null) {
+	    /*
+	    g.setColor(Color.orange); 
+	    g.setFont(new Font("monospaced", Font.PLAIN, 24));
+	    g.drawString(TEMPER, 10, 50);
+	    System.out.println((int)TEMPER.charAt(2)); 
+	    System.out.println((int)TEMPER.charAt(3)); 
+	    //g.drawString("woah", 10, 30);
+	    */
 	    int lead =12,lc=0;
 	    DbnRunner db = (DbnRunner)dbrv.elementAt(dbrv.size()-1);
 	    int x=r.width/2, y=db.dispy+db.disph+lead+yoff;
@@ -781,8 +792,7 @@ public class DbnGui extends Panel {
 	return currentDbnGui;
     }
 
-    public DbnGui(DbnApplet app, String []progs)
-    {
+    public DbnGui(DbnApplet app, String progs[]) {
 	this.app = app;
 	setLayout(new BorderLayout());
 		
@@ -877,10 +887,12 @@ public class DbnGui extends Panel {
 	p1.add(ta = new TextArea(progs[0], 20, 40));	
 	ta.addKeyListener(new ParenBalancer());
 
-	// has to be capitalized. argh.
+	// has to be capitalized. argh. (nope, that's not it either)
 	//ta.setFont(new Font("Monospaced", Font.PLAIN, 12));
 	// that was causing problems, we'll go with the jdk 1.0 style
-	ta.setFont(new Font("courier", Font.PLAIN, 12));
+	// jdk 1.0 style is to call it 'courier'
+	ta.setFont(new Font("monospaced", Font.PLAIN, 12));
+	//ta.setFont(new Font("dialog", Font.PLAIN, 24));
 	add("Center", p1);
 	p1 = new Panel();
 	p1.setLayout(new GridLayout(1,2));
