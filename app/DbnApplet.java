@@ -51,6 +51,7 @@ public class DbnApplet extends Applet
     String mode = get("mode", "editor");
     if (mode.equals("editor")) {
 #ifdef EDITOR
+
       //System.err.println("editor not yet complete");
       //System.exit(0);
       boolean beautify = false; 

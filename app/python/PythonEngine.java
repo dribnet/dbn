@@ -9,9 +9,14 @@ public class PythonEngine extends DbnEngine {
   PythonInterpreter interpreter;
 
   public PythonEngine(/*DbnGraphics graphics,*/ String program) {
+    System.out.println("creating python engine");
     Properties systemProps = System.getProperties();
-    systemProps.put("python.cachedir", "C:\\temp\\potato");
+    systemProps.put("python.home", "E:\\fry\\dbn\\app\\organic2");
+    systemProps.put("python.verbose", "debug");
+    systemProps.put("python.jpythonc.compiler", "jikes");
+    systemProps.put("python.cachedir", "E:\\fry\\dbn\\app\\organic2"); //"C:\\temp\\potato");
     System.setProperties(systemProps);
+    System.getProperties().list(System.out);
 
     //this.graphics = graphics;
     this.program = program;
