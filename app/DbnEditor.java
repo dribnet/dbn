@@ -63,19 +63,19 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     left.add("North", buttons);
 
     //graphics = new DbnGraphics(gwidth, gheight, bgColor);
+#ifndef OPENGL
     graphics = new DbnEditorGraphics(gwidth, gheight, tickColor,
 				     bgColor, bgStippleColor, this);
-
-    /*
-    if (DbnApplet.getBoolean("enhanced_graphics", false)) {
-#ifdef GRAPHICS2
-      graphics = new DbnGraphics2(gwidth, gheight, bgColor);
-#endif
+#else
+    if (DbnApplet.getBoolean("graphics_3D", false)) {
+      graphics = new DbnEditorGraphics3D(gwidth, gheight, tickColor,
+					 bgColor, bgStippleColor, this);
     } else {
-    graphics = new DbnEditorGraphics(gwidth, gheight, tickColor,
+      graphics = new DbnEditorGraphics(gwidth, gheight, tickColor,
 				       bgColor, bgStippleColor, this);
     }
-    */
+#endif
+
     left.add("Center", graphics);
 
     left.setBackground(gutterBgColor);

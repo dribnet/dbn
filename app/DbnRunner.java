@@ -59,6 +59,15 @@ public class DbnRunner implements Runnable {
 #endif
       } else if (program.charAt(0) == '#') {
 #ifdef PYTHON
+#ifdef OPENGL
+	program = "#\r\n" + 
+	  "import DbnEditorGraphics3D\r\n" +
+	  "import ExperimentalCanvas\r\n" +
+	  "g = DbnEditorGraphics3D.getCurrentGraphics()\r\n" +
+	  "glc = g.canvas\r\n" +
+	  "gl = glc.getGL()\r\n" +
+	  "glj = glc.getGLJ()\r\n" + program;
+#endif
 	forceStop = true;
 	engine = new PythonEngine(program);
 	engine.start();

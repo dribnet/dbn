@@ -6,27 +6,19 @@ import java.awt.*;
 public class DbnEditorGraphics extends DbnGraphics {
   static Font plainFont = new Font("Helvetica", Font.PLAIN, 10);
 
-  //Image screenImage;
-  //Graphics screenImageGraphics;
-  //int gx, gy;
-
   Color tickColor;
-  //Color bgColor;
   Color bgStippleColor;
 
   DbnEditor editor;
-  //Frame frame;
 
 
   public DbnEditorGraphics(int width, int height, Color tickColor,
 			   Color bgColor, Color bgStippleColor, 
-			   DbnEditor editor /*, Frame frame*/) {
+			   DbnEditor editor) {
     super(width, height, bgColor);
     this.tickColor = tickColor;
-    //this.bgColor = bgColor;
     this.bgStippleColor = bgStippleColor;
     this.editor = editor;
-    //this.frame = frame;
   }
 
 
@@ -37,7 +29,6 @@ public class DbnEditorGraphics extends DbnGraphics {
 
 
   public void base() {
-    //if ((baseImage == null) || (updateBase)) {
     if (baseImage == null) updateBase = true;
 
     if (updateBase) {
@@ -92,62 +83,13 @@ public class DbnEditorGraphics extends DbnGraphics {
     }
   }
 
-  /*
-  public void paint(Graphics screen) {
-    if (image != null) {
-      if (screenImageGraphics == null)
-	screenImageGraphics = screenImage.getGraphics();
-      if (screenImageGraphics != null)
-	screenImageGraphics.drawImage(image, gx, gy, null);
-    }
-    // blit to screen
-    if (screen != null) {
-      screen.drawImage(screenImage, 0, 0, null);
-    }
-    //screen.drawImage(image, gx, gy, null);
-  }
-
-
-  public boolean mouseEnter(Event e, int x, int y) {    
-    if (frame == null) {
-      // shhh! don't tell anyone!
-      frame = (Frame) getParent().getParent().getParent().getParent();
-      // that is the nastiest piece of code in the codebase
-    }
-    frame.setCursor(Frame.CROSSHAIR_CURSOR);
-    return super.mouseEnter(e, x, y);
-  }
-
-  public boolean updateMouse(Event e, int x, int y) {
-    x -= gx;
-    y -= gy;
-
-#ifdef RECORDER
-    if (e.controlDown() && (mouse[2] == 100)) {
-      Experimental.screenGrab(lastImage, width, height);
-    }
-#endif
-
-    if (e.shiftDown()) {
-      //System.out.println(getLine(x, height1 - y));
-      editor.highlightLine(getLine(x, height1 - y));
-      return true;
-    }
-    mouse[0] = x;
-    mouse[1] = height1 - y;
-    return true;
-  }
-*/ 
 
   public boolean updateMouse(Event e, int x, int y) {
     super.updateMouse(e, x, y);
 
-    //#ifdef RECORDER
     if (e.controlDown() && (mouse[2] == 100)) {
-      //Experimental.screenGrab(lastImage, width, height);
       editor.doSaveTiff();
     }
-    //#endif
 
     if (e.shiftDown()) {
       editor.highlightLine(getLine(x, height1 - y));
