@@ -35,7 +35,7 @@ public class PythonEngine extends DbnEngine {
 		    } catch (NumberFormatException e2) {
 			throw new DbnException("Python error, check the console.");
 		    }
-		    throw new DbnException("Python error on line " + linenum, linenum);
+		    throw new DbnException("Python error on line " + linenum, linenum-1);
 		} else {
 		    //throw new DbnException(e.toString());
 		    throw new DbnException("Python error, check the console.");
