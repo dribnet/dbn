@@ -340,7 +340,7 @@ class DbnRunPanel extends Panel {
     Image pat;
     Color fgcol, bgcol;
 
-    //static String TEMPER;
+    static String TEMPER;
 
     public void idle(long curt)
     {
@@ -381,7 +381,7 @@ class DbnRunPanel extends Panel {
 	    setcurdbr(newdbr_at(app,gui,progs[i],0,0,101,101));
 	}
 	dbrvlen = progs.length;
-	//TEMPER = progs[0];
+	TEMPER = progs[0];
     }
     
     public boolean keyDown(Event ev, int n) {
@@ -660,7 +660,9 @@ class DbnRunPanel extends Panel {
 	    yoff += 16;
 	} else yoff+=16;
 	
-	//app.gui.titlestr = TEMPER;
+	app.gui.titlestr = TEMPER;
+	g.setFont(new Font("monospaced", Font.PLAIN, 24));
+
 	if (app.gui.titlestr!=null) {
 	    /*
 	    g.setColor(Color.orange); 
@@ -670,10 +672,13 @@ class DbnRunPanel extends Panel {
 	    System.out.println((int)TEMPER.charAt(3)); 
 	    //g.drawString("woah", 10, 30);
 	    */
-	    int lead =12,lc=0;
+	    //int lead =12,lc=0;
+	    int lead = 25, lc = 0;
 	    DbnRunner db = (DbnRunner)dbrv.elementAt(dbrv.size()-1);
-	    int x=r.width/2, y=db.dispy+db.disph+lead+yoff;
-	    StringTokenizer st = new StringTokenizer(app.gui.titlestr,";");
+	    //int x=r.width/2, y=db.dispy+db.disph+lead+yoff;
+	    int x = 30, y = 20;
+	    //StringTokenizer st = new StringTokenizer(app.gui.titlestr,";");
+	    StringTokenizer st = new StringTokenizer(app.gui.titlestr,"\r\n");
 
 	    g.setColor(app.gui.textcol);
 	    while(st.hasMoreTokens()) {
@@ -681,7 +686,8 @@ class DbnRunPanel extends Panel {
 		if (lc==0) {
 		    x-=g.getFontMetrics().stringWidth(s)/2;
 		}
-		g.setFont(lc==0?fb:f);
+		//g.setFont(lc==0?fb:f);
+	g.setFont(new Font("cyberbit", Font.PLAIN, 24));
 		g.drawString(s,x,y);
 		y+=lead;lc++;
 	    }
@@ -880,9 +886,12 @@ public class DbnGui extends Panel {
 	p1.add(dbrp = new DbnRunPanel(app, this, progs));
 	p1.add(ta = new TextArea(progs[0], 20, 40));
 
-	DbnParenBalancer pb = new DbnParenBalancer(this);
-	ta.addKeyListener(pb);
-	ta.addFocusListener(pb);
+	//DbnParenBalancer pb = new DbnParenBalancer(this);
+	DbnEditorListener listener = new DbnEditorListener(this);
+	ta.addKeyListener(listener);
+	ta.addFocusListener(listener);
+
+	ta.addKeyListener(new DbnKeyListener(this));
 
 	// has to be capitalized. argh. (nope, that's not it either)
 	//ta.setFont(new Font("Monospaced", Font.PLAIN, 12));
@@ -1203,6 +1212,7 @@ class DbnKeyListener extends KeyAdapter {
     }
 
     public void keyPressed(KeyEvent event) {
+	switch ((int) event.getKeyChar()) {
 	case  2: gui.doBeautify(); break;  // control b for beautify
 	case 15: gui.doOpen(); break;  // control o for open
 	case 18: gui.initiate(); break;  // control r for run
@@ -1211,6 +1221,7 @@ class DbnKeyListener extends KeyAdapter {
 	    // escape only works from the runpanel, because that's
 	    // who's getting all the key events while running
 	    //case 27: gui.terminate(); break;  // escape to stop	
+	}
     }
 }
 

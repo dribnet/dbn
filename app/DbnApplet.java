@@ -39,7 +39,7 @@ public class DbnApplet extends Applet
 	"\u304A\u306A\u3058\uFF1F", 
 	"\u304A\u306A\u3058\u3067\u306A\u3044\uFF1F",
 	"\u3059\u304F\u306A\u3044\uFF1F",
-	"notsmaller?"
+	"\u3059\u304F\u306A\u304F\u306A\u3044\uFF1F"
     }, {
 	"es", "papel", "stilo", "l\u00EDnea", "repita", "siempre",
 	"ponga", "instruci\u00F3n", "n\u00FAmero", "\u00E1rea", "refrese",
