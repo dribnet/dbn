@@ -5,10 +5,10 @@ rem -- this is ben's experimental dbn
 rem -- cleanup the stuff that changes the most
 rm -f classes\*.class 
 
-set ME=organic3
+set ME=experimental
 set CLASSPATH2=%CLASSPATH%
 set CLASSPATH=%ME%\lib\jpython.jar;%CLASSPATH%
-set OPTIONS=-dJDK11 -dJAVAC -dPLAYER_CLASS -dFANCY -dEDITOR -dRECORDER
+set OPTIONS=-dJDK11 -dJAVAC -dPLAYER_CLASS -dFANCY -dEDITOR  -dGRAPHICS2 -dPYTHON
 
 cd ..
 
