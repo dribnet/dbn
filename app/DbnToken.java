@@ -226,17 +226,38 @@ public class DbnToken {
     }
 
 
+    static boolean shouldOutputFunctions;
+
     public void convert() {
+	//System.err.println(kind);
 	switch (kind) {
 
 	case ROOT:
 	    cbuffer = new StringBuffer();
-	    outputln("import java.awt.*;");
-	    outputln();
-	    outputln();
 	    outputln("public class ConvertedProgram extends DbnProgram {");
 	    moreIndent();
+	    outputln("boolean stopped = false;");
+	    outputln();
+
+	    shouldOutputFunctions = true;
+	    Enumeration e = functions.elements();
+	    while (e.hasMoreElements()) {
+		Object object = e.nextElement();
+		if (object instanceof DbnToken) {
+		    DbnToken function = (DbnToken) object;
+		    function.convert();
+		    outputln();
+		}
+	    }
+
+	    shouldOutputFunctions = false;
+	    outputln("public void execute() {");
+	    moreIndent();
+	    convertVariables();
 	    convertChildren();
+	    lessIndent();
+	    outputln("}");
+
 	    lessIndent();
 	    outputln("}");
 	    System.out.println(cbuffer.toString());
@@ -246,18 +267,28 @@ public class DbnToken {
 	case NAME: output(name); break;
 
 	case PIXEL: 
-	    output("getPixel(");
+	    output("env.getPixel(");
 	    convertChild(0);
 	    output(", ");
 	    convertChild(1);
 	    output(")");
 	    break;
-
-	case VARIABLE: output(name); break;
+	    
+	case VARIABLE: 
+	    if (name != null) {
+		output(name);
+	    } else {
+		convertChild(0);
+	    }
+	    break;
 
 	case BLOCK: 
 	    outputln("{");
 	    moreIndent();
+	    if ((parent.kind == COMMAND_DEF) ||
+		(parent.kind == FUNCTION_DEF)) {
+		parent.convertVariables();
+	    }
 	    convertChildren();
 	    lessIndent();
 	    outputln("}");
@@ -279,32 +310,27 @@ public class DbnToken {
 	case OPERATOR: convertChild(0); break;
 
 	case INPUT_CONNECTOR: 
-	    output("getConnector(\"");
+	    output("env.getConnector(\"" + name + "\", ");
 	    convertChild(0);
-	    output("\")");
-	    break;
-
-	case OUTPUT_CONNECTOR:
-	    output("setConnector(\"");
-	    convertChild(0);
-	    output("\", ");
-	    convertChild(1);
 	    output(")");
 	    break;
 
-	case COMMAND_DEF: 
-	case FUNCTION_DEF: 
-	    if (kind == COMMAND_DEF) 
-		output("void " + name + "(");
-	    else 
-		output("int " + name + "(");
-	    int paramCount = childCount-1;
-	    for (int i = 0; i < paramCount; i++) {
-		output("int " + children[i].name);
-		if (i != paramCount-1) output(", ");
+	case COMMAND_DEF:
+	case FUNCTION_DEF:
+	    if (shouldOutputFunctions) {
+		if (kind == COMMAND_DEF) 
+		    output("void " + name + "(");
+		else 
+		    output("int " + name + "(");
+		int paramCount = childCount-1;
+		for (int i = 0; i < paramCount; i++) {
+		    output("int " + children[i].name);
+		    if (i != paramCount-1) output(", ");
+		}
+		outputln(")");
+		convertChild(paramCount); // it's a block
+		//System.out.println(variables);
 	    }
-	    outputln(")");
-	    convertChild(paramCount); // it's a block
 	    break;
 
 	case RETURN_VALUE: 
@@ -317,7 +343,7 @@ public class DbnToken {
 	case COMMAND:
 	    output(name + "(");
 	    for (int i = 0; i < childCount; i++) {
-		convertChild(0);
+		convertChild(i);
 		if (i != childCount-1) output(", ");
 	    }
 	    output(")");
@@ -327,47 +353,76 @@ public class DbnToken {
 	case REPEAT:
 	    // doesn't check to see if it's local 
 	    // cannot do loops going downward
-	    output("for (int ");
+	    boolean goingUp = true;
+	    if ((children[1].children[0].kind == NUMBER) && 
+		(children[2].children[0].kind == NUMBER)) {
+		int a = children[1].children[0].number;
+		int b = children[2].children[0].number;
+		goingUp = (a < b);
+	    }
+	    output("for (");
+	    if (findVariable(children[0].name) == null) 
+		output("int ");
 	    convertChild(0);
 	    output(" = ");
 	    convertChild(1);
 	    output("; ");
 	    convertChild(0);
-	    output(" < ");
+	    output(goingUp ? " <= " : " >= ");
 	    convertChild(2);
 	    output("; ");
 	    convertChild(0);
-	    outputln("++)");
+	    outputln(goingUp ? "++)" : "--)");
 	    convertChild(3);
 	    break;
 
 	case FOREVER: 
-	    outputln("while (true)");
+	    outputln("while (!stopped)");
 	    convertChild(0);
 	    break;
 
-	case SET: 
-	    convertChild(0);
-	    output(" = ");
-	    convertChild(1);
-	    outputln(";");
+	case SET:
+	    DbnToken variable = children[0];
+	    if (variable.childCount == 0) {
+		output(variable.name);
+		output(" = ");
+		convertChild(1);
+		outputln(";");
+	    } else if (variable.children[0].kind == PIXEL) {
+		output("env.setPixel(");
+		variable.children[0].convertChild(0);
+		output(", ");
+		variable.children[0].convertChild(1);
+		output(", ");
+		convertChild(1);
+		outputln(");");
+	    } else if (variable.children[0].kind == OUTPUT_CONNECTOR) {
+		output("env.setConnector(\"");
+		output(variable.children[0].name);
+		output("\", ");
+		convertChild(1);
+		output(")");
+	    } else {
+		System.err.println("not handled " + children[0].kind);
+		System.exit(1);
+	    }
 	    break;
 	    
 	case PAPER:
-	    output("graphics.paper(");
+	    output("env.paper(");
 	    convertChild(0);
 	    outputln(");");
 	    break;
 
 	case PEN:
-	    output("graphics.pen(");
+	    output("env.pen(");
 	    convertChild(0);
 	    outputln(");");
 	    break;
 
 	case LINE: 
 	case FIELD:
-	    output((kind == LINE) ? "graphics.line(" : "graphics.field(");
+	    output((kind == LINE) ? "env.line(" : "env.field(");
 	    convertChild(0);
 	    output(", ");
 	    convertChild(1);
@@ -389,7 +444,7 @@ public class DbnToken {
 	    else if (kind == SAME) output(" == ");
 	    else if (kind == NOT_SAME) output(" != ");
 	    convertChild(1);
-	    output(")");
+	    outputln(")");
 	    convertChild(2);
 	    break;
 
@@ -402,23 +457,36 @@ public class DbnToken {
 	    System.err.println("not handled: " + kind);
 	    System.exit(1);
 	}
-	/*
-	if (variables != null) {
-	    buffer.append(" variables: ");
-	    Enumeration e = variables.keys();
-	    while (e.hasMoreElements()) {
-		buffer.append((String) e.nextElement());
-		buffer.append(' ');
+    }
+
+
+    // could also comma-separate
+    private void convertVariables() {
+	if (variables == null) return;
+	boolean hasVariables = false;
+
+	Enumeration e = variables.keys();
+	while (e.hasMoreElements()) {
+	    String name = (String) e.nextElement();
+	    boolean shouldOutput = true;
+	    // don't the var if it's a function parameter
+	    if ((kind == COMMAND_DEF) || (kind == FUNCTION_DEF)) {
+		int paramCount = childCount - 1;
+		for (int i = 0; i < paramCount; i++) {
+		    if (children[i].name.equals(name)) {
+			shouldOutput = false;
+		    }
+		}
+	    }
+	    if (shouldOutput) {
+		outputln("int " + name + ";");
+		hasVariables = true;
 	    }
 	}
-	*/
-	
-	//for (int i = 0; i < childCount; i++) {
-	//  buffer.append(children[i].toString(indentCount + 2));
-	//}
-	//return buffer.toString();
+	if (hasVariables) {
+	    outputln();
+	}
     }
-    
 
     private void convertChild(int which) {
 	children[which].convert();
@@ -430,32 +498,47 @@ public class DbnToken {
 	}
     }
 
-    int indentCount = 0;
-    String indent = "";
+    static int indentCount = 0;
+    static String indent = "";
+    static boolean shouldIndent = true;
+    static char spaces[] = new char[128];
+    static {
+	for (int i = 0; i < spaces.length; i++) {
+	    spaces[i] = ' ';
+	}
+    }
 
     private void moreIndent() {
 	indentCount += 2;
+	updateIndent();
     }
     
     private void lessIndent() {
 	indentCount -= 2;
+	updateIndent();
     }
     
     private void updateIndent() {
+	StringBuffer temp = new StringBuffer();
 	for (int i = 0; i < indentCount; i++) {
-	    cbuffer.append(' ');
+	    temp.append(' ');
 	}
+	indent = temp.toString();
     }    
 
-    StringBuffer cbuffer;
+    static StringBuffer cbuffer;
 
     
     private void outputln() {
 	cbuffer.append(System.getProperty("line.separator"));
+	shouldIndent = true;
     }
 
     private void output(String str) {
-	cbuffer.append(indent);
+	if (shouldIndent) {
+	    cbuffer.append(indent);
+	    shouldIndent = false;
+	}
 	cbuffer.append(str);
     }
 

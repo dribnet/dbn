@@ -1,4 +1,3 @@
 #@echo off
-#java -nojit DbnParser dbngraphics.dbn
 jre -nojit -cp classes DbnApplet
 

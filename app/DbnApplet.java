@@ -139,9 +139,7 @@ public class DbnApplet extends Applet
 	    progs = new String[1];
 	    progs[0] = prog;
 	}
-	System.err.println("creating gui");
 	add("Center", gui = new DbnGui(this, progs));
-	System.err.println("done creating gui");
 	// otherwise inline progs will look scary
 	if (wasInline) gui.beautify();
     }
