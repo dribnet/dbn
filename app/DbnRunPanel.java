@@ -1,8 +1,6 @@
 import java.awt.*;
 import java.util.*;
 
-// make entire paint method render into an offscreen buffer
-// this is what's so slow on the mac!
 
 public class DbnRunPanel extends Panel {
     DbnApplet app;
@@ -49,6 +47,8 @@ public class DbnRunPanel extends Panel {
 
 	runnerWidth = 101;
 	runnerHeight = 101;
+	//runnerWidth = 201;
+	//runnerHeight = 201;
 
 	runnerCount = progs.length;
 	runners = new DbnRunner[runnerCount];
@@ -244,6 +244,21 @@ public class DbnRunPanel extends Panel {
 	paint(g);
     }
 
+    /*
+    boolean printing;
+    public void print(Graphics printer) {
+	System.out.println("trying to print");
+	printing = true;
+	paint(printer);
+	printing = false;
+    }
+
+    public void printAll(Graphics g) {
+	System.out.println("printing all");
+	super.printAll(g);
+    }
+    */
+
     public void paint(Graphics screen) {
 	Dimension dim = size();
 	if ((offscreen == null) ||
@@ -319,8 +334,14 @@ public class DbnRunPanel extends Panel {
 	}
 	screen.drawImage(offscreen, 0, 0, this);
 	//runners[current].render();
-	screen.drawImage(runners[current].dbg.image,
-			 runnerX[current], runnerY[current], this);
+	//if (!printing) {
+	    screen.drawImage(runners[current].dbg.image,
+			     runnerX[current], runnerY[current], this);
+	    //} else {
+	    //System.out.println("printing");
+	    //runners[current].dbg.print(screen, runnerX[current], 
+	    //		       runnerY[current]);
+	    //}
     }
 
 

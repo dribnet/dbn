@@ -199,6 +199,14 @@ public class DbnGraphics {
     }
 
 
+    public void antialias() {
+	antialias = true;
+    }
+
+    public void alias() {
+	antialias = false;
+    }
+
     public void antialias(int m) {
 	antialias = (m > 50);
     }
@@ -439,6 +447,26 @@ public class DbnGraphics {
 	return pixels;
     }
 
+
+    // awful way to do printing, but sometimes brute force is
+    // just the way. java printing across multiple platforms is
+    // outrageously inconsistent.
+    /*
+    public void print(Graphics g, int offsetX, int offsetY) {
+	g.drawImage(image, offsetX, offsetY, null);
+	
+	int index = 0;
+	for (int y = 0; y < height; y++) {
+	    for (int x = 0; x < width; x++) {
+		// hopefully little overhead in setting color
+		g.setColor(grays[100 - pixels[index++]]);
+		g.drawLine(offsetX + x, offsetY + y,
+			   offsetX + x, offsetY + y);
+	    }
+	}
+	
+    }
+    */
 
     // used by dbngui to get/set stuff
     public Hashtable getConnectorTable() {

@@ -1,6 +1,6 @@
 import java.awt.*;
 //import java.applet.Applet;
-//import java.util.*;
+import java.util.*;
 
 
 public class DbnGui extends Panel {
@@ -8,6 +8,7 @@ public class DbnGui extends Panel {
     static final String SNAPSHOT_ITEM = "Save";
     static final String SAVE_ITEM = "Save as...";
     static final String OPEN_ITEM = "Open...";
+    static final String PRINT_ITEM = "Print";
 
     // set explicitly because different platforms use different colors
     static final Color panelBgColor = new Color(204, 204, 204);
@@ -101,6 +102,8 @@ public class DbnGui extends Panel {
 		cmds.addItem(OPEN_ITEM);
 		cmds.addItem(SAVE_ITEM);
 	    }
+	    cmds.addItem(PRINT_ITEM);
+
 	    p1.add(dbcp = new DbnControlPanel(app,this)); 
 	    p1.add(p2);
 	}
@@ -157,8 +160,28 @@ public class DbnGui extends Panel {
 	    else if (selected.equals(SNAPSHOT_ITEM)) doSnapshot();
 	    else if (selected.equals(SAVE_ITEM)) doSave();
 	    else if (selected.equals(OPEN_ITEM)) doOpen();
+	    else if (selected.equals(PRINT_ITEM)) doPrint();
     	}
         return true;
+    }
+
+    public void doPrint() {
+	Frame frame = new Frame(); // bullocks
+	int screenWidth = getToolkit().getScreenSize().width;
+	frame.reshape(screenWidth - 10, 10, screenWidth + 100, 100);
+	frame.show();
+
+	Properties props = new Properties();
+	PrintJob pj = getToolkit().getPrintJob(frame, "DBN", props);
+	if (pj != null) {
+	    Graphics g = pj.getGraphics();
+	    //dbrp.runners[dbrp.current].dbg.print(g, 100, 100); 
+	    g.drawImage(dbrp.runners[dbrp.current].dbg.image, 100, 100, null);
+	    g.dispose();
+	    g = null;
+	}
+	pj.end();
+	frame.dispose();
     }
 
     public void doSnapshot() {
