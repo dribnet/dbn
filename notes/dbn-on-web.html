@@ -1,0 +1,53 @@
+<B>how to put DBN applets on your own web page</B>
+
+<BR> <BR> <BR>
+
+1. Download a copy of DBN from dbn.media.mit.edu.
+
+<P>
+
+2. Copy the file <EM>dbn.jar</EM> from DBN's <EM>lib</EM> folder into
+the same folder as your web page.
+
+<P>
+
+3. Save your DBN program to a file, for instance <EM>fancy.dbn</EM>
+and put that in the same folder as your web page.
+
+<P>
+
+4. Add the following text to your web page's HTML, and replace
+<EM>yourprogram.dbn</EM> with whatever you called your program in the
+last step.
+
+<P>
+
+<PRE>
+&lt;APPLET CODE="DbnApplet" ARCHIVE="dbn.jar" WIDTH=110 HEIGHT=110&gt;
+&lt;PARAM NAME="mode" VALUE="grid"&gt;
+&lt;PARAM NAME="program0" VALUE="yourprogram.dbn"&gt;
+&lt;/APPLET&gt;
+</PRE>
+
+<P>
+
+5. Your web page should now include your DBN program. 
+
+<BR> <BR> <BR>
+
+<B>problems?</B>
+
+<P>
+
+You may not be able to run that web page from the disk, you'll
+probably have to upload it to your web server and check it there to
+see if it's working. This is because Java won't let DBN read files
+from your computer's hard disk.
+
+<P>
+
+If you're having trouble, contact <CODE>dbn-feedback@media.mit.edu</CODE>
+
+<BR> <BR> <BR>
+
+<EM>last updated 010106 by fry</EM>
