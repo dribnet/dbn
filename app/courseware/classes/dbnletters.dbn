@@ -1,5 +1,5 @@
 // dbnletters
-command typea h v
+command letterA h v
 {
   line h v h (v+7)
   line (h) (v+7) (h+3) (v+10)
@@ -7,7 +7,7 @@ command typea h v
   line (h+10) (v+3) (h+10) v
   line h (v+3) (h+10) (v+3)
 }
-command typeb h v
+command letterB h v
 {
   line h v h (v+10)
   line h (v+10) (h+5) (v+10)
@@ -17,14 +17,14 @@ command typeb h v
   line (h+10) (v+3) (h+10) (v+1)
   line h v (h+9) v
 }
-command typec h v
+command letterC h v
 {
   line (h+4) v (h+10) v
   line (h+4) v h (v+4)
   line h (v+4) h (v+9)
   line (h+1) (v+10) (h+9) (v+10)
 }
-command typed h v
+command letterD h v
 {
   line h v h (v+10)
   line h v (h+8) v
@@ -33,7 +33,7 @@ command typed h v
   line (h+10) (v+6) (h+6) (v+10)
   line (h+6) (v+10) h (v+10)
 }
-command typee h v
+command letterE h v
 {
   line h (v+3) h (v+10)
   line h (v+3) (h+3) v
@@ -41,13 +41,13 @@ command typee h v
   line h (v+6) (h+9) (v+6)
   line h (v+10) (h+9) (v+10)
 }
-command typef h v
+command letterF h v
 {
   line h v h (v+10)
   line h (v+6) (h+8) (v+6)
   line h (v+10) (h+10) (v+10)
 }
-command typeg h v
+command letterG h v
 {
   line (h+4) v (h+9) v
   line (h+4) v h (v+4)
@@ -56,36 +56,36 @@ command typeg h v
   line (h+10) (v+1) (h+10) (v+5)
   line (h+10) (v+5) (h+6) (v+5)
 }
-command typeh h v
+command letterH h v
 {
   line h v h (v+10)
   line h (v+4) (h+10) (v+4)
   line (h+10) v (h+10) (v+10)
 }
-command typei h v
+command letterI h v
 {
   line h v (h+10) v
   line (h+5) v (h+5) (v+10)
   line h (v+10) (h+9) (v+10)
 }
-command typej h v
+command letterJ h v
 {
   line h (v+3) (h+3) v
   line (h+3) v (h+9) v
   line (h+10) (v+1) (h+10) (v+10)
 }
-command typek h v
+command letterK h v
 {
   line h v h (v+10)
   line h (v+1) (h+9) (v+10)
   line (h+5) (v+5) (h+10) v
 }
-command typel h v
+command letterL h v
 {
   line h v h (v+10)
   line h v (h+10) v
 }
-command typem h v
+command letterM h v
 {
   line h v h (v+10)
   //line h (v+10) (h+2) (v+10)
@@ -93,14 +93,14 @@ command typem h v
   line (h+5) (v+6) (h+9) (v+10)
   line (h+10) (v+10) (h+10) v
 }
-command typen h v
+command letterN h v
 {
   line h v h (v+10)
   line h (v+10) (h+3) (v+10)
   line (h+3) (v+10) (h+10) (v+3)
   line (h+10) (v+10) (h+10) v
 }
-command typeo h v
+command letterO h v
 {
   line (h+4) v (h+9) v
   line (h+4) v h (v+4)
@@ -109,7 +109,7 @@ command typeo h v
   line (h+7) (v+10) (h+10) (v+7)
   line (h+10) (v+7) (h+10) (v+1)
 }
-command typep h v
+command letterP h v
 {
   line h v h (v+10)
   line h (v+10) (h+7) (v+10)
@@ -117,7 +117,7 @@ command typep h v
   line (h+10) (v+6) (h+8) (v+4)
   line h (v+4) (h+8) (v+4)
 }
-command typeq h v
+command letterQ h v
 {
   line (h+4) v (h+8) v
   line (h+4) v h (v+4)
@@ -127,7 +127,7 @@ command typeq h v
   line (h+10) (v+7) (h+10) (v+2)
   line (h+6) (v+4) (h+10) v
 }
-command typer h v
+command letterR h v
 {
   line h v h (v+10)
   line h (v+10) (h+7) (v+10)
@@ -136,7 +136,7 @@ command typer h v
   line h (v+4) (h+8) (v+4)
   line (h+6) (v+4) (h+10) v
 }
-command types h v
+command letterS h v
 {
   line h (v+2) (h+2) v
   line (h+2) v (h+9) v
@@ -147,26 +147,26 @@ command types h v
   line (h+1) (v+10) (h+9) (v+10)
   line (h+9) (v+10) (h+10) (v+9)
 }
-command typet h v
+command letterT h v
 {
   line h (v+10) (h+10) (v+10)
   line (h+5) (v+10) (h+5) v
 }
-command typeu h v
+command letterU h v
 {
   line h (v+10) h (v+3)
   line h (v+3) (h+3) v
   line (h+3) v (h+9) v
   line (h+10) (v+1) (h+10) (v+10)
 }
-command typev h v
+command letterV h v
 {
   line h (v+10) h (v+5)
   line h (v+5) (h+5) v
   line (h+5) v (h+10) (v+5)
   line (h+10) (v+5) (h+10) (v+10)
 }
-command typew h v
+command letterW h v
 {
   line h (v+10) h (v+3)
   line h (v+3) (h+3) v
@@ -174,7 +174,7 @@ command typew h v
   line (h+6) (v+3) (h+9) v
   line (h+10) (v+1) (h+10) (v+10)
 }
-command typex h v
+command letterX h v
 {
   line h (v+10) h (v+9)
   line h (v+9) (h+4) (v+5)
@@ -186,12 +186,12 @@ command typex h v
   line (h+6) (v+5) (h+10) (v+1)
   line (h+10) (v+1) (h+10) v
 }
-command typex2 h v
+command letterX2 h v
 {
   line h v (h+10) (v+10)
   line h (v+10) (h+10) v
 }
-command typey h v
+command letterY h v
 {
   line h (v+10) h (v+7)
   line h (v+7) (h+3) (v+4)
@@ -200,7 +200,7 @@ command typey h v
   line (h+9) v (h+2) v
   line (h+2) v h (v+2)
 }
-command typez h v
+command letterZ h v
 {
   line h (v+10) (h+10) (v+10)
   line (h+10) (v+10) h v
@@ -210,131 +210,131 @@ command letter l h v
 {
   same? l 1
   {
-    typea h v
+    letterA h v
   }
   same? l 2
   {
-    typeb h v
+    letterB h v
   }
   same? l 3
   {
-    typec h v
+    letterC h v
   }
   same? l 4
   {
-    typed h v
+    letterD h v
   }
   same? l 5
   {
-    typee h v
+    letterE h v
   }
   same? l 6
   {
-    typef h v
+    letterF h v
   }
   same? l 7
   {
-    typeg h v
+    letterG h v
   }
   same? l 8
   {
-    typeh h v
+    letterH h v
   }
   same? l 9
   {
-    typei h v
+    letterI h v
   }
   same? l 10
   {
-    typej h v
+    letterJ h v
   }
   same? l 11
   {
-    typek h v
+    letterK h v
   }
   same? l 12
   {
-    typel h v
+    letterL h v
   }
   same? l 13
   {
-    typem h v
+    letterM h v
   }
   same? l 14
   {
-    typen h v
+    letterN h v
   }
   same? l 15
   {
-    typeo h v
+    letterO h v
   }
   same? l 16
   {
-    typep h v
+    letterP h v
   }
   same? l 17
   {
-    typeq h v
+    letterQ h v
   }
   same? l 18
   {
-    typer h v
+    letterR h v
   }
   same? l 19
   {
-    types h v
+    letterS h v
   }
   same? l 20
   {
-    typet h v
+    letterT h v
   }
   same? l 21
   {
-    typeu h v
+    letterU h v
   }
   same? l 22
   {
-    typev h v
+    letterV h v
   }
   same? l 23
   {
-    typew h v
+    letterW h v
   }
   same? l 24
   {
-    typex h v
+    letterX h v
   }
   same? l 25
   {
-    typey h v
+    letterY h v
   }
   same? l 26
   {
-    typez h v
+    letterZ h v
   }
 }
 command testdbnletters
 {
-paper 0
-pen 100
-set x 17
-set y 73
-set dx 12
-set dy 12
-set n 0
-repeat a 1 25
-{
-  letter a x y
-  set x (x+dx)
-  set n (n+1)
-  same? n 5
+  paper 0
+  pen 100
+  set x 17
+  set y 73
+  set dx 12
+  set dy 12
+  set n 0
+  repeat a 1 25
   {
-    set x 17
-    set y (y-dy)
-    set n 0
+    letter a x y
+    set x (x+dx)
+    set n (n+1)
+    same? n 5
+    {
+      set x 17
+      set y (y-dy)
+      set n 0
+    }
   }
-}
-set x (x+dx*5)
-letter 26 x y
+  set x (x+dx*5)
+  letter 26 x y
 }
 
