@@ -166,6 +166,8 @@ public class DbnFancy extends DbnApplication implements ItemListener {
     String theText = readFile(filename);
     if (theText != null) {
       frame.setTitle(currentProblem + " - " + currentPerson + " - DBN");
+      environment.message(currentProblem + " - " + 
+			  currentPerson);
     } else {
       theText = "";
       environment.message(currentProblem + " for " + 
