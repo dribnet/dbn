@@ -15,7 +15,8 @@ public class DbnApplication extends DbnApplet {
   Frame frame;
 
   static public void main(String args[]) {
-    new DbnApplication();
+    new DbnApplication().frame.show();
+    //frame.show();
   }
 
   public DbnApplication() {
@@ -84,7 +85,7 @@ public class DbnApplication extends DbnApplet {
     frame.reshape(50, 50, width + insets.left + insets.right, 
 		  height + insets.top + insets.bottom);
     frame.pack();
-    frame.show();
+    //frame.show();
   }
 }
 

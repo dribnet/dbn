@@ -91,10 +91,10 @@ public class DbnEditorGraphics extends DbnGraphics {
 	screenImageGraphics.drawImage(image, gx, gy, null);
     }
     // blit to screen
-    //if (screen != null) {
-    //screen.drawImage(screenImage, 0, 0, null);
-    //}
-    screen.drawImage(image, gx, gy, null);
+    if (screen != null) {
+      screen.drawImage(screenImage, 0, 0, null);
+    }
+    //screen.drawImage(image, gx, gy, null);
   }
 
 

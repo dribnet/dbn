@@ -27,6 +27,7 @@ public class DbnEditor extends Panel implements DbnEnvironment {
   String lastDirectory;
   String lastFile;
 
+  boolean playing;
   //#ifdef RECORDER
   //boolean shiftDown;
   //#endif
@@ -90,6 +91,10 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     textarea.setFont(DbnApplet.getFont("editor"));
     right.add("Center", textarea);
 
+#ifdef FANCY
+    right.add("South", DbnFancy.makeDescription());
+#endif
+
     this.add("West", left);
     this.add("Center", right);
 
@@ -108,6 +113,7 @@ public class DbnEditor extends Panel implements DbnEnvironment {
 
   public void doPlay() {
     doStop();
+    playing = true;
     buttons.play();
 
     runner.setProgram(textarea.getText());
@@ -133,7 +139,7 @@ public class DbnEditor extends Panel implements DbnEnvironment {
   public void doStop() {
     terminate();
     buttons.clear();
-
+    playing = false;
 #ifdef RECORDER
     DbnRecorder.stop();
 #endif
@@ -466,6 +472,7 @@ public class DbnEditor extends Panel implements DbnEnvironment {
 #ifdef RECORDER
     DbnRecorder.stop();
 #endif
+    playing = false;
     buttons.clearPlay();
     message("Done.");
   }

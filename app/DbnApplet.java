@@ -190,8 +190,8 @@ public class DbnApplet extends Applet
       stream = url.openStream();
 	
     } catch (Exception e3) {
-      e1.printStackTrace(); 
-      e2.printStackTrace();
+      //e1.printStackTrace(); 
+      //e2.printStackTrace();
       return null;
     } } }
 

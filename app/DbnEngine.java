@@ -79,15 +79,17 @@ public class DbnEngine {
       lastNight = t;
     }
     */
-    /*
+    
     lastNight++;
     if ((lastNight % 100) == 0) {
       try {
+	//System.out.println("gonna sleep " + Thread.currentThread());
 	Thread.sleep(5);
+	//System.out.println("rested");
       } catch (InterruptedException e) { }
       lastNight = 0;
     }
-    */
+    
 
     DbnToken current = statement.children[0];
     switch (current.kind) {
