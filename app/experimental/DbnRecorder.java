@@ -36,6 +36,7 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
   File tempFile;
   DataOutputStream tempOutputStream;
   ByteArrayOutputStream arrayOutputStream;
+  byte tempFrameBuffer[];
 
   QTCanvas canvas;
   QTImageDrawer qid;
@@ -143,6 +144,7 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
       }
       tempFrameCount = 0;
       lastTime = System.currentTimeMillis();
+      tempFrameBuffer = new byte[width*height*3];
       environment.message("Recording movie...");
 
     } catch (Exception e) {
@@ -200,10 +202,14 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
       tempOutputStream.writeInt(mouseX);
       tempOutputStream.writeInt(mouseY);
       tempOutputStream.writeBoolean(mouseDown);
-      //tempOutputStream.write(pixels);
+      int index = 0;
       for (int i = 0; i < pixels.length; i++) {
-	tempOutputStream.writeInt(pixels[i]);
+	//tempOutputStream.writeInt(pixels[i]);
+	tempFrameBuffer[index++] = (byte) ((pixels[i] >> 16) & 0xff);
+	tempFrameBuffer[index++] = (byte) ((pixels[i] >> 8) & 0xff);
+	tempFrameBuffer[index++] = (byte) ((pixels[i] >> 0) & 0xff);
       }
+      tempOutputStream.write(tempFrameBuffer);
       tempFrameCount++;
       //System.out.println("done tos");
       //}
@@ -237,8 +243,14 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
       int mouseX = tempInputStream.readInt();
       int mouseY = tempInputStream.readInt();
       boolean mouseDown = tempInputStream.readBoolean();
+      int index = 0;
+      tempInputStream.readFully(tempFrameBuffer);
       for (int j = 0; j < pixels.length; j++) {
-	pixels[j] = tempInputStream.readInt();
+	//pixels[j] = tempInputStream.readInt();
+	pixels[j] = (0xff000000 |
+		     ((tempFrameBuffer[index++] & 0xff) << 16) |
+		     ((tempFrameBuffer[index++] & 0xff) << 8) |
+		     ((tempFrameBuffer[index++] & 0xff)));
       }
       //tempInputStream.readFully(pixelBytes);
 
