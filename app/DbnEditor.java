@@ -19,7 +19,8 @@ public class DbnEditor extends Panel implements DbnEnvironment {
   DbnApplet app;
 
   DbnEditorButtons buttons;
-  DbnEditorGraphics graphics;
+  //DbnEditorGraphics graphics;
+  DbnGraphics graphics;
   DbnRunner runner;
 
   Label status;
@@ -64,8 +65,12 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     buttons.setBackground(buttonBgColor);
     left.add("North", buttons);
 
+#ifndef GRAPHICS2
     graphics = new DbnEditorGraphics(gwidth, gheight, tickColor,
 				     bgColor, bgStippleColor, this);
+#else
+    graphics = new DbnGraphics2(gwidth, gheight, bgColor);
+#endif
     left.add("Center", graphics);
 
     //Panel gutter = new Panel();

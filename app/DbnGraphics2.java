@@ -1,5 +1,6 @@
 #ifdef GRAPHICS2
 
+
 import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
@@ -7,40 +8,45 @@ import java.net.*;
 import java.util.*;
 
 
-// need a better solution for getpixel
-// maybe return an array for python
-// or write into an array
+// TODO fix miscellaneous update bugs
 
-public class DbnGraphics2 extends Panel {
-  Image image;
+// DONE don't update if it's the same size
+
+// DONE figure out a good get/set pixel setup
+
+// DONE fix mouse input
+
+// DONE switch to toggle between hsb and rgb
+//      useRGB, useHSB, useRgbColors, setRGB(true)
+
+// DONE need a better solution for getpixel
+//      maybe return an array for python
+//      or write into an array
+
+public class DbnGraphics2 extends DbnGraphics {
+  //Image image;
   MemoryImageSource source;
   Graphics panelg;
+
+  Image screenImage;
+  Graphics screenImageGraphics;
+  int gx, gy;
+
+  Color bgColor;
 
   int pixels[];
   int pixelCount;
   int penColor;
 
-  int width, height;
-  int width1, height1;
-
-  int mouse[] = new int[3];
-  int array[] = new int[1000];
-  int key[] = new int[26];
-  long keyTime[] = new long[26];
+  static final int HSB = 0;
+  static final int RGB = 1;
+  int colorModel;
 
 
-  public DbnGraphics2(int width, int height) {
-    this.width = width;
-    this.height = height;
-    width1 = width - 1;
-    height1 = height - 1;
-	
-    pixelCount = width * height;
-    pixels = new int[pixelCount];
-    for (int i = 0; i < pixelCount; i++) {
-      pixels[i] = 0xffffffff;
-    }
-    penColor = 0xff000000;
+  public DbnGraphics2(int width, int height, Color bgColor) {
+    this.bgColor = bgColor;
+    currentDbnGraphics = this;
+    resize(width, height);
   }
 
 
@@ -48,22 +54,79 @@ public class DbnGraphics2 extends Panel {
 
   // actual methods relating to dbn calls
 
-    
-  public void refresh() {
-    source.newPixels();
-    update();
+  public void useRgbColor() {
+    colorModel = RGB;
   }
 
+  public void useHsbColor() {
+    colorModel = HSB;
+  }
+
+  public void refresh() {
+    if (source != null) {
+      source.newPixels();
+      update();
+    }
+  }
+
+
+  public void resize(int width, int height) {
+    int oldWidth = this.width;
+    int oldHeight = this.height;
+
+    this.width = width;
+    this.height = height;
+    width1 = width - 1;
+    height1 = height - 1;
+    this.bgColor = bgColor;
+
+    pixelCount = width * height;
+    pixels = new int[pixelCount];
+    for (int i = 0; i < pixelCount; i++)
+      pixels[i] = 0xffffffff;
+    penColor = 0xff000000;
+
+    source = new MemoryImageSource(width, height, pixels, 0, width);
+    source.setAnimated(true);
+    //source.setFullBufferUpdates(true);
+    image = Toolkit.getDefaultToolkit().createImage(source);
+
+    screenImage = null; // so that it gets reshaped
+    update();
+
+    if (oldWidth != width || oldHeight != height) {
+      if (getParent() != null) {
+	//invalidate();
+	//getParent().getParent().doLayout();
+	Frame frame = (Frame) getParent().getParent().getParent().getParent();
+	frame.pack();
+      }
+    }
+  }
+
+
+  public void paper(int val) {
+    paper((float)val);
+  }
 
   public void paper(float val) {
-    paper(0, 0, 100 - bound(val, 100));
+    paperColor(0, 0, 100 - boundf(val, 100));
   }
 
-  public void paper(float h, float s, float b) {
+  public void paperColor(float h, float s, float b) {
     // hopefully this comes back as opaque
-    val = Color.HSBtoRGB(bound(h, 100)/100f, 
-			 bound(s, 100)/100f, 
-			 bound(b, 100)/100f);
+    int val = 0;
+
+    if (colorModel == HSB) {
+      val = Color.HSBtoRGB(boundf(h, 100)/100f, 
+			   boundf(s, 100)/100f, 
+			   boundf(b, 100)/100f);
+    } else {
+      int red = (int) (h * 2.55);
+      int green = (int) (s * 2.55);
+      int blue = (int) (b * 2.55);
+      val = 0xff000000 | (red << 16) | (green << 8) | blue;      
+    }
     for (int i = 0; i < pixelCount; i++) {
       pixels[i] = val;
     }
@@ -106,14 +169,31 @@ public class DbnGraphics2 extends Panel {
   }
 
 
-  public void pen(float val) {
-    pen(0, 0, 100 - bound(val, 100));
+  public void pen(int val) {
+    pen((float)val);
   }
 
-  public void pen(float h, float s, float b) {
-    penColor = Color.HSBtoRGB(bound(h, 100)/100f, 
-			      bound(s, 100)/100f, 
-			      bound(b, 100)/100f);
+  public void pen(float val) {
+    penColor(0, 0, 100 - boundf(val, 100));
+  }
+
+  public void penColor(float h, float s, float b) {
+    if (colorModel == HSB) {
+      penColor = Color.HSBtoRGB(boundf(h, 100)/100f, 
+				boundf(s, 100)/100f, 
+				boundf(b, 100)/100f);
+    } else {
+      int red = (int) (h * 2.55);
+      int green = (int) (s * 2.55);
+      int blue = (int) (b * 2.55);
+      penColor = 0xff000000 | (red << 16) | (green << 8) | blue;      
+    }
+    //int a = (penColor >> 24) & 0xff;
+    //int r = (penColor >> 16) & 0xff;
+    //int g = (penColor >> 8) & 0xff;
+    //int bb = (penColor) & 0xff;
+    //System.out.println(a + ", " + r + ", " + g + ", " + bb);
+    //System.out.println(penColor + " " + h + ", " + s + ", " + b);
   }
 
 
@@ -129,7 +209,11 @@ public class DbnGraphics2 extends Panel {
     return ((x < 0 ? 8 : 0) | (x > width1 ? 4 : 0) |
 	    (y < 0 ? 2 : 0) | (y > height1 ? 1 : 0));
   }
-    
+
+  public void line(int ox1, int oy1, int ox2, int oy2) {
+    line((float)ox1, (float)oy1, (float)ox2, (float)oy2);
+  }
+
   public void line(float fox1, float foy1, float fox2, float foy2) {
     int ox1 = (int) fox1;
     int oy1 = (int) foy1;
@@ -238,7 +322,7 @@ public class DbnGraphics2 extends Panel {
       incrE = -2*dy;
       incrNE = -2*(dy+dx);
     }
-    if(which==1 || which==4) {
+    if (which==1 || which==4) {
       twoV = 0;
       invDenom = 1.0f / (2.0f * (float)Math.sqrt(dx*dx + dy*dy));
       twoDX = 2 * sdx * invDenom;
@@ -268,8 +352,8 @@ public class DbnGraphics2 extends Panel {
       y = y1;
       intensifyPixel(x, y);
 
-      while(y < y2) {
-	if(d<0) {
+      while (y < y2) {
+	if (d < 0) {
 	  twoV = d + dy;
 	  d += incrE;
 	  ++y;
@@ -294,39 +378,57 @@ public class DbnGraphics2 extends Panel {
 
   ////////////////////////////////////////////////////////////
 
+  // unsupported methods
+
+
+  public void norefresh() {
+    System.err.println("norefresh notneeded, just be sure to use refresh");
+  }
+
+  public void field(int a, int b, int c, int d, int e) {
+    System.err.println("field not supported, use fillRect(x1, y1, x2, y2) instead");
+  }
+
+  public void antialias(int m) {
+    System.err.println("antialias not supported, don't bother");
+  }
+
+
+  ////////////////////////////////////////////////////////////
+
   // related methods, or likely to be called by alternate 
   // implementations like scheme and python
 
-  private final float bound(float input, float upper) {
+  private final float boundf(float input, float upper) {
     if (input > upper) return upper;
     else if (input < 0) return 0;
     else return input;
   }
 
-
+  /*
   public int[] getPixels() {
     return pixels;
   }
-
+  */
 
   // awful way to do printing, but sometimes brute force is
   // just the way. java printing across multiple platforms is
   // outrageously inconsistent.
     
-  public void print(Graphics printerg, int offsetX, int offsetY) {
+  public void print(Graphics printg, int offsetX, int offsetY) {
     //g.drawImage(image, offsetX, offsetY, null);
 	
     int index = 0;
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
 	// hopefully little overhead in setting color
-	printerg.setColor(new Color([pixels[index++]]));
-	printerg.drawLine(offsetX + x, offsetY + y,
-			  offsetX + x, offsetY + y);
+	printg.setColor(new Color(pixels[index++]));
+	printg.drawLine(offsetX + x, offsetY + y,
+			offsetX + x, offsetY + y);
       }
     }
   }
-    
+
 
   public void reset() {
     for (int i = 0; i < pixelCount; i++) {
@@ -344,20 +446,24 @@ public class DbnGraphics2 extends Panel {
 
 
   public void setPixel(int x, int y, float gray) {
-    setPixel(x, y, 0, 0, 100 - gray);
+    setPixelColor(x, y, 0, 0, 100 - gray);
   }
 
-  public void setPixel(int x, int y, float h, float s, float b) {
+  public void setPixelColor(int x, int y, float h, float s, float b) {
     if (x < 0 || x > width1 || y < 0 || y > height1) return;
 
-    val = Color.HSBtoRGB(bound(h, 100)/100f, 
-			 bound(s, 100)/100f, 
-			 bound(b, 100)/100f);
-    pixels[index] = val;
+    int val = Color.HSBtoRGB(boundf(h, 100)/100f, 
+			     boundf(s, 100)/100f, 
+			     boundf(b, 100)/100f);
+    pixels[(height1-y) + x] = val;
+  }
+
+  public void setPixelInt(int x, int y, int val) {
+    pixels[(height1-y) + x] = val;
   }
 
 
-  public float[] getPixel(int x, int y) {
+  public float[] getPixelColor(int x, int y) {
     int val =  pixels[(height1-((y<0)?0:((y>height1)?height1:y)))*width + 
 		     ((x<0)?0:((x>width1)?width1:x))];
     float hsb[] = new float[3];
@@ -369,7 +475,12 @@ public class DbnGraphics2 extends Panel {
     return hsb;
   }
 
+  public int getPixelInt(int x, int y) {
+    return pixels[(height1-((y<0)?0:((y>height1)?height1:y)))*width + 
+		 ((x<0)?0:((x>width1)?width1:x))];
+  }
 
+  /*
   public final int getMouse(int slot) { // throws DbnException {
     //System.out.println("get");
     return mouse[slot-1];
@@ -408,7 +519,7 @@ public class DbnGraphics2 extends Panel {
 			     " of array");
     }
   }
-
+  
   public int getConnector(String name, int slot) throws DbnException {
     try {
       if (name.equals("mouse")) {
@@ -443,6 +554,7 @@ public class DbnGraphics2 extends Panel {
 			     " to " + value);
     }
   }
+
 
 
 
@@ -554,14 +666,14 @@ public class DbnGraphics2 extends Panel {
       }
     }
   }
-
+  */
 
   ////////////////////////////////////////////////////////////
 
   // panel methods, get connector input, etc.
 
   public Dimension preferredSize() {
-    return new Dimension(width, height);
+    return new Dimension(width1 + 30, height1 + 30);
   }
 
 
@@ -583,15 +695,48 @@ public class DbnGraphics2 extends Panel {
   }
 
   public void paint(Graphics screen) {
+    /*
     if (image == null) {
+      //if (pixels == null) System.err.println("null pixels");
       source = new MemoryImageSource(width, height, pixels, 0, width);
       source.setAnimated(true);
       image = createImage(source);
       if (image == null) return;
     }
+    */
+    if (screenImage == null) {
+      //Dimension dim = new Dimension(width + 100, height + 100);
+      Dimension dim = preferredSize();
+      screenImage = createImage(dim.width, dim.height);
+      Graphics g = screenImage.getGraphics();
+      gx = (dim.width - width) / 2;
+      gy = (dim.height - height) / 2;
+
+      // draw background
+      g.setColor(bgColor);
+      g.fillRect(0, 0, dim.width, dim.height);
+
+      // draw a dark frame around the runner
+      g.setColor(Color.black);
+      g.drawRect(gx-1, gy-1, width+1, height+1);
+    }
+
+    if (image != null) {
+      //if (screenImageGraphics == null)
+      //screenImageGraphics = screenImage.getGraphics();
+      //if (screenImageGraphics != null)
+      //screenImageGraphics.drawImage(image, gx, gy, null);
+      Graphics g = screenImage.getGraphics();
+      g.drawImage(image, gx, gy, null);
+    }
+
     // avoid an exception during quit
     if (screen != null) {
-      screen.drawImage(image, 0, 0, null); //this);
+      // blit to screen
+      screen.drawImage(screenImage, 0, 0, null);
+      //if (image != null) {
+      //screen.drawImage(image, 0, 0, null);
+      //}
     }
   }
 
@@ -657,7 +802,17 @@ public class DbnGraphics2 extends Panel {
     return updateMouse(e, x, y);
   }
 
+  /*
   public boolean updateMouse(Event e, int x, int y) {
+    mouse[0] = x;
+    mouse[1] = height1 - y;
+    return true;
+  }
+  */
+
+  public boolean updateMouse(Event e, int x, int y) {
+    x -= gx;
+    y -= gy;
     mouse[0] = x;
     mouse[1] = height1 - y;
     return true;

@@ -67,6 +67,10 @@ public class DbnGraphics extends Panel {
   int flushCount = 0;
 
 
+#ifdef GRAPHICS2
+  public DbnGraphics() { }
+#endif
+
   public DbnGraphics(int width, int height /*, DbnRunner dbr*/) {
     this.width = width;
     this.height = height;
@@ -439,7 +443,7 @@ public class DbnGraphics extends Panel {
   // related methods, or likely to be called by alternate 
   // implementations like scheme and python
 
-  static private int bound(int input, int upper) {
+  public final int bound(int input, int upper) {
     if (input > upper) return upper;
     else if (input < 0) return 0;
     else return input;

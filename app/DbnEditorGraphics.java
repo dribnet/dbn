@@ -13,7 +13,6 @@ public class DbnEditorGraphics extends DbnGraphics {
   Color tickColor;
   Color bgColor;
   Color bgStippleColor;
-  //Image bgImage;
 
   DbnEditor editor;
   Frame frame;
@@ -35,7 +34,6 @@ public class DbnEditorGraphics extends DbnGraphics {
 
   public void paint(Graphics screen) {
     if (image == null) {  // from superclass
-      //System.err.println("creating new image");
       image = createImage(width, height);
       if (image == null) return;
       g = image.getGraphics();
@@ -43,13 +41,9 @@ public class DbnEditorGraphics extends DbnGraphics {
       g.fillRect(0, 0, width, height);
     }
     if (screenImage == null) {
-      //System.err.println("working on screenImage");
-      //Dimension dim = size();
       Dimension dim = new Dimension(width + 100, height + 100);
       screenImage = createImage(dim.width, dim.height);
-      //screenImage = createImage(width1 + 100, height1 + 100);
       Graphics g = screenImage.getGraphics();
-      //gx = gy = 50;
       gx = (dim.width - width) / 2;
       gy = (dim.height - height) / 2;
 
@@ -69,7 +63,6 @@ public class DbnEditorGraphics extends DbnGraphics {
 	metrics.getDescent();
 
       // put ticks around (only if in edit mode)
-      //if (tickColor != null) {
       g.setColor(tickColor);
       int increment = 20;
       int x, y;
@@ -86,30 +79,6 @@ public class DbnEditorGraphics extends DbnGraphics {
 	g.drawString(num, gx - 6 - numWidth, 
 		     gy + height - y);
       }
-
-      /*
-      // put the little message below
-      if (titling != null) {
-	g.setColor(titlingColor);
-	int y = gy + runnerHeight + lineheight*2 + 4;
-	StringTokenizer st = new StringTokenizer(titling,";");
-	
-	while (st.hasMoreTokens()) {
-	  String s = st.nextToken();
-	  g.drawString(st.nextToken(), gx, y);
-	  y += lineheight;
-	}
-      }
-      */
-
-      //}
-      // make the background a color
-      //Dimension dim = size();
-      //g.setColor(bgColor);
-      //g.fillRect(0, 0, dim.width, dim.height);
-	    
-      // draw the tick marks
-	    
       // draw a dark frame around the runner
       g.setColor(Color.black);
       g.drawRect(gx-1, gy-1, width+1, height+1);
@@ -122,7 +91,9 @@ public class DbnEditorGraphics extends DbnGraphics {
 	screenImageGraphics.drawImage(image, gx, gy, null);
     }
     // blit to screen
-    screen.drawImage(screenImage, 0, 0, null);
+    if (screen != null) {
+      screen.drawImage(screenImage, 0, 0, null);
+    }
   }
 
 
