@@ -17,7 +17,7 @@ public class Experimental extends DbnApplication implements ActionListener {
   };
 
   static public void main(String args[]) {
-    new Experimental();
+    new Experimental().frame.show();
   }
 
   public Experimental() {

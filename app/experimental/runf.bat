@@ -1,2 +1,2 @@
 @echo off
-.\bin\jre -Dpython.home=. -mx48m -cp lib\dbn.jar;lib\jpython.jar DbnFancy
+.\bin\jre -nojit -Dpython.home=. -mx48m -cp .\lib;lib\dbn.jar;lib\jpython.jar;lib\qtjava.zip DbnFancy
