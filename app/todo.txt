@@ -1,7 +1,17 @@
 PRIORITY:
 
 make mrj menubar behave a little better, have file->quit menu,
-add an about box under the apple/help menu
+add an about box under the apple/help menu:
+
+> Add a 'MENU' resource with an ID of 1128 to override the default Apple
+> menu. It should just have a single "About MyApp..." item followed by a
+> separator line. You'll need to use MRJApplicationUtils to register an
+> About handler so you can catch the menu command and put up your dialog.
+> 
+> To add stuff to the Help menu just use the regular Help-menu support in
+> the AWT -- as I recall, you just call MenuBar.getHelpMenu() and then
+> append items to that menu.
+
 
 make righthand side of dbn edit window behave better (especially on mac)
 resize to usability, select lines correctly, select all, click drag
