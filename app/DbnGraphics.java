@@ -463,7 +463,7 @@ public class DbnGraphics extends Panel {
   // awful way to do printing, but sometimes brute force is
   // just the way. java printing across multiple platforms is
   // outrageously inconsistent.
-    
+
   public void print(Graphics g, int offsetX, int offsetY) {
     //g.drawImage(image, offsetX, offsetY, null);
 	

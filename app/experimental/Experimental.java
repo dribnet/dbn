@@ -1,0 +1,224 @@
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.zip.*;
+
+
+public class Experimental extends DbnApplication implements ActionListener {
+  MenuBar menubar;
+  
+  static final String goodieLabels[] = {
+    "Convert editing area to java applet...",
+    "Convert .dbn file to java applet..."
+  };
+
+  static public void main(String args[]) {
+    new Experimental();
+  }
+
+  public Experimental() {
+    menubar = new MenuBar();
+    MenuItem mi = null;
+
+    Menu goodies = new Menu("goodies");
+    for (int i = 0; i < goodieLabels.length; i++) {
+      goodies.add(new MenuItem(goodieLabels[i]));
+    }
+    goodies.addActionListener(this);
+    menubar.add(goodies);
+
+    frame.setMenuBar(menubar);
+  }
+
+  public void actionPerformed(ActionEvent event) {
+    String command = event.getActionCommand();
+    for (int i = 0; i < goodieLabels.length; i++) {
+      if (command.equals(goodieLabels[i])) {
+	switch (i) {
+	case 0:
+	  try {
+	    convert(((DbnEditor)environment).textarea.getText());
+	  } catch (Exception e) {
+	    e.printStackTrace();
+	  }
+	  break;
+	case 1: 
+	  try {
+	    convert(null); 
+	  } catch (Exception e) {
+	    e.printStackTrace();
+	  }
+	  break;
+	}
+	return;
+      }
+    }
+  }
+
+#ifdef CONVERTER
+  public void convert(String program) throws IOException, DbnException {
+    String outputNameBase = null;
+    String inputDirectory = null;
+
+    if (program == null) {
+      FileDialog fd = new FileDialog(new Frame(), 
+				     "Select a DBN program to convert...", 
+				     FileDialog.LOAD);
+      fd.show();
+      
+      inputDirectory = fd.getDirectory();
+      String inputFilename = fd.getFile();
+      if (inputFilename == null) return; // user cancelled
+      
+      File inputFile = new File(inputDirectory, inputFilename);
+      FileInputStream input = new FileInputStream(inputFile);
+      int length = (int) inputFile.length();
+      byte data[] = new byte[length];
+      int count = 0;
+      while (count != length) {
+	data[count++] = (byte) input.read();
+      }
+      program = new String(data);  // not I18N compliant
+      
+      int suffixIndex = inputFilename.lastIndexOf(".");
+      if (suffixIndex != -1) {
+	String suffix = inputFilename.substring(suffixIndex);
+	if (suffix.equals(".dbn")) {
+	  outputNameBase = inputFilename.substring(0, suffixIndex);
+	} else {
+	  System.err.println("suffix no good: " + suffix);
+	}
+      }
+    }
+    FileDialog fd = new FileDialog(new Frame(), 
+				   "Save converted program as...", 
+				   FileDialog.SAVE);
+    if (inputDirectory != null) fd.setDirectory(inputDirectory);
+    if (outputNameBase != null) fd.setFile(outputNameBase);
+    fd.show();
+    
+    String outputDirectory = fd.getDirectory();
+    String outputName = fd.getFile();
+    if (outputName == null) return;
+
+    DbnParser parser = 
+      new DbnParser(DbnPreprocessor.process(program));
+    String converted = parser.getRoot().convert(outputName);
+    File javaOutputFile = new File(outputDirectory, outputName + ".java");
+    FileOutputStream fos = new FileOutputStream(javaOutputFile);
+    PrintStream ps = new PrintStream(fos);
+    ps.print(converted);
+    ps.close();
+
+    File htmlOutputFile = new File(outputDirectory, outputName + ".html");
+    fos = new FileOutputStream(htmlOutputFile);
+    ps = new PrintStream(fos);
+    ps.println("<HTML> <BODY BGCOLOR=\"white\">");
+    //ps.println("<APPLET CODE=\"DbnApplet\" WIDTH=101 HEIGHT=101>");
+    ps.println("<APPLET CODE=\"DbnApplet\" ARCHIVE=\"");
+    ps.print(outputName + ".jar");
+    ps.println("\" WIDTH=101 HEIGHT=101>");
+    ps.print("<PARAM NAME=\"program\" VALUE=\"");
+    ps.print(outputName);
+    ps.println("\">");
+    ps.println("</APPLET>");
+    ps.println("</BODY> </HTML>");
+    ps.close();
+
+    final String classes[] = {
+      "DbnApplet.class", "DbnException.class",
+      "DbnGraphics.class", "DbnPlayer.class"
+    };
+
+    for (int i = 0; i < 4; i++) {
+      copyFile(new File("lib\\player", classes[i]),
+	       new File(outputDirectory, classes[i]));
+    }
+    try {
+      // execute javac with parameters:
+      // String outputdir = new File(filename).getPath();
+      // javac -classpath outputdir;%CLASSPATH% outputdir\*.java
+
+      String args[] = new String[5];
+      args[0] = "-classpath";
+      args[1] = outputDirectory + File.pathSeparator + 
+	System.getProperty("java.class.path");
+      args[2] = "-d";
+      args[3] = outputDirectory;
+      args[4] = javaOutputFile.getCanonicalPath();
+      sun.tools.javac.Main.main(args);
+
+      if (!javaOutputFile.exists()) {
+	System.err.println("compile failed.");
+	return;
+      }
+
+      FileOutputStream zipOutputFile = 
+	new FileOutputStream(new File(outputDirectory, outputName + ".jar"));
+      ZipOutputStream zos = new ZipOutputStream(zipOutputFile);
+
+      ZipEntry entry;
+      for (int i = 0; i < classes.length; i++) {
+	entry = new ZipEntry(classes[i]);
+	zos.putNextEntry(entry);
+	zos.write(grabFile(new File("lib\\player\\" + classes[i])));
+      }
+
+      entry = new ZipEntry(outputName + ".class");
+      zos.putNextEntry(entry);
+      zos.write(grabFile(new File(outputDirectory, outputName + ".class")));
+      // if that's no good (which it's not)
+      // need to instead use sun.tools.javac.Main,
+      // which should be separated out from the core source base
+      // using metrowerks' nice binding stuff
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  protected byte[] grabFile(File file) throws IOException {
+    //File file = new File(filename);
+    int size = (int) file.length();
+    FileInputStream input = new FileInputStream(file);
+    byte buffer[] = new byte[size];
+    int offset = 0;
+    int bytesRead;
+    while ((bytesRead = input.read(buffer, offset, size-offset)) != -1) {
+      offset += bytesRead;
+    }
+    return buffer;
+  }
+
+  protected void copyFile(File afile, File bfile) {
+    try {
+      FileInputStream from = new FileInputStream(afile);
+      FileOutputStream to = new FileOutputStream(bfile);
+      byte[] buffer = new byte[4096];
+      int bytesRead;
+      while ((bytesRead = from.read(buffer)) != -1) {
+	to.write(buffer, 0, bytesRead);
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+#endif
+
+}
+
+    /*
+    // copy DbnException.class, DbnGraphics.class, 
+    // DbnApplet.class, and DbnPlayer.class to the directory
+    copyFile(new File("lib\\player", "DbnApplet.class"),
+	     new File(outputDirectory, "DbnApplet.class"));
+
+    copyFile(new File("lib\\player", "DbnException.class"), 
+	     new File(outputDirectory, "DbnException.class"));
+
+    copyFile(new File("lib\\player", "DbnGraphics.class"), 
+	     new File(outputDirectory, "DbnGraphics.class"));
+
+    copyFile(new File("lib\\player", "DbnPlayer.class"), 
+	     new File(outputDirectory, "DbnPlayer.class"));
+    */
