@@ -1,17 +1,12 @@
 PRIORITY:
 
-make mrj menubar behave a little better, have file->quit menu,
-add an about box under the apple/help menu:
+TODO write down defaults for each of the tags
 
-> Add a 'MENU' resource with an ID of 1128 to override the default Apple
-> menu. It should just have a single "About MyApp..." item followed by a
-> separator line. You'll need to use MRJApplicationUtils to register an
-> About handler so you can catch the menu command and put up your dialog.
-> 
-> To add stuff to the Help menu just use the regular Help-menu support in
-> the AWT -- as I recall, you just call MenuBar.getHelpMenu() and then
-> append items to that menu.
+TODO write language docs
 
+TODO make dbn runtime
+
+TODO make griddify version load more quickly
 
 make righthand side of dbn edit window behave better (especially on mac)
 resize to usability, select lines correctly, select all, click drag
@@ -21,16 +16,12 @@ left hand corner?
 TODO reduce the amount of flashing that the applet does
      especially on the mac (reduce number of components involved)
 
-TODO finish converter, make runtime work
-
 maybe move connectors, graphics and i/o together. make graphics a
 'runtime' environment, supplied by the host. gui is the host that takes
 care of cosmetics like telling the applet what to do.
 
 make more static objects where possible, rather than creating new
 instances each time a piece is run
-
-TODO make griddify version load more quickly
 
 figure out why network is running so slow. send network data as large
 blocks? (entire block would be 1000 bytes, just 1k, not bad. this means 3
@@ -44,8 +35,6 @@ get rid of pop-up menu
 network down/disconnect crashes applet without notice
 
 applet flaking out
-
-date < 1970 causes big trouble and exceptions
 
 arrayindexoutofbounds exception while running
 
@@ -61,6 +50,7 @@ TODO if error on last (empty) line, highlight it somehow
 TODO finish dbn japanese and others
 
 TODO font size of text area (too small?? too big?)
+     (allow text face, size to be set using a param)
 
 TODO can a NullPointerException be caught such that it would allow
      dbn to continue running, even if there was an internal error?
@@ -78,6 +68,18 @@ TODO need to internationalize type program here
      as well as breaking out warnings/messages/errors to separate file
 
 TODO would be nice to have auto-bug-reporting built into applet
+
+make mrj menubar behave a little better, have file->quit menu,
+add an about box under the apple/help menu:
+
+> Add a 'MENU' resource with an ID of 1128 to override the default Apple
+> menu. It should just have a single "About MyApp..." item followed by a
+> separator line. You'll need to use MRJApplicationUtils to register an
+> About handler so you can catch the menu command and put up your dialog.
+> 
+> To add stuff to the Help menu just use the regular Help-menu support in
+> the AWT -- as I recall, you just call MenuBar.getHelpMenu() and then
+> append items to that menu.
 
 
 FINISHED
@@ -120,3 +122,7 @@ DONE add pause command again
 DONE add antialias command again
 
 DONE set <net 1> 40 is broken
+
+DONE finish converter
+
+ADDED NOTE IN README date < 1970 causes big trouble and exceptions

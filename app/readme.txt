@@ -27,6 +27,10 @@ MRJ in fact continues to be somewhat incompatible, slow
 and buggy, though Apple's small team of developers is 
 slowly chipping away at the problems.
 
+Also, make sure that the date on your Macintosh is not
+set earlier than 1970. There is a problem with MRJ that
+will cause your machine to behave highly erratically 
+under this condition.
 
 * WINDOWS PEOPLE READ THIS!
 The Windows version of the DBN download includes JRE,
