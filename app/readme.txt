@@ -98,6 +98,13 @@ SUCH DAMAGES.
 
 CHANGES (technical section, can be ignored)
 
+Version 1.X: Changes since 1.3
+
+- semi-automatic indenting
+- tabs convert to spaces
+- no more unsightly boxes at the end of selected lines on windows
+- correct line number used from python stack traces
+
 Version 1.3: Changes since 1.2.1
 
 - added printing feature for downloadable dbn

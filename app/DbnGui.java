@@ -307,8 +307,8 @@ public class DbnGui extends Panel {
 		}
 	    }
             if (end == -1) end = len;
-	    // System.out.println("st/end: "+st+"/"+end);
-            ta.select(st, end);
+	    //System.out.println("st/end: "+st+"/"+end);
+            ta.select(st, end+1);
             if (iexplorerp) {
 		ta.invalidate();
 		ta.repaint();

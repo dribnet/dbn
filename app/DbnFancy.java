@@ -55,7 +55,7 @@ public class DbnFancy extends DbnApplet implements ActionListener
 
 
     static final String problems[] = {
-	"7A", "7B", "7C"
+	"7A", "7B", "7C", "8A", "8B", "8C"
     };
     String currentProblem = problems[0];
 

@@ -89,7 +89,8 @@ class DbnEditorListener extends KeyAdapter implements FocusListener {
 	    if (autoIndent) {
 		contents = tc.getText().toCharArray();
 		// back up until \r \r\n or \n.. @#($* cross platform
-		index = contents.length-1;
+		//index = contents.length-1;
+		index = tc.getCaretPosition() - 1;
 		int spaceCount = 0;
 		boolean finished = false;
 		while ((index != -1) && (!finished)) {

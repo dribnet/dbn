@@ -25,10 +25,12 @@ public class PythonEngine extends DbnEngine {
 	    if (!stopFlag) {
 		e.printStackTrace();
 		String s = e.toString();
-		int num = s.indexOf("line");
+		int num = s.lastIndexOf("line ");
 		if (num != -1) {
 		    s = s.substring(num + 5);
-		    num = s.indexOf(',');
+		    num = 0;
+		    while (Character.isDigit(s.charAt(num))) num++;
+		    //System.out.println("gonna go ." + s.substring(0, num) + ".");
 		    int linenum = 0;
 		    try {
 			linenum = Integer.parseInt(s.substring(0, num));
