@@ -239,13 +239,26 @@ public class DbnEngine {
 
   void execPaper(DbnToken current) throws DbnException {
     if (watchCurrent) setCurrent(current);
-    graphics.paper(getValue(current.children[0]));
+    if (current.childCount == 1) {
+      graphics.paper(getValue(current.children[0]));
+    } else {
+      graphics.paper(getValue(current.children[0]),
+		     getValue(current.children[1]),
+		     getValue(current.children[2]));
+    }
   }
 
 
   void execPen(DbnToken current) throws DbnException {
     if (watchCurrent) setCurrent(current);
-    graphics.pen(getValue(current.children[0]));
+    System.out.println("child count is " + current.childCount);
+    if (current.childCount == 1) {
+      graphics.pen(getValue(current.children[0]));
+    } else {
+      graphics.pen(getValue(current.children[0]),
+		   getValue(current.children[1]),
+		   getValue(current.children[2]));
+    }
   }
 
    
@@ -319,6 +332,8 @@ public class DbnEngine {
 
   int getValue(DbnToken value) throws DbnException {
     if (watchCurrent) setCurrent(value);
+    System.out.println();
+    System.out.println(value);
 
     DbnToken current = null;
     if (value.kind != DbnToken.VALUE) {
@@ -351,8 +366,16 @@ public class DbnEngine {
   int getPixel(DbnToken current) throws DbnException {
     if (watchCurrent) setCurrent(current);
 
-    return graphics.getPixel(getValue(current.children[0]),
-			     getValue(current.children[1]));
+    if (current.childCount == 2) {  // grayscale pixel: x, y
+      System.out.println("childcount is " + current.childCount);
+      return graphics.getPixel(getValue(current.children[0]),
+			       getValue(current.children[1]));
+    } else /*if (current.childCount == 3)*/ {  // rgb pixel
+      System.out.println("childcount is " + current.childCount);
+      return graphics.getPixel(getValue(current.children[0]),
+			       getValue(current.children[1]), 
+			       getValue(current.children[2]));
+    }
   }
 
 
@@ -561,8 +584,15 @@ public class DbnEngine {
       break;
 
     case DbnToken.PIXEL:
-      graphics.setPixel(getValue(value.children[0]),
-			getValue(value.children[1]), amount);
+      //System.out.println("setting pixel, child ount is " + value.childCount);
+      if (value.childCount == 2) {  // grayscale
+	graphics.setPixel(getValue(value.children[0]),
+			  getValue(value.children[1]), amount);
+      } else {  // rgb
+	graphics.setPixel(getValue(value.children[0]),
+			  getValue(value.children[1]),
+			  getValue(value.children[2]), amount);
+      }
       break;
 
     case DbnToken.OUTPUT_CONNECTOR:

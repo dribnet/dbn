@@ -77,6 +77,8 @@ public class DbnToken {
   static final int STATEMENTS  = 72;
 
 
+  DbnToken() { }
+
   DbnToken(int kind, int line) {
     this.kind = kind;
     this.line = line;
@@ -87,12 +89,26 @@ public class DbnToken {
     this.name = name;
     this.line = line;
   }
-
   
   DbnToken(int kind, int number, int line) {
     this.kind = kind;
     this.number = number;
     this.line = line;
+  }
+
+
+  public Object clone() {  // for parser (multiple/single arg stuff)
+    DbnToken dolly = new DbnToken();
+    dolly.kind = kind;
+    dolly.name = name;
+    dolly.number = number;
+    dolly.line = line;
+
+    dolly.childCount = childCount;
+    dolly.children = new DbnToken[children.length];
+    System.arraycopy(children, 0, dolly.children, 0, childCount);
+
+    return dolly;
   }
 
 

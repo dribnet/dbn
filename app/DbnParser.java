@@ -282,6 +282,23 @@ public class DbnParser {
 	
     if (p[index] == '[') {
       index++;
+      if (parseValue(test) && parseValue(test)) {
+	// looks good so far, check for 'color' index
+	//System.out.println("before cloning: " + test);
+	DbnToken test2 = (DbnToken) test.clone();
+	if (parseValue(test2)) {
+	  //System.out.println("found color: " + test2);
+	  test = test2;
+	  //} else {
+	  //System.out.println("found gray: " + test);
+	}
+	if (consumeSpaces() && p[index] == ']') {
+	  index++;
+	  parent.addChild(test, line);
+	  return true;
+	}
+      }
+      /*
       if (parseValue(test) &&
 	  parseValue(test) &&
 	  consumeSpaces() &&
@@ -290,6 +307,7 @@ public class DbnParser {
 	parent.addChild(test, line);
 	return true;
       }
+      */
       die("found a [ but no ] to match it");
     } else {
       //System.err.println("not pixel, got " + p[index]);
@@ -529,6 +547,12 @@ public class DbnParser {
     if (!parseValue(current)) {
       die("paper must be followed by a value");
     }
+    if (parseValue(current)) {
+      // user is asking for a color paper
+      if (!parseValue(current)) {
+	die("a color paper needs 3 values: red green blue");
+      }
+    }
     return true;
   }
 
@@ -540,6 +564,15 @@ public class DbnParser {
     DbnToken current = parent.addChild(DbnToken.PEN, line);
     if (!parseValue(current)) {
       die("pen must be followed by a value");
+    }
+    
+    if (parseValue(current)) {
+      // user is asking for a color pen
+      if (!parseValue(current)) {
+	die("a color pen needs 3 values: red green blue");
+      } else {
+	System.out.println(current.childCount);
+      }
     }
     return true;
   }

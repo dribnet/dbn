@@ -137,6 +137,10 @@ public class DbnGraphics extends Panel {
   }
 
 
+  public void paper(int a, int b, int c) { 
+    System.out.println("setting paper to " + a + ", " + b + ", " + c);
+  }
+
   public void paper(int val) {
     paperFlush();
     // voluntary slowdown
@@ -205,6 +209,9 @@ public class DbnGraphics extends Panel {
     penColor = (byte)bound(val, 100);
   }
 
+  public void pen(int a, int b, int c) { 
+    System.out.println("setting pen to " + a + ", " + b + ", " + c);
+  }
 
   public void antialias(int m) {
     antialias = (m != 0);
@@ -528,6 +535,10 @@ public class DbnGraphics extends Panel {
     g.drawLine(x, height1-y, x, height1-y);
   }
 
+  public void setPixel(int x, int y, int which, int val) {
+    System.out.println("setting pixel " + x + ", " + y + 
+		       " @ " + which + " to " + val);
+  }
 
   public int getPixel(int x, int y) {
     return (int) 
@@ -535,6 +546,10 @@ public class DbnGraphics extends Panel {
 	    ((x<0)?0:((x>width1)?width1:x))];
   }
 
+  public int getPixel(int x, int y, int which) {
+    System.out.println("getting pixel " + x + ", " + y + " @ " + which);
+    return -1;
+  }
 
   public final int getMouse(int slot) { // throws DbnException {
     //System.out.println("get");
