@@ -51,6 +51,8 @@ public class DbnRecorder {
     if (recorder == null) return;
 
     int now = (int) (System.currentTimeMillis() - recorder.startTime);
+    if (now - then < 1000/30) return;
+
     DbnRecorderFrame newbie = new DbnRecorderFrame(now, pixels);
     if (recorder.head == null) {
       recorder.head = newbie;
@@ -58,9 +60,40 @@ public class DbnRecorder {
       recorder.last.next = newbie;
     }
     recorder.last = newbie;
+    then = now;
+  }
+
+  // may not be useful for the version that includes the mouse cursor
+  public void removeDuplicates() {
+    // remove the first frame, probably worthless
+    head = head.next;
+    if (head == null) return;
+
+    // removes frames that aren't any different from one another
+    DbnRecorderFrame previous = head;
+    DbnRecorderFrame current = head.next;
+    while (current != null) {
+      if (DbnRecorderFrame.equivalent(previous, current)) {
+	// remove the frame from the list
+	current.next = current.next.next;
+      }
+      current = current.next;
+    }
+  }
+
+  public void calcDurations() {
+    if (head == null) return;
+    DbnRecorderFrame previous = head;
+    DbnRecorderFrame current = head.next;
+    while (current != null) {
+      previous.duration = current.timestamp - previous.timestamp;
+    }
+    previous.duration = 1000; // last is one second?
   }
 
   static public void stop() {
+    recorder.removeDuplicates();
+    recorder.calcDurations();
     try {
       writeFiles(recorder);
     } catch (IOException e) {
@@ -234,6 +267,7 @@ public class DbnRecorder {
 
 class DbnRecorderFrame {
   int timestamp;
+  int duration;
   byte pixels[];
   DbnRecorderFrame next;
 
@@ -242,6 +276,17 @@ class DbnRecorderFrame {
     int pixelCount = inPixels.length;
     pixels = new byte[pixelCount];
     System.arraycopy(inPixels, 0, pixels, 0, pixelCount);
+  }
+
+  static boolean equivalent(DbnRecorderFrame one, DbnRecorderFrame two) {
+    int count = pixels.length;
+    byte a[] = one.pixels;
+    byte b[] = two.pixels;
+
+    for (int i = 0; i < count; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
   }
 }
 
