@@ -11,7 +11,7 @@ public class DbnEditorGraphics extends DbnGraphics {
   int gx, gy;
 
   Color tickColor;
-  Color bgColor;
+  //Color bgColor;
   Color bgStippleColor;
 
   DbnEditor editor;
@@ -21,9 +21,9 @@ public class DbnEditorGraphics extends DbnGraphics {
   public DbnEditorGraphics(int width, int height, Color tickColor,
 			   Color bgColor, Color bgStippleColor, 
 			   DbnEditor editor) {
-    super(width, height);
+    super(width, height, bgColor);
     this.tickColor = tickColor;
-    this.bgColor = bgColor;
+    //this.bgColor = bgColor;
     this.bgStippleColor = bgStippleColor;
     this.editor = editor;
   }

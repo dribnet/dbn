@@ -54,7 +54,7 @@ public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
     gcount = programs.length;
     graphics = new DbnGraphics[gcount];
     for (int i = 0; i < gcount; i++) {
-      graphics[i] = new DbnGraphics(gwidth, gheight);
+      graphics[i] = new DbnGraphics(gwidth, gheight, Color.white);
 
       DbnGridBoobyPrize booby = new DbnGridBoobyPrize(graphics[i]);
       graphics[i].addMouseListener(booby);

@@ -49,6 +49,8 @@ public class DbnEngine {
     pushLocalVariables(root);
     execStatements(root.children[0]);
     popVariables();
+
+    graphics.refresh();
   }
 
 
@@ -251,7 +253,7 @@ public class DbnEngine {
 
   void execPen(DbnToken current) throws DbnException {
     if (watchCurrent) setCurrent(current);
-    System.out.println("child count is " + current.childCount);
+    //System.out.println("child count is " + current.childCount);
     if (current.childCount == 1) {
       graphics.pen(getValue(current.children[0]));
     } else {
@@ -332,8 +334,8 @@ public class DbnEngine {
 
   int getValue(DbnToken value) throws DbnException {
     if (watchCurrent) setCurrent(value);
-    System.out.println();
-    System.out.println(value);
+    //System.out.println();
+    //System.out.println(value);
 
     DbnToken current = null;
     if (value.kind != DbnToken.VALUE) {
@@ -367,11 +369,11 @@ public class DbnEngine {
     if (watchCurrent) setCurrent(current);
 
     if (current.childCount == 2) {  // grayscale pixel: x, y
-      System.out.println("childcount is " + current.childCount);
+      //System.out.println("childcount is " + current.childCount);
       return graphics.getPixel(getValue(current.children[0]),
 			       getValue(current.children[1]));
     } else /*if (current.childCount == 3)*/ {  // rgb pixel
-      System.out.println("childcount is " + current.childCount);
+      //System.out.println("childcount is " + current.childCount);
       return graphics.getPixel(getValue(current.children[0]),
 			       getValue(current.children[1]), 
 			       getValue(current.children[2]));

@@ -16,52 +16,54 @@ import java.util.*;
 // DONE don't create a new Date() on every idle() step
 
 public class DbnGraphics extends Panel {
-  // haha, don't want anybody fiddling with the grays
-  static private Color grays[];  
+  static int grayMap[] = new int[101];
+  static int colorMap[] = new int[101];
   static {
-    grays = new Color[101];
     for (int i = 0; i < 101; i++) {
-      int gray = ((100-i)*255/100);
-      grays[i] = new Color(gray, gray, gray);
+      int g = (100-i)*255 / 100;
+      grayMap[i] = 0xff000000 | (g << 16) | (g << 8) | g;
+      colorMap[i] = (i*255) / 100;
     }
   }
 
-  Image image;
-  Graphics g;
+  MemoryImageSource source;
   Graphics panelg;
-  byte[] pixels;
-  byte penColor;
+
+  Image screenImage;
+  Image image;
+
+  Graphics g;
+  int gx, gy;
+
+  int pixels[];
   int pixelCount;
-  boolean antialias;
+  int penColor;
 
-  Image lastImage;
-  Graphics lastImageg;
+  //boolean antialias;
+  int magnification = 1;
 
-  int lines[];
-  int currentLine;
+  //Image lastImage;
+  //Graphics lastImageg;
+
+  Color bgColor;
+  Frame frame;
 
   int width, height;
   int width1, height1;
-
-  //DbnRunner dbr;
 
   int mouse[] = new int[3];
   int key[] = new int[26];
   int array[] = new int[1000];
   long keyTime[] = new long[26];
-  //String hostname;  // server for <net>
 
-  //long lastpapert;
-
-  boolean explicitRefresh;
   int FDOT = 10;
   int FPAPER = 100;
   int FLINE = 10; 
   int FFIELD = 10;
   int FMAX = 100;
 
+  boolean aiRefresh;
   boolean insideforeverp;
-  boolean aiflushp;
   short flushfire = -1; // 0 is paper, 1 is field
   short lastflushfire = -1;
   boolean insiderepeatp = false;
@@ -70,38 +72,121 @@ public class DbnGraphics extends Panel {
   int flushCount = 0;
 
 
-  public DbnGraphics() { }  // for DbnGraphics2 only
+  public DbnGraphics(int width, int height, Color bgColor) {
+    this.bgColor = bgColor;
 
-  public DbnGraphics(int width, int height /*, DbnRunner dbr*/) {
+    currentDbnGraphics = this; // for python/scheme
+#ifdef CRICKET
+    openSensor();
+#endif
+    setup(width, height);
+  }
+
+
+  public void setup(int width, int height) {
+    int oldWidth = this.width;
+    int oldHeight = this.height;
+
+    // make sure the jokers don't ask for something ridiculous
+    if ((width < 1) || (height < 1)) {
+      if ((oldWidth == 0) && (oldHeight == 0)) {
+	setup(101, 101);
+      }
+      return;  // otherwise just ignore
+    }
+
     this.width = width;
     this.height = height;
     width1 = width - 1;
     height1 = height - 1;
-	
-    //this.dbr = dbr;
-    aiflushp = true;
+    this.bgColor = bgColor;
 
     pixelCount = width * height;
-    pixels = new byte[pixelCount];  // all set to zero
+    pixels = new int[pixelCount];
     lines = new int[pixelCount];
-    penColor = 100;
+    //for (int i = 0; i < pixelCount; i++)
+    //pixels[i] = 0xffffffff;
 
-#ifdef CRICKET
-    openSensor();
-#endif
-    currentDbnGraphics = this; // for python/scheme
-    //dbr.render();
+    reset();
+    //rgbColor();
+    //pen(100);
+    //penColor = 0xff000000;
+    //colorModel = HSB;
+    //magnification = 1;
+
+    source = new MemoryImageSource(width, height, pixels, 0, width);
+    source.setAnimated(true);
+    //source.setFullBufferUpdates(true);
+    image = Toolkit.getDefaultToolkit().createImage(source);
+
+    screenImage = null; // so that it gets reshaped
+
+    if (oldWidth != width || oldHeight != height) 
+      repack();
+
+    update();
   }
 
 
-  public void setLine(int which) {
-    currentLine = which;
+  public void magnify(int howmuch) {
+    if (howmuch < 1) howmuch = 1;
+    magnification = howmuch;
+    repack();
+    // fake out the setup function to make it look
+    // like something has actually changed
+    //height += 1000;
+    //setup(width, height - 1000); 
   }
 
-  public int getLine(int x, int y) {
-    return lines[(height1-((y<0)?0:((y>height1)?height1:y)))*width + 
-		((x<0)?0:((x>width1)?width1:x))];
+
+  protected void repack() {
+    if (getParent() != null) {
+      getParent().getParent().getParent().doLayout();
+      frame = (Frame) getParent().getParent().getParent().getParent();
+      frame.pack();
+      //System.err.println("packed");
+    }
   }
+
+
+  public void reset() {
+    for (int i = 0; i < pixelCount; i++) {
+      pixels[i] = 0xffffffff;
+      lines[i] = -2;
+    }
+
+    if (g != null) {
+      //g.setColor(grays[0]);
+      //g.fillRect(0, 0, width, height);
+    }
+    //if (lastImageg != null) {
+      //g.setColor(grays[0]);
+      //g.fillRect(0, 0, width, height);
+    //}
+    //penColor = 100;
+    penColor = 0xff000000;
+
+    //antialias = false;
+    //explicitRefresh = false;
+    aiRefresh = true;
+
+    flushCount = 0;
+    resetBlockDetect();
+
+    for (int i = 0; i < 3; i++)
+      mouse[i] = 0;
+    for (int i = 0; i < 26; i++) 
+      key[i] = 0;
+    for (int i = 0; i < 1000; i++)
+      array[i] = 0;
+   
+    //mouse = new int[3];
+    //key = new int[26];
+    //array = new int[1000];
+  }
+
+
+  ////////////////////////////////////////////////////////////
 
 
   // uglyish hack for scheme/python, the fix is even uglier, though
@@ -119,152 +204,76 @@ public class DbnGraphics extends Panel {
     currentDbnGraphics = this;
   }
 
+
+  ////////////////////////////////////////////////////////////
+
+  // line-buffer recorder
+
+  int lines[];
+  int currentLine;
+
+
+  public void setLine(int which) {
+    currentLine = which;
+  }
+
+  public int getLine(int x, int y) {
+    return lines[(height1-((y<0)?0:((y>height1)?height1:y)))*width + 
+		((x<0)?0:((x>width1)?width1:x))];
+  }
+
+
+  /////////////////////////////////////////////////////////////
+  
+  // the deprecated bin
+
+  public void norefresh() { }
+
+  public void antialias(int m) { }
+
+
   /////////////////////////////////////////////////////////////
 
-  // actual methods relating to dbn calls
+  // core primitives
 
-    
-  public void norefresh() {
-    explicitRefresh = true;
-  }
-
-
-  public void refresh() {
-    flushCount = flushCount % 100; //im.flush(); 
-    flushCount = 0;
-    update();
-    //dbr.render(); 
-  }
-
-
-  public void paper(int a, int b, int c) { 
-    System.out.println("setting paper to " + a + ", " + b + ", " + c);
-  }
 
   public void paper(int val) {
-    paperFlush();
-    // voluntary slowdown
-    /*
-      try {
-      long curt = System.currentTimeMillis();
-      long sleept = curt-lastpapert;
-      // this enforces a 10 millisecond interval to occur 
-      // between papers (to compensate for fast/slwo machines)
-      if (sleept<10)
-      sleept = 10-sleept;
-      else
-      sleept = 0;
-      Thread.sleep(sleept);
-      lastpapert = curt;
-      } catch (Exception e) { }
-    */
+    int gray = 100 - bound(val, 100);
+    paper(gray, gray, gray);
+  }
 
-    byte bval = (byte) bound(val, 100);
+  public void paper(int red, int green, int blue) {
+    paperFlush();
+    int color = makeColor(red, green, blue);
     for (int i = 0; i < pixelCount; i++) {
-      pixels[i] = bval;
+      pixels[i] = color;
       lines[i] = currentLine;
     }
-    g.setColor(grays[bval]);
-    g.fillRect(0, 0, width, height);
   }
 
 
-  public void field(int x1, int y1, int x2, int y2, int val) {
-    // don't even draw if it's completely offscreen
-    if (((x1 < 0) && (x2 < 0)) || 
-	((x1 > width1) && (x2 > width1))) return;
-    if (((y1 < 0) && (y2 < 0)) ||
-	((y1 > height1) && (y2 > height1))) return;
-	  	
-    x1 = bound(x1, width1);
-    y1 = bound(y1, height1);
-    x2 = bound(x2, width1);
-    y2 = bound(y2, height1);
-    val = bound(val, 100);
-    fieldFlush();
-	
-    if (x2 < x1) { int dummy = x1; x1 = x2; x2 = dummy; }
-    if (y2 < y1) { int dummy = y1; y1 = y2; y2 = dummy; }
-	
-    byte bval = (byte) val;
-    for (int j = y1; j <= y2; j++) {
-      int pp = width*(height1-j);
-      for (int i = x1; i <= x2; i++) {
-	pixels[pp+i] = bval;
-	lines[pp+i] = currentLine;
-      }
-    }		
-    g.setColor(grays[val]);
-
-    // don't look at this code too long, you'll hurt your head
-    y1 = height1 - y1;
-    y2 = height1 - y2;
-    int w = x2 - x1 + 1;
-    int h = y1 - y2 + 1;
-    g.fillRect(x1, y2, w, h);
+  public void pen(int gray) {
+    penColor = makeGray(gray);
   }
 
-
-  public void pen(int val) {
-    penColor = (byte)bound(val, 100);
-  }
-
-  public void pen(int a, int b, int c) { 
-    System.out.println("setting pen to " + a + ", " + b + ", " + c);
-  }
-
-  public void antialias(int m) {
-    antialias = (m != 0);
+  public void pen(int red, int green, int blue) {
+    penColor = makeColor(red, green, blue);
   }
 
 
   // line clipping code appropriated from 
   // "Computer Graphics for Java Programmers"
 
-  public void intensifyPixel(int x, int y, float dist) {
-    //System.out.println(this);
-    int oldVal, newVal, val, index;
-	
-    //System.err.println("setting " + x + ", " + y);
-    if (x<0 || x>width1 || y<0 || y>height1) return;
-    if(dist < 0) dist = 0.0f - dist;
-    if(dist > 1.0f) return;
-    index = (height1-y)*width + x;
-		
-    val = (int)(pixels[index]*dist + penColor*(1.0f-dist));
-
-    val = bound(val, 100);
-    //if(val>100) val = 100;
-    //else if(val < 0) val = 0;
-    pixels[index] = (byte)val;
-    lines[index] = currentLine;
-	
-    if (antialias) {
-      g.setColor(grays[val]);
-      g.drawLine(x,height1-y,x,height1-y);
-    }
-  }
-
-  private int clipCode(float x, float y) {
-    return ((x < 0 ? 8 : 0) | (x > width1 ? 4 : 0) |
-	    (y < 0 ? 2 : 0) | (y > height1 ? 1 : 0));
-  }
-  
   public void line(int ox1, int oy1, int ox2, int oy2) {
-    bresenham(ox1, oy1, ox2, oy2, true);
-  }
-
-  public void bresenham(int ox1, int oy1, int ox2, int oy2, 
-			boolean useGraphics) {
-    /* check for line clipping, do it if necessary */
+    // check for line clipping, do it if necessary
     if ((ox1 < 0) || (oy1 < 0) || (ox2 > width1) || (oy2 > height1)) {
       // clipping, converts to floats for dy/dx fun
       // (otherwise there's just too much casting mess in here)
       float xP = (float)ox1, yP = (float)oy1;
       float xQ = (float)ox2, yQ = (float)oy2;
 	    
-      int cP = clipCode(ox1, oy1);
-      int cQ = clipCode(ox2, oy2);
+      int cP = lineClipCode(ox1, oy1);
+      int cQ = lineClipCode(ox2, oy2);
       float dx, dy;
       while ((cP | cQ) != 0) {  
 	if ((cP & cQ) != 0) return;
@@ -279,7 +288,7 @@ public class DbnGraphics extends Panel {
 	  } else if ((cP & 1) == 1) {
 	    xP += (height1-yP) * dx / dy; yP = height1;
 	  }  
-	  cP = clipCode(xP, yP);
+	  cP = lineClipCode(xP, yP);
 	} else if (cQ != 0) {
 	  if ((cQ & 8) == 8) { 
 	    yQ += (0-xQ) * dy / dx; xQ = 0;
@@ -290,42 +299,45 @@ public class DbnGraphics extends Panel {
 	  } else if ((cQ & 1) == 1) { 
 	    xQ += (height1-yQ) * dx / dy; yQ = height1;
 	  }  
-	  cQ = clipCode(xQ, yQ);
+	  cQ = lineClipCode(xQ, yQ);
 	}
       }
       ox1 = (int)xP; oy1 = (int)yP;
       ox2 = (int)xQ; oy2 = (int)yQ;
     }
 	
-    /* actually draw the line */
+    // actually draw the line
     int dx, dy, incrE, incrNE, d, x, y, twoV, sdx=0, sdy=0;
     float invDenom, twoDX, scratch, slope;
     int x1, x2, y1, y2, incy=0, incx=0, which;
     boolean backwards = false, slopeDown = false;
 
+    /*
     if (useGraphics) {
-      myFlush(FLINE);
+      aiFlush(FLINE);
       if (!antialias) { 
 	g.setColor(grays[penColor]);
 	g.drawLine(ox1,height1-oy1,ox2,height1-oy2);
       }
     }
-	
-    /* first do horizontal line */
+    */	
+
+    // first do horizontal line
     if (ox1==ox2) {
       x = ox1;
-      if(oy1 < oy2) { y1 = oy1; y2 = oy2; }
+      if (oy1 < oy2) { y1 = oy1; y2 = oy2; }
       else { y1 = oy2; y2 = oy1; }
-      for(y=y1;y<=y2;y++) {
-	intensifyPixel(x, y, 0);
+      for (y = y1; y <= y2; y++) {
+	linePixel(x, y);
+	//intensifyPixel(x, y, 0);
       }
       return;
     }
     slope = (float)(oy2 - oy1)/(float)(ox2 - ox1);
-    /* check for which 1, 0 <= slope <= 1 */
-    if(slope >= 0 && slope <= 1) which = 1;
-    else if(slope > 1) which = 2;
-    else if(slope < -1) which = 3;
+    // check for which 1, 0 <= slope <= 1
+    if (slope >= 0 && slope <= 1) which = 1;
+    else if (slope > 1) which = 2;
+    else if (slope < -1) which = 3;
     else which=4;
     if (((which==1 || which==2 || which==4) && 
 	 ox1 > ox2) || ((which==3) && ox1 < ox2)) {
@@ -376,13 +388,14 @@ public class DbnGraphics extends Panel {
       twoDX = 2 * sdx * invDenom;
       x = x1;
       y = y1;
-      if (antialias) {
-	intensifyPixel(x, y, 0);
-	intensifyPixel(x, y+1, twoDX);
-	intensifyPixel(x, y-1, twoDX);
-      } else {
-	intensifyPixel(x, y, 0);
-      }
+      //if (antialias) {
+      //intensifyPixel(x, y, 0);
+      //intensifyPixel(x, y+1, twoDX);
+      //intensifyPixel(x, y-1, twoDX);
+      //} else {
+      //intensifyPixel(x, y, 0);
+      linePixel(x, y);
+      //}
       while(x < x2) {
 	if(d<0) {
 	  twoV = d + dx;
@@ -396,13 +409,14 @@ public class DbnGraphics extends Panel {
 	  y+=incy;
 	}
 	scratch = twoV * invDenom;
-	if(antialias) {
-	  intensifyPixel(x, y, scratch);
-	  intensifyPixel(x, y+1, twoDX - scratch);
-	  intensifyPixel(x, y-1, twoDX + scratch);
-	}
-	else
-	  intensifyPixel(x, y, 0);
+	//if(antialias) {
+	//intensifyPixel(x, y, scratch);
+	//intensifyPixel(x, y+1, twoDX - scratch);
+	//intensifyPixel(x, y-1, twoDX + scratch);
+	//}
+	//else
+	//intensifyPixel(x, y, 0);
+	linePixel(x, y);
       }
     }
     else {
@@ -415,35 +429,122 @@ public class DbnGraphics extends Panel {
       twoDX = 2 * sdy * invDenom;
       x = x1;
       y = y1;
-      if(antialias) {
-	intensifyPixel(x, y, 0);
-	intensifyPixel(x+1, y, twoDX);
-	intensifyPixel(x-1, y, twoDX);
-      }
-      else
-	intensifyPixel(x, y, 0);
-      while(y < y2) {
-	if(d<0) {
+      //if(antialias) {
+      //intensifyPixel(x, y, 0);
+      //intensifyPixel(x+1, y, twoDX);
+      //intensifyPixel(x-1, y, twoDX);
+      //}
+      //else
+      //intensifyPixel(x, y, 0);
+      linePixel(x, y);
+      while (y < y2) {
+	if (d < 0) {
 	  twoV = d + dy;
 	  d += incrE;
 	  ++y;
-	}
-	else {
+	} else {
 	  twoV = d - dy;
 	  d += incrNE;
 	  ++y;
-	  x+=incx;
+	  x += incx;
 	}
 	scratch = twoV * invDenom;
-	if(antialias) {
-	  intensifyPixel(x, y, scratch);
-	  intensifyPixel(x+1, y, twoDX - scratch);
-	  intensifyPixel(x-1, y, twoDX + scratch);
-	}
-	else
-	  intensifyPixel(x, y, 0);
+	//if(antialias) {
+	//intensifyPixel(x, y, scratch);
+	//intensifyPixel(x+1, y, twoDX - scratch);
+	//intensifyPixel(x-1, y, twoDX + scratch);
+	//}
+	//	else
+	//intensifyPixel(x, y, 0);
+	linePixel(x, y);
       }
     }
+  }
+
+  private void linePixel(int x, int y) { //, float dist) {
+    if (x<0 || x>width1 || y<0 || y>height1) return;
+    int index = (height1-y)*width + x;
+    pixels[index] = penColor;
+    lines[index] = currentLine;
+  }
+
+  private int lineClipCode(float x, float y) {
+    return ((x < 0 ? 8 : 0) | (x > width1 ? 4 : 0) |
+	    (y < 0 ? 2 : 0) | (y > height1 ? 1 : 0));
+  }
+
+
+  public void field(int x1, int y1, int x2, int y2, int gray) {
+    int oldColor = penColor;
+    penColor = makeGray(gray);
+    if (y2 < y1) { 
+      int temp = y1; y1 = y2; y2 = temp; 
+    }
+    for (int y = y1; y1 <= y2; y1++) {
+      line(x1, y, x2, y);
+    }
+    penColor = oldColor;
+  }
+
+
+  ////////////////////////////////////////////////////////////
+
+  // pixel operations, the bracket [ ] commands
+
+
+  public void setPixel(int x, int y, int gray) {
+    aiFlush(FDOT);
+    if (x < 0 || x > width1 || y < 0 || y > height1) return;
+    int index = (height1-y)*width + x;
+    //gray = 100 - bound(gray, 100);
+    //setPixel(x, y, gray, gray, gray);
+    pixels[index] = makeGray(gray); //makeColor(red, green, blue);
+    lines[index] = currentLine;
+  }
+
+  public void setPixel(int x, int y, int which, int value) {
+    aiFlush(FDOT);
+    if ((which < 0) || (which > 2)) return;
+    if (x < 0 || x > width1 || y < 0 || y > height1) return;
+    int index = (height1-y)*width + x;
+    int place = (2-which) * 8;
+    value = bound(value, 100);
+    pixels[index] &= ~(0xff << place);
+    pixels[index] |= colorMap[value] << place;
+    lines[index] = currentLine;
+  }
+
+  /*
+  public void setPixel(int x, int y, int red, int green, int blue) {
+  }
+  */
+
+  public int getPixel(int x, int y) {
+    int pixel = pixels[(height1-((y<0)?0:((y>height1)?height1:y)))*width + 
+		      ((x<0)?0:((x>width1)?width1:x))];
+    // do the right thing and return an average of the pixel values
+    return 100 * (((pixel >> 16) & 0xff) + 
+		  ((pixel >> 8) & 0xff) + 
+		  (pixel & 0xff)) / (3*255);
+  }
+
+  public int getPixel(int x, int y, int which) {
+    if ((which < 0) || (which > 2)) return 0;
+    int pixel = pixels[(height1-((y<0)?0:((y>height1)?height1:y)))*width + 
+		      ((x<0)?0:((x>width1)?width1:x))];
+    return (100 * ((pixel >> (2-which)*8) & 0xff)) / 255;
+  }
+
+
+  ////////////////////////////////////////////////////////////
+
+  // grab bag
+
+
+  // called from code (DbnEngine), implicit 'norefresh'
+  public void refresh() {
+    aiRefresh = false;
+    update();
   }
 
 
@@ -464,9 +565,22 @@ public class DbnGraphics extends Panel {
     else return input;
   }
 
+  public final int makeColor(int red, int green, int blue) {
+    return (0xff000000 | 
+	    (colorMap[bound(red, 100)] << 16) |
+	    (colorMap[bound(green, 100)] << 8) | 
+	    (colorMap[bound(blue, 100)]));
+  }
+
+  public final int makeGray(int gray) {
+    return grayMap[bound(gray, 100)];
+  }
 
   public byte[] getPixels() {
-    return pixels;
+    // called by editor to save the pixel array to the 
+    // courseware server
+    //return pixels;
+    return null;
   }
 
 
@@ -481,7 +595,8 @@ public class DbnGraphics extends Panel {
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
 	// hopefully little overhead in setting color
-	g.setColor(grays[pixels[index++]]);
+	//g.setColor(grayMap[pixels[index++]]);
+	g.setColor(new Color(pixels[index++]));
 	g.drawLine(offsetX + x, offsetY + y,
 		   offsetX + x, offsetY + y);
       }
@@ -489,67 +604,7 @@ public class DbnGraphics extends Panel {
   }
     
 
-  public void reset() {
-    for (int i = 0; i < pixelCount; i++) {
-      pixels[i] = 0;
-      lines[i] = -2;
-    }
 
-    if (g != null) {
-      g.setColor(grays[0]);
-      g.fillRect(0, 0, width, height);
-    }
-    if (lastImageg != null) {
-      g.setColor(grays[0]);
-      g.fillRect(0, 0, width, height);
-    }
-    penColor = 100;
-
-    antialias = false;
-    explicitRefresh = false;
-
-    flushCount = 0;
-    resetBlockDetect();
-
-    for (int i = 0; i < 3; i++)
-      mouse[i] = 0;
-    for (int i = 0; i < 26; i++) 
-      key[i] = 0;
-    for (int i = 0; i < 1000; i++)
-      array[i] = 0;
-   
-    //mouse = new int[3];
-    //key = new int[26];
-    //array = new int[1000];
-  }
-
-  //int checkVal;
-  public void setPixel(int x, int y, int val) {
-    myFlush(FDOT);
-    if (x < 0 || x > width1 || y < 0 || y > height1) return;
-    int checkVal = bound(val, 100);
-    int index = (height1-y)*width + x;
-    pixels[index] = (byte)checkVal;
-    lines[index] = currentLine;
-    g.setColor(grays[checkVal]);
-    g.drawLine(x, height1-y, x, height1-y);
-  }
-
-  public void setPixel(int x, int y, int which, int val) {
-    System.out.println("setting pixel " + x + ", " + y + 
-		       " @ " + which + " to " + val);
-  }
-
-  public int getPixel(int x, int y) {
-    return (int) 
-      pixels[(height1-((y<0)?0:((y>height1)?height1:y)))*width + 
-	    ((x<0)?0:((x>width1)?width1:x))];
-  }
-
-  public int getPixel(int x, int y, int which) {
-    System.out.println("getting pixel " + x + ", " + y + " @ " + which);
-    return -1;
-  }
 
   public final int getMouse(int slot) { // throws DbnException {
     //System.out.println("get");
@@ -785,11 +840,12 @@ public class DbnGraphics extends Panel {
 
   // methods used by ai refresh (tm)
 
-  public void myFlush(int v) {
+  public void aiFlush(int v) {
     flushCount+=v;
     if (autoflushenablep) {	
       if (flushCount>99) { 
-	if (!explicitRefresh) refresh();
+	//if (!explicitRefresh) update();
+	if (!aiRefresh) update();
       }
     }
   }
@@ -810,7 +866,7 @@ public class DbnGraphics extends Panel {
     FFIELD=50/lev; 
     FPAPER=100;
   }
-    
+
 
   public void resetBlockDetect() { 
     insideforeverp = false; 
@@ -820,7 +876,7 @@ public class DbnGraphics extends Panel {
     repeatlevel = 0;
     flushNormal();
   }
-    
+
 
   public void beginForever() {
     // fired on a '{'
@@ -829,7 +885,7 @@ public class DbnGraphics extends Panel {
     flushfire = -1;
     autoflushenablep = false;
   }
-    
+
 
   public void endForever() {
     // fired on a '}'
@@ -837,12 +893,12 @@ public class DbnGraphics extends Panel {
     if (flushfire == -1) {
       // did not flush during a forever
       // force it
-      if (!explicitRefresh) refresh();
+      if (aiRefresh) update();
       autoflushenablep= true;
     }
     flushfire = -1;
   }
-    
+
 
   public void beginRepeat() {
     // if within a forever, should be disabled anyways
@@ -879,43 +935,42 @@ public class DbnGraphics extends Panel {
     flushNormal();
     if (!insideforeverp) {
       if (flushCount>0 && flushfire==-1) {
-	if (!explicitRefresh) refresh();
+	if (aiRefresh) update();
       }
     }
   }
     
-
   public void paperFlush() {	
     //	  System.out.println("paperflush request");
-    if (insideforeverp&&aiflushp) {
+    if (insideforeverp && aiRefresh) {
       if (flushfire==-1) {
 	flushfire = 0; // paper was first
-	if (!explicitRefresh) refresh();
+	if (aiRefresh) update();
       } else {
 	if (lastflushfire == 0) {
 	  // could be consecutive paper -> legalize
-	  if (!explicitRefresh) refresh();
+	  if (aiRefresh) update();
 	} else {
 	  // ignore flush
 	}
       }
     } else {
-      myFlush(FPAPER);
+      aiFlush(FPAPER);
     }
     lastflushfire = flushfire;
   }
 
-    
+
   public void fieldFlush() {
-    if (insideforeverp&&aiflushp) {
+    if (insideforeverp && aiRefresh) {
       if (flushfire==-1) {
 	flushfire = 1; // field was first
-	if (!explicitRefresh) refresh();
+	if (!aiRefresh) update();
       } else {
 	// ignore flush
       }
     } else {
-      myFlush(FFIELD);
+      aiFlush(FFIELD);
     }
     lastflushfire = flushfire;
   }	
@@ -926,7 +981,9 @@ public class DbnGraphics extends Panel {
   // panel methods, get connector input, etc.
 
   public Dimension preferredSize() {
-    return new Dimension(width, height);
+    return new Dimension(width1*magnification + 30, 
+			 height1*magnification + 30);
+    //return new Dimension(width, height);
   }
 
 
@@ -936,6 +993,11 @@ public class DbnGraphics extends Panel {
     if (panelg != null)
       paint(panelg);
 
+    flushCount = 0;
+    if (source != null) {
+      source.newPixels();
+    }
+
 #ifdef RECORDER
     // maybe this should go inside DbnEditorGraphics, 
     // but i'm not sure
@@ -943,6 +1005,7 @@ public class DbnGraphics extends Panel {
     DbnRecorder.addFrame(image, pixels, mouse[0], 
 			 height1-mouse[1], (mouse[2] == 100));
 #endif
+    /*
     if ((lastImage == null) && (image != null)) {
       lastImage = createImage(width, height);
       if (lastImage != null) {
@@ -952,12 +1015,45 @@ public class DbnGraphics extends Panel {
     if (lastImageg != null) {
       lastImageg.drawImage(image, 0, 0, null);
     }
+    */
   }
 
   public void update(Graphics g) {
     paint(g);
   }
 
+  public void paint(Graphics screen) {
+    if (screenImage == null) {
+      //Dimension dim = new Dimension(width + 100, height + 100);
+      Dimension dim = preferredSize();
+      screenImage = createImage(dim.width, dim.height);
+      Graphics g = screenImage.getGraphics();
+      gx = (dim.width - width*magnification) / 2;
+      gy = (dim.height - height*magnification) / 2;
+
+      // draw background
+      g.setColor(bgColor);
+      g.fillRect(0, 0, dim.width, dim.height);
+
+      // draw a dark frame around the runner
+      g.setColor(Color.black);
+      g.drawRect(gx-1, gy-1, width*magnification+1, height*magnification+1);
+    }
+
+    if (image != null) {
+      Graphics g = screenImage.getGraphics();
+      g.drawImage(image, gx, gy, 
+		  width*magnification, height*magnification, null);
+    }
+
+    // avoid an exception during quit
+    if ((screen != null) && (screenImage != null)) {
+      // blit to screen
+      screen.drawImage(screenImage, 0, 0, null);
+    }
+  }
+
+  /*
   public void paint(Graphics screen) {
     //System.out.println("painting");
     if (image == null) {
@@ -973,6 +1069,7 @@ public class DbnGraphics extends Panel {
       screen.drawImage(image, 0, 0, null); //this);
     }
   }
+  */
 
 
   //public void initiate() {
@@ -1014,7 +1111,6 @@ public class DbnGraphics extends Panel {
 
   public boolean keyDown(Event ev, int n) {
     //if (n == 27) app.gui.terminate();  // ooh.. ugly
-
     //System.out.println("got key " + n);
     int which = letterKey(n);
     if (which == -1) return false;
@@ -1053,14 +1149,37 @@ public class DbnGraphics extends Panel {
     return updateMouse(e, x, y);
   }
 
-  public boolean mouseEnter(Event e, int x, int y) {
-    return updateMouse(e, x, y);
+  public boolean mouseEnter(Event e, int x, int y) {    
+    //System.out.println("entering");
+    if (frame == null) {
+      // shhh! don't tell anyone!
+      frame = (Frame) getParent().getParent().getParent().getParent();
+      // that is the nastiest piece of code in the codebase
+    }
+    frame.setCursor(Frame.CROSSHAIR_CURSOR);
+    return super.mouseEnter(e, x, y);
   }
+
+  //public boolean mouseEnter(Event e, int x, int y) {
+  //return updateMouse(e, x, y);
+  //}
 
   public boolean mouseExit(Event e, int x, int y) {
     return updateMouse(e, x, y);
   }
 
+
+  public boolean updateMouse(Event e, int x, int y) {
+    x -= gx;
+    y -= gy;
+    x /= magnification;
+    y /= magnification;
+    mouse[0] = x;
+    mouse[1] = height1 - y;
+    return true;
+  }
+
+  /*
   public boolean updateMouse(Event e, int x, int y) {
     //System.out.println("DbnGraphics.updateMouse " + x + ", " + y);
     mouse[0] = x;
@@ -1068,4 +1187,5 @@ public class DbnGraphics extends Panel {
     //return true;
     return false;
   }
+  */
 }

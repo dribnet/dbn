@@ -547,10 +547,14 @@ public class DbnParser {
     if (!parseValue(current)) {
       die("paper must be followed by a value");
     }
-    if (parseValue(current)) {
-      // user is asking for a color paper
-      if (!parseValue(current)) {
-	die("a color paper needs 3 values: red green blue");
+    DbnToken current2 = (DbnToken) current.clone();
+    if (parseValue(current2)) {
+      if (parseValue(current2)) {
+	//current = current2;  // user is asking for a color paper
+	current.childCount = current2.childCount;
+	current.children = current2.children;
+      } else {
+	die("a color paper needs 3 values: red green blue");	
       }
     }
     return true;
@@ -565,13 +569,14 @@ public class DbnParser {
     if (!parseValue(current)) {
       die("pen must be followed by a value");
     }
-    
-    if (parseValue(current)) {
-      // user is asking for a color pen
-      if (!parseValue(current)) {
-	die("a color pen needs 3 values: red green blue");
+    DbnToken current2 = (DbnToken) current.clone();
+    if (parseValue(current2)) {
+      if (parseValue(current2)) {
+	//current = current2;  // user is asking for a color pen
+	current.childCount = current2.childCount;
+	current.children = current2.children;
       } else {
-	System.out.println(current.childCount);
+	die("a color pen needs 3 values: red green blue");
       }
     }
     return true;
