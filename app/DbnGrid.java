@@ -5,6 +5,7 @@
 import java.awt.*;
 import java.util.*;
 
+import java.awt.event.*;
 
 // this panel holds 1 or more DbnPanels in a gridded
 // layout or the editor-style layout with the numbers
@@ -12,7 +13,7 @@ import java.util.*;
 // mouse downs that are captured outside the DbnPanels
 // kill the currently 'running' dbn program
 
-public class DbnGrid extends Panel implements DbnEnvironment {
+public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
   static final int MARGARINE = 20;
 
   DbnApplet app;
@@ -42,7 +43,8 @@ public class DbnGrid extends Panel implements DbnEnvironment {
     graphics = new DbnGraphics[gcount];
     for (int i = 0; i < gcount; i++) {
       graphics[i] = new DbnGraphics(gwidth, gheight);
-      graphics[i].disable();
+      //graphics[i].disable();
+      graphics[i].addMouseListener(this);
       add(graphics[i]);
     }
     gx = new int[gcount];
@@ -52,6 +54,9 @@ public class DbnGrid extends Panel implements DbnEnvironment {
     //setBackground(Color.orange);
     //setBackground(new Color(230, 230, 230));
     setBackground(Color.white);
+
+    //System.out.println("creating new dbngrid");
+    addMouseListener(this);
   }
 
 
@@ -116,13 +121,32 @@ public class DbnGrid extends Panel implements DbnEnvironment {
     }
   }
 
+  public void mouseEntered(MouseEvent e) { }
+  public void mouseExited(MouseEvent e) { }
+  public void mouseReleased(MouseEvent e) { }
+  
+  public void mousePressed(MouseEvent e) {
+    mouseClicked(e);
+  }
 
-  public boolean mouseDown(Event ev, int x, int y) {
+  public void mouseClicked(MouseEvent e) {
+    //int x = e.getX();
+    //int y = e.getY();
+    //System.out.println("mouse is down at " + x + ", " + y);
+    Object source = e.getSource();
+    //System.out.println("mouse is down at " + x + ", " + y);
+    //System.out.flush();
+    //public boolean mouseDown(Event ev, int x, int y) {
+
     if (gcurrent != -1) {
       //Rectangle r = graphics[gcurrent].getBounds();
-      if (graphics[gcurrent].inside(x, y)) {  // grrr.. jdk10
-	return true;
+      //if (graphics[gcurrent].inside(x, y)) {  // grrr.. jdk10
+      if (source == graphics[gcurrent]) {
+	//return true;
+	System.out.println("same");
+	return;
       } else {
+	System.out.println("kill");
 	// kill the currently running applet
 	//graphics[gcurrent].terminate();
 	terminate();
@@ -130,26 +154,53 @@ public class DbnGrid extends Panel implements DbnEnvironment {
 	//gcurrent = -1;
       }
     }
-    // figure out what was selected
+    gcurrent = -1;
     for (int i = 0; i < gcount; i++) {
-#ifdef JDK11
-      Rectangle r = graphics[i].getBounds();
-#else
-      Rectangle r = graphics[i].bounds();
-#endif
-      //if (r.contains(x, y)) {
-      if (r.inside(x, y)) {  // grr.. jdk10
-	//System.err.println("starting " + i);
-	//graphics[gcurrent].reset();
+      if (source == graphics[i]) {
+	System.out.println("it's graphics " + i);
+	//x += gx[i];
+	//y += gy[i];
 	gcurrent = i;
-	runner = new DbnRunner(programs[i], graphics[gcurrent], this);
-	runner.start();
-	graphics[gcurrent].enable();
-	graphics[gcurrent].setCurrentDbnGraphics();
-	runners.addElement(runner);
+	break;
       }
     }
-    return true;
+    if (gcurrent == -1) System.out.println(source);
+    System.out.println("gcurrent = " + gcurrent);
+    if (gcurrent != -1) {
+    //System.out.flush();
+    // figure out what was selected
+    //for (int i = 0; i < gcount; i++) {
+      //#ifdef JDK11
+    //Rectangle r = graphics[i].getBounds();
+      //System.out.println("checking " + i + " " + r);
+      //System.out.flush();
+      //#else
+      //Rectangle r = graphics[i].bounds();
+      //#endif
+      //if (r.contains(x, y)) {
+      //if (r.inside(x, y)) {  // grr.. jdk10
+	//System.out.println("starting " + i);
+      //System.out.flush();
+	//graphics[gcurrent].reset();
+      //gcurrent = i;
+      runner = new DbnRunner(programs[gcurrent], graphics[gcurrent], this);
+      runner.start();
+      graphics[gcurrent].enable();
+      graphics[gcurrent].setCurrentDbnGraphics();
+      runners.addElement(runner);
+      System.out.println("started");
+      /*
+      } else {
+	System.out.println("nope. " + " " + gx[i] + " " + gy[i]);
+	if ((x > r.x) && (x < r.x + r.width) &&
+	    (y > r.y) && (y < r.y + r.height)) {
+	  System.out.println("shoulda been");
+	}
+      }
+      */
+    }
+    //return true;
+    return;
   }
 
 
@@ -189,6 +240,11 @@ public class DbnGrid extends Panel implements DbnEnvironment {
 
   public void message(String msg) {
     System.out.println(msg);
+  }
+
+  public boolean keyDown(Event ev, int n) {
+    System.out.println((char) n);
+    return false;
   }
 }
 

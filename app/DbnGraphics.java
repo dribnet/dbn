@@ -927,7 +927,7 @@ public class DbnGraphics extends Panel {
   }
 
   public void paint(Graphics screen) {
-    System.out.println("painting");
+    //System.out.println("painting");
     if (image == null) {
       //System.out.println("creating new image");
       image = createImage(width, height);
@@ -987,7 +987,8 @@ public class DbnGraphics extends Panel {
     if (which == -1) return false;
     keyTime[which] = System.currentTimeMillis();
     key[which] = 100;
-    return true;
+    //return true;
+    return false;
   }
 
   public boolean keyUp(Event ev, int n) {
@@ -995,7 +996,8 @@ public class DbnGraphics extends Panel {
     if (which == -1) return false;
     keyTime[which] = -1;
     key[which] = 0;
-    return true;
+    //return true;
+    return false;
   }
 
 
@@ -1026,9 +1028,10 @@ public class DbnGraphics extends Panel {
   }
 
   public boolean updateMouse(Event e, int x, int y) {
-    //System.out.println("updateMouse " + x + ", " + y);
+    System.out.println("updateMouse " + x + ", " + y);
     mouse[0] = x;
     mouse[1] = height1 - y;
-    return true;
+    //return true;
+    return false;
   }
 }

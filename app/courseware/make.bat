@@ -13,9 +13,11 @@ rem -- mac ie 4.x -- works with mrj
 rm -f classes\*.class 
 rm -f classes\dbn.jar
 
+set ME=courseware
+
 cd ..
-buzz.pl "jikes +D -nowarn -d organic1\classes" -dEDITOR -dJDK11 -dSCHEME *.java scheme\*.java
-cd organic1
+buzz.pl "jikes +D -nowarn -d courseware\classes" -dEDITOR -dJDK11 -dSCHEME *.java scheme\*.java
+cd %ME%
 
 cd classes
 zip -0q dbn.jar *.class *.dbn jscheme\*.class
