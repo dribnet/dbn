@@ -13,6 +13,62 @@ import java.awt.event.*;
 // mouse downs that are captured outside the DbnPanels
 // kill the currently 'running' dbn program
 
+// this is jdk 1.1 only.. this is only used by the 
+// courseware and by downloadable, both of which require it
+
+class DbnGridBoobyPrize implements KeyListener, 
+  MouseListener, MouseMotionListener
+{
+  DbnGraphics graphics;
+
+  public DbnGridBoobyPrize(DbnGraphics graphics) {
+    this.graphics = graphics;
+  }
+
+  public void mouseEntered(MouseEvent e) { 
+    graphics.mouseEnter(null, e.getX(), e.getY());
+  }
+
+  public void mouseExited(MouseEvent e) { 
+    graphics.mouseExit(null, e.getX(), e.getY());
+  }
+  
+  public void mousePressed(MouseEvent e) {
+    graphics.mouseDown(null, e.getX(), e.getY());
+  }
+
+  public void mouseReleased(MouseEvent e) { 
+    graphics.mouseUp(null, e.getX(), e.getY());
+  }
+
+  public void mouseClicked(MouseEvent e) {
+    graphics.mouseDown(null, e.getX(), e.getY());
+    graphics.mouseUp(null, e.getX(), e.getY());
+  }
+
+  public void mouseDragged(MouseEvent e) {
+    graphics.mouseDrag(null, e.getX(), e.getY());
+  }
+
+  public void mouseMoved(MouseEvent e) {
+    graphics.mouseMove(null, e.getX(), e.getY());
+  }
+
+  public void keyPressed(KeyEvent e) {
+    graphics.keyDown(null, (int)e.getKeyChar());
+  }
+
+  public void keyReleased(KeyEvent e) {
+    graphics.keyUp(null, (int)e.getKeyChar());
+  }
+
+  public void keyTyped(KeyEvent e) {
+    graphics.keyDown(null, (int)e.getKeyChar());
+    graphics.keyUp(null, (int)e.getKeyChar());
+  }
+}
+
+
 public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
   static final int MARGARINE = 20;
 
@@ -49,6 +105,12 @@ public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
     graphics = new DbnGraphics[gcount];
     for (int i = 0; i < gcount; i++) {
       graphics[i] = new DbnGraphics(gwidth, gheight);
+
+      DbnGridBoobyPrize booby = new DbnGridBoobyPrize(graphics[i]);
+      graphics[i].addMouseListener(booby);
+      graphics[i].addMouseMotionListener(booby);
+      graphics[i].addKeyListener(booby);
+
       //graphics[i].disable();
       graphics[i].addMouseListener(this);
       add(graphics[i]);
@@ -132,7 +194,7 @@ public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
   public void mouseReleased(MouseEvent e) { }
   
   public void mousePressed(MouseEvent e) {
-    mouseClicked(e);
+    //mouseClicked(e);
   }
 
   public void mouseClicked(MouseEvent e) {
@@ -149,10 +211,10 @@ public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
       //if (graphics[gcurrent].inside(x, y)) {  // grrr.. jdk10
       if (source == graphics[gcurrent]) {
 	//return true;
-	System.out.println("same");
+	System.out.println("(ignoring.. clicked the same)");
 	return;
       } else {
-	System.out.println("kill");
+	System.out.println("(new selection.. killing what's currently running)");
 	// kill the currently running applet
 	//graphics[gcurrent].terminate();
 	terminate();
@@ -163,15 +225,17 @@ public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
     gcurrent = -1;
     for (int i = 0; i < gcount; i++) {
       if (source == graphics[i]) {
-	System.out.println("it's graphics " + i);
+	System.out.println("setting gcurrent to " + i);
 	//x += gx[i];
 	//y += gy[i];
 	gcurrent = i;
 	break;
       }
     }
-    if (gcurrent == -1) System.out.println(source);
-    System.out.println("gcurrent = " + gcurrent);
+    System.out.println("  gcurrent = " + gcurrent);
+    if (gcurrent == -1) {
+      System.out.println("  source is " + source);
+    }
     if (gcurrent != -1) {
     //System.out.flush();
     // figure out what was selected
@@ -194,7 +258,7 @@ public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
       graphics[gcurrent].enable();
       graphics[gcurrent].setCurrentDbnGraphics();
       runners.addElement(runner);
-      System.out.println("started");
+      System.out.println("  starting " + gcurrent);
       /*
       } else {
 	System.out.println("nope. " + " " + gx[i] + " " + gy[i]);
@@ -216,7 +280,7 @@ public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
     //System.err.println("stopping " + runner);
     if (runner != null) {
       runner.stop();
-      graphics[gcurrent].disable();
+      //graphics[gcurrent].disable();
       gcurrent = -1;
 
       runners.removeElement(runner);
@@ -230,7 +294,7 @@ public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
 	  deadguy.stop();
 	}
 	for (int i = 0; i < gcount; i++) {
-	  graphics[gcurrent].disable();
+	  //graphics[gcurrent].disable();
 	}
       }
     }
