@@ -100,76 +100,17 @@ foreach $arg (@ARGV) {
 
 print "processing...\n";
 foreach $file (@file_list) {
-    #print "$file\n";
     open(FILE, "$file") || die "error with $file, $!";
     @contents = <FILE>;
     close(FILE);
 
-    my (@new_contents);
-    #$changes = 0;
-    $changes = 1;  # always set changes to 1, copies files into temp
+    @new_contents = ();
+    &read_positive;
 
-    #foreach $line (@contents) {
-    while ($line = shift(@contents)) {
-	# determine if it contains preprocessing 
-	if ($line =~ /\#define\s+(\S+)/) {
-	    #found #define
-	    $changes = 1;
-	    #print "setting \"$1\"\n";
-	    $params{$1} = 1;
-	    unshift(@new_contents, $blank_line); # maintain lf count
-	} elsif ($line =~ /\#if(\w*)def\s+(\S+)/) {
-	    unshift(@new_contents, $blank_line);
-	    $changes = 1;
-	    if ((($1 eq "") && ($params{$2} == 1)) ||   #ifdef found
-		(($1 eq "n") && ($params{$2} != 1))) {  #ifndef found
-		# include until endif/else
-		for (;;) {
-		    $line = shift(@contents);
-		    last if ($line =~ /\#endif/);
-		    last if ($line =~ /\#else/);
-		    unshift(@new_contents, $line);
-		}
-		unshift(@new_contents, $blank_line);
-		# if #else found, exclude until endif
-		if ($line =~ /\#else/) {
-		    for (;;) {
-			$line = shift(@contents);
-			last if ($line =~ /\#endif/);
-			unshift(@new_contents, $blank_line);
-		    }
-		    unshift(@new_contents, $blank_line);
-		}
-
-	    } else {
-		# exclude until endif/else
-		for (;;) {
-		    $line = shift(@contents);
-		    last if ($line =~ /\#endif/);
-		    last if ($line =~ /\#else/);
-		    unshift(@new_contents, $blank_line);
-		}
-		unshift(@new_contents, $blank_line);
-		# if #else found, include until endif
-		if ($line =~ /\#else/) { # now write everything
-		    for (;;) {
-			$line = shift(@contents);
-			last if ($line =~ /\#endif/);
-			unshift(@new_contents, $line);
-		    }
-		    unshift(@new_contents, $blank_line);
-		}
-	    }
-	} else {
-	    unshift(@new_contents, $line);  # no change
-	}
-    }
-    if ($changes == 1) {
-	open(OUTPUT, ">$temp_dir$separator$file") || die $!;
-	print OUTPUT reverse(@new_contents);
-	close(OUTPUT);
-	unshift(@new_file_list, "$temp_dir$separator$file");
-    }
+    open(OUTPUT, ">$temp_dir$separator$file") || die $!;
+    print OUTPUT reverse(@new_contents);
+    close(OUTPUT);
+    unshift(@new_file_list, "$temp_dir$separator$file");
 }
 
 print "compiling...\n";
@@ -187,16 +128,81 @@ print "cleaning...\n";
 # finished
 print "done.\n";
 
-# convert files out of file_list:
-# open each file
-#   if it contains preprocessing comments
-#     rename the .java file to .pre
-#     make a new java file based on the substitutions
 
-# compile
-# call javac, jikes or sj based on what's in use
-# auto-detect if fast enough
+# reads until else or endif, adding what it finds
+# to the new output file
+sub read_positive {
+    my $line;
+    while ($line = shift(@contents)) {
+	if ($line =~ /$\#if(\w*)def\s+(\S+)/) {
+	    unshift(@new_contents, $blank_line);
+	    if ((($1 eq "") && ($params{$2} == 1)) ||   #ifdef found
+		(($1 eq "n") && ($params{$2} != 1))) {  #ifndef found
+		# include until endif/else
+		&read_positive;
+		#return;
 
-# unconvert (rename) files
-# delete the .java files from file_list
-# rename each .pre file to .java from file_list
+	    } else {
+		# exclude until endif/else
+		&read_negative(0);
+                #return;
+	    }
+	} elsif ($line =~ /$\#else/) {  
+	    unshift(@new_contents, $blank_line);
+	    &read_negative(0);
+	    return;
+
+        } elsif ($line =~ /$\#endif/) {
+	    unshift(@new_contents, $blank_line);
+	    return;
+
+	} elsif ($line =~ /$\#define\s+(\S+)/) {
+	    $params{$1} = 1;
+	    unshift(@new_contents, $blank_line); # maintain lf count
+
+	} else {
+	    unshift(@new_contents, $line);  # no change
+	}
+    }
+}
+
+
+# excludes everything until an else or an endif
+sub read_negative {
+    my ($inside_negative) = @_[0];
+    my $line;
+    while ($line = shift(@contents)) {
+	if ($line =~ /$\#if(\w*)def\s+(\S+)/) {
+	    unshift(@new_contents, $blank_line);
+	    if ((($1 eq "") && ($params{$2} == 1)) ||   #ifdef found
+		(($1 eq "n") && ($params{$2} != 1))) {  #ifndef found
+		#&read_positive;
+		&read_negative(1);
+		
+	    } else {
+		# exclude until endif/else
+		&read_negative(1);
+	    }
+	} elsif ($line =~ /$\#else/) {
+	    unshift(@new_contents, $blank_line);
+	    if ($inside_negative) {
+		&read_negative(1);
+	    } else {
+		&read_positive;
+	    }
+	    return;
+		 
+        } elsif ($line =~ /$\#endif/) {
+	    unshift(@new_contents, $blank_line);
+	    return;
+
+	#} elsif ($line =~ /$\#define\s+(\S+)/) {
+	#   unshift(@new_contents, $blank_line); # maintain lf count
+
+	} else {
+	    # blank line, maintain lf count
+	    unshift(@new_contents, $blank_line);
+	}
+    }
+}
+

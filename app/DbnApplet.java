@@ -80,6 +80,31 @@ public class DbnApplet extends Applet
 	    add(grid);
 	    environment = grid;
 
+	} else if (mode.equals("player")) {
+	    // could also do a class.forname for jdk11
+	    DbnPlayerProgram dpp = new DbnPlayerProgram(this);
+	    add(dpp);
+	    environment = dpp;
+	    dpp.start();
+
+#ifdef CONVERTER
+	} else if (mode.equals("convert")) {
+	    try {
+		String program = readFile(get("program", null));
+		DbnParser parser = 
+		    new DbnParser(DbnPreprocessor.process(program));
+		String converted = parser.getRoot().convert();
+		FileOutputStream fos = 
+		    new FileOutputStream("DbnPlayerProgram.java");
+		PrintStream ps = new PrintStream(fos);
+		ps.print(converted);
+		ps.close();
+	    } catch (Exception e) {
+		e.printStackTrace();
+	    }
+	    System.exit(0);
+#endif
+
 	} else if (mode.equals("exhibition")) {
 	    Hashtable names = new Hashtable();
 	    names.put("akilian", "Axel Kilian");
@@ -116,7 +141,8 @@ public class DbnApplet extends Applet
 		students[i] = (String) names.get(userid);
 		programs[i] = readFile(filename);
 	    }
-	    DbnExhibitionGrid grid = new DbnExhibitionGrid(this, programs, students);
+	    DbnExhibitionGrid grid = 
+		new DbnExhibitionGrid(this, programs, students);
 	    add(grid);
 	    environment = grid;
 	}

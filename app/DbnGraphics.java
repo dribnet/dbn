@@ -73,9 +73,13 @@ public class DbnGraphics extends Panel {
 	pixelCount = width * height;
 	pixels = new byte[pixelCount];  // all set to zero
 	penColor = 100;
-	
+
+#ifdef JDK11
+	//source = new MemoryImageSource();
+#endif
+
 #ifdef CRICKET
-	openSensor();	
+	openSensor();
 #endif
 	//currentDbnGraphics = this;
 	//dbr.render();
@@ -96,6 +100,9 @@ public class DbnGraphics extends Panel {
 	currentDbnGraphics = this;
     }
 
+    public Dimension preferredSize() {
+	return new Dimension(width, height);
+    }
 
     /////////////////////////////////////////////////////////////
 
@@ -473,7 +480,7 @@ public class DbnGraphics extends Panel {
 	if (x < 0 || x > width1 || y < 0 || y > height1) return;
 	int checkVal = bound(val, 100);
 	pixels[(height1-y)*width + x] = (byte)checkVal;
-	g.setColor(grays[100-checkVal]);
+	g.setColor(grays[checkVal]);
 	g.drawLine(x, height1-y, x, height1-y);
     }
 
@@ -485,15 +492,16 @@ public class DbnGraphics extends Panel {
     }
 
 
-    public final int getMouse(int slot) throws Exception {
+    public final int getMouse(int slot) { // throws DbnException {
+	//System.out.println("get");
 	return mouse[slot-1];
     }
 
-    public final int getKey(int slot) throws Exception {
+    public final int getKey(int slot) { // throws Exception {
 	return key[slot-1];
     }
 
-    public final int getTime(int slot) throws Exception {
+    public final int getTime(int slot) { // throws Exception {
 	// wooaaah! garbage city!
 	Date d = new Date(); 
 	switch (slot) {
@@ -841,6 +849,7 @@ public class DbnGraphics extends Panel {
     public void paint(Graphics screen) {
 	if (image == null) {
 	    image = createImage(width, height);
+	    if (image == null) return;
 	    g = image.getGraphics();
 	    g.setColor(Color.white);
 	    g.fillRect(0, 0, width, height);
@@ -937,8 +946,7 @@ public class DbnGraphics extends Panel {
     }
 
     public boolean updateMouse(int x, int y) {
-	//mouse[0] = x - runnerX[current];
-	//mouse[1] = runnerHeight - (y - runnerY[current]);
+	System.out.println("updateMouse " + x + ", " + y);
 	mouse[0] = x;
 	mouse[1] = height1 - y;
 	return true;

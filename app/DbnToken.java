@@ -231,16 +231,24 @@ public class DbnToken {
 
 #ifdef CONVERTER
     static boolean shouldOutputFunctions;
+    static boolean insideLoop;
 
-    public void convert() {
+    public String convert() {
 	//System.err.println(kind);
 	switch (kind) {
 
 	case ROOT:
 	    cbuffer = new StringBuffer();
-	    outputln("public class ConvertedProgram extends DbnProgram {");
+	    outputln("public class DbnPlayerProgram extends DbnPlayer");
+	    outputln("{");
 	    moreIndent();
-	    outputln("boolean stopped = false;");
+	    
+	    outputln("public DbnPlayerProgram(DbnApplet applet)");
+	    outputln("{");
+	    moreIndent();
+	    outputln("super(applet);");
+	    lessIndent();
+	    outputln("}");
 	    outputln();
 
 	    shouldOutputFunctions = true;
@@ -255,23 +263,41 @@ public class DbnToken {
 	    }
 
 	    shouldOutputFunctions = false;
-	    outputln("public void execute() {");
+	    convertVariables();  // so that they're global
+	    outputln("public void execute() throws DbnException");
+	    outputln("{");
 	    moreIndent();
-	    convertVariables();
+	    //convertVariables();  // needs to be global to the class
 	    convertChildren();
 	    lessIndent();
 	    outputln("}");
 
+	    outputln("long lastSleepTime;");
+	    outputln("private final void sleepIfTired()");
+	    outputln("{");
+	    moreIndent();
+	    outputln("long t = System.currentTimeMillis();");
+	    outputln("if (t - lastSleepTime < 1000) return;");
+	    outputln("try {");
+	    moreIndent();
+	    outputln("thread.sleep(5);");
+	    outputln("lastSleepTime = t + 5;");
+	    lessIndent();
+	    outputln("} catch (InterruptedException e) { }");
 	    lessIndent();
 	    outputln("}");
-	    System.out.println(cbuffer.toString());
-	    break;
+	    outputln();
+
+	    lessIndent();
+	    outputln("}");
+	    return cbuffer.toString();
+	    //break;
 	    
 	case NUMBER: output(String.valueOf(number)); break;
 	case NAME: output(name); break;
 
 	case PIXEL: 
-	    output("env.getPixel(");
+	    output("graphics.getPixel(");
 	    convertChild(0);
 	    output(", ");
 	    convertChild(1);
@@ -289,6 +315,11 @@ public class DbnToken {
 	case BLOCK: 
 	    outputln("{");
 	    moreIndent();
+	    if (insideLoop) {
+		outputln("if (state != RUNNER_STARTED) return;");
+		outputln("sleepIfTired();");
+		insideLoop = false;
+	    }
 	    if ((parent.kind == COMMAND_DEF) ||
 		(parent.kind == FUNCTION_DEF)) {
 		parent.convertVariables();
@@ -315,7 +346,11 @@ public class DbnToken {
 	case OPERATOR: convertChild(0); break;
 
 	case INPUT_CONNECTOR: 
-	    output("env.getConnector(\"" + name + "\", ");
+	    String connector = name;
+	    String title = Character.toUpperCase(connector.charAt(0)) +
+		connector.substring(1);
+	    output("graphics.get" + title + "(");
+	    //output("graphics.getConnector(\"" + name + "\", ");
 	    convertChild(0);
 	    output(")");
 	    break;
@@ -332,7 +367,7 @@ public class DbnToken {
 		    output("int " + children[i].name);
 		    if (i != paramCount-1) output(", ");
 		}
-		outputln(")");
+		outputln(") throws DbnException");  // just in case
 		convertChild(paramCount); // it's a block
 		//System.out.println(variables);
 	    }
@@ -378,11 +413,13 @@ public class DbnToken {
 	    output("; ");
 	    convertChild(0);
 	    outputln(goingUp ? "++)" : "--)");
+	    insideLoop = true;
 	    convertChild(3);
 	    break;
 
 	case FOREVER: 
-	    outputln("while (!stopped)");
+	    outputln("while (state == RUNNER_STARTED)");
+	    insideLoop = true;
 	    convertChild(0);
 	    break;
 
@@ -394,7 +431,7 @@ public class DbnToken {
 		convertChild(1);
 		outputln(";");
 	    } else if (variable.children[0].kind == PIXEL) {
-		output("env.setPixel(");
+		output("graphics.setPixel(");
 		variable.children[0].convertChild(0);
 		output(", ");
 		variable.children[0].convertChild(1);
@@ -402,11 +439,18 @@ public class DbnToken {
 		convertChild(1);
 		outputln(");");
 	    } else if (variable.children[0].kind == OUTPUT_CONNECTOR) {
-		output("env.setConnector(\"");
-		output(variable.children[0].name);
-		output("\", ");
+		connector = variable.children[0].name;
+		title = Character.toUpperCase(connector.charAt(0)) +
+		    connector.substring(1);
+		output("graphics.set" + title + "(");
+		//output("graphics.setConnector(\"");
+		//output(variable.children[0].name);
+		//output("\", ");
 		convertChild(1);
-		output(")");
+		//output(", ");
+		//System.out.println(cbuffer.toString());
+		//convertChild(2);
+		outputln(");");
 	    } else {
 		System.err.println("not handled " + children[0].kind);
 		System.exit(1);
@@ -414,20 +458,20 @@ public class DbnToken {
 	    break;
 	    
 	case PAPER:
-	    output("env.paper(");
+	    output("graphics.paper(");
 	    convertChild(0);
 	    outputln(");");
 	    break;
 
 	case PEN:
-	    output("env.pen(");
+	    output("graphics.pen(");
 	    convertChild(0);
 	    outputln(");");
 	    break;
 
 	case LINE: 
 	case FIELD:
-	    output((kind == LINE) ? "env.line(" : "env.field(");
+	    output((kind == LINE) ? "graphics.line(" : "graphics.field(");
 	    convertChild(0);
 	    output(", ");
 	    convertChild(1);
@@ -436,6 +480,26 @@ public class DbnToken {
 	    output(", ");
 	    convertChild(3);
 	    outputln(");");
+	    break;
+
+	case PAUSE:
+	    output("graphics.pause(");
+	    convertChild(0);
+	    outputln(");");
+	    break;
+
+	case ANTIALIAS:
+	    output("graphics.pause(");
+	    convertChild(0);
+	    outputln(");");
+	    break;
+
+	case REFRESH:
+	    outputln("graphics.refresh();");
+	    break;
+
+	case NOREFRESH:
+	    outputln("graphics.norefresh();");
 	    break;
 
 	case SMALLER:
@@ -462,6 +526,7 @@ public class DbnToken {
 	    System.err.println("not handled: " + kind);
 	    System.exit(1);
 	}
+	return null;
     }
 
 
