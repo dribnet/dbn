@@ -306,8 +306,8 @@ public class PockyVision extends Window implements DbnEnvironment, Runnable {
       int selX = runningIndex % HCOUNT;
       int selY = runningIndex / HCOUNT;
       Graphics ig = image.getGraphics();
-      ig.drawImage(graphics.lastImage, selX*WIDE, selY*HIGH,
-		   WIDE, HIGH, null);
+      ig.drawImage(graphics.dbnImage /*graphics.lastImage*/, 
+		   selX*WIDE, selY*HIGH, WIDE, HIGH, null);
     }
     Enumeration e = runners.elements();
     while (e.hasMoreElements()) {

@@ -45,7 +45,11 @@ public class Experimental extends DbnApplication implements ActionListener {
       if (command.equals(goodieLabels[i])) {
 	switch (i) {
 	case 0:
+#ifdef RECORDER	  
 	  ((DbnEditor)environment).doRecord();
+#else
+	  System.err.println("recorder currently disabled");
+#endif
 	  break;
 #ifdef CONVERTER
 	case 2:

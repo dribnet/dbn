@@ -75,7 +75,7 @@ public class DbnRunner implements Runnable {
 #endif
       } else {
 	String pre = "set red 0; set green 1; set blue 2; " + 
-	  "set quicktime 0; set tiff 1; set illustrator 2";
+	  "set quicktime 0; set tiff 1; set illustrator 2; ";
 	DbnParser parser = 
 	  new DbnParser(DbnPreprocessor.process(pre + program));
 	

@@ -1,3 +1,15 @@
+BUGS
+_ why does it have a problem with no newline at end of program
+_   in particular, when last line is a comment
+_ set problems with inserted preprocessor stuff (fixed)
+_ if error on last (empty) line, highlight it somehow
+_   make empty lines highlight anyway 
+_   (add a space? highlight to end of \n?)
+_ fix dbnletters.dbn to be more like what's in the book
+_   include a credit to peter cho in the comments?
+_   run a script on all courseware material to fix refs to old fxns
+
+
 PROBLEMS
 _ people can't run programs using <net> on their own web pages
 
@@ -11,6 +23,7 @@ _ commands inside a random { } aren't run
 _ add default magnification, along with paper size
 _ make print statements show up in dark blue area
 _ pause/continue ability
+_ fix the naming for all the properties before releasing new rev
 
 _ better default .tif names for screen grab 
 
@@ -20,12 +33,20 @@ _ break out of forever (used to be in the language)
 _ floating point numbers (toggle from dbn.properties?)
 
 
-MAC
+MAC - BUGS
+_ mac not highlighting lines with errors
+_ mac problem with not updating the entire screen
+_   only a problem when the size command is used
 _ window is too wide, not tall enough
-_ resize box on window makes it look really crappy
 _ check to see if key event bug is still a problem
+_   if not, remove the crappy code
 _ error messages going away too quickly
 _   small movements change (inside play btn changes to Play)
+_ note on dbn site about what browser people are using
+_   warn that mac navigator won't be able to run it
+
+MAC - FEATURES
+_ resize box on window makes it look really crappy
 _ make mrj menubar behave a little better, have file->quit menu,
 _ add an about box under the apple/help menu:
 _   Add a 'MENU' resource with an ID of 1128 to override the default Apple
@@ -37,11 +58,19 @@ _   the AWT -- as I recall, you just call MenuBar.getHelpMenu() and then
 _   append items to that menu.
 
 
-GRID
+COURSEWARE - BUGS
 _ when applet finished in grid, 'deselect' it
+_ must improve no-cache commands.. causing much confusion for students
+_   this was particularly a problem with nscp browser, after saving
+_ really need to get python dbn working in browser
+_   currently too difficult to look at everyone's work
 
-
-COURSEWARE
+COURSEWARE - FEATURES
+_ better dbn app to courseware connection (via 'ultramode')
+_   set the root for the cw files, can be url or local files
+_ in selection list for assign, include full text of project (?)
+_ add a gallery
+_ uploading library of functions (myfunctions.dbn) to the server
 _ add grid mode to DbnFancy
 _ coloring comments with only \s at beginning in html cgi
 _ coloring of dbn keywords in courseware
@@ -52,15 +81,6 @@ _   unaffected stuff)
 _ rewrite in python, have self-contained java web server/engine
 _   or use perl-based web server that runs CGI as well
 _ make courseware save old versions of programs in log file format
-_ must improve no cache commands.. causing much confusion for students
-_ really need to get python dbn working in browser
-_   currently too difficult to look at everyone's work
-_ better dbn app to courseware connection (via 'ultramode')
-_   set the root for the cw files, can be url or local files
-_ in selection list for assign, include full text of project (?)
-_ add a gallery
-_ uploading library of functions (myfunctions.dbn) to the server
-o dbn ultramode is a bad idea because it only works on our apache
 
 
 ENV
@@ -77,25 +97,19 @@ _   comments would contain descriptions //!blah for printing and formatting
 _ sketchbook - doodling/scribbling area.. since wacom tablet easily accessible
 
 
-WHAT?
-_ must fix dbn runner problem with thread weirdness
-
-
-_ fix the naming for all the properties before releasing new rev
 _ controlling colors and other properties from inside dbn
 _   generic properties sheet might be better than none
 _   comments are the descriptive text, use multi-line parsing code
 _   embed special chars for ranges
 _   groupings or properties pages based on first word of blah.blah1.blah2=
+
 _ benchmarking/calibrating system for auto-slowdown
+
 _ make repetition window (saves and collapses with 10 or so frames)
 _ pockyvision
 _   recording interactions, write out to file when done
 _   ghost mode should run applet closest to the center
 _ when play gets hit, hit stop first (python is complaining)
-_ fix dbnletters.dbn to be more like what's in the book
-_   include a credit to peter cho in the comments?
-_   run a script on all courseware material to fix refs to old fxns
 _ need to have someone go through and fix the pieces to be archived
 _   older projects are already starting to rot on new version of dbn
 _ movies
@@ -165,7 +179,6 @@ _   compile java programs inside dbn environment
 _     maybe as signed applet could use sun.tools.javac
 _     maspanel-style stuff inside dbn area and environment
 _     could do multiple class files and remove public class restrictions
-_ note on dbn site about what browser people are using
 
 _ allow param tag for network host when dbn being run locally
 _ mouse flakiness solved by using "set mx <mouse 1>"
@@ -185,23 +198,26 @@ _ network down/disconnect crashes applet without notice
   couldn't restart afterwards (network down?)
 _ error message for non-existent variable reads
   like "line needs 4 vars" instead of "unknown var"
-_ if error on last (empty) line, highlight it somehow
-  make empty lines highlight anyway 
-  (add a space? highlight to end of \n?)
 _ finish dbn japanese and others
 _ font size of text area (too small?? too big?)
-  (allow text face, size to be set using a param)
+_   (allow text face, size to be set using a param)
 _ can a NullPointerException be caught such that it would allow
   dbn to continue running, even if there was an internal error?
 _ if a mini-applet has a bug, set status bar on rollover (hard)
-_ font size too big to get entire error msg
-  make sure all messages are short
 _ need adjustable auto-slowdown (not ai-refresh)
 _ better method of highlighting errors - color, flash, ?
-  actually get highlighting working better
 _ need to internationalize type program here
-  as well as breaking out warnings/messages/errors to separate file
+_   as well as breaking out warnings/messages/errors to separate file
+_ font size too big to get entire error msg
+_   make sure all messages are short
+
+
+DISTRIBUTION
 _ would be nice to have auto-bug-reporting built into applet
+
+
+WHAT?
+_ must fix dbn runner problem with thread weirdness
 
 
 DONE
