@@ -754,7 +754,7 @@ class DbnControlPanel extends DbnControlPanelNull {
 
 public class DbnGui extends Panel {
     static final String BEAUTIFY_ITEM = "Beautify";
-    static final String SNAPSHOT_ITEM = "Snapshot";
+    static final String SNAPSHOT_ITEM = "Save";
     static final String SAVE_ITEM = "Save as...";
     static final String OPEN_ITEM = "Open...";
 
@@ -882,7 +882,7 @@ public class DbnGui extends Panel {
 	cmds.addItem(BEAUTIFY_ITEM);
 	
 	// don't add snapshot command if running locally
-	if (!app.isLocal() && (app.getParameter("user") != null)) {
+	if (!app.isLocal() && (app.getParameter("save_as") != null)) {
 	    cmds.addItem(SNAPSHOT_ITEM);
 	}
 	if (app.isLocal()) {
@@ -916,8 +916,9 @@ public class DbnGui extends Panel {
 	    } else if (cmds.getSelectedItem().equals(SNAPSHOT_ITEM)) {
 		DbnIO io = new DbnIO(app);
 		int dim = 20;
-		if (!io.doSnapshot(ta.getText(),
-				   dbrp.dbr.dbg.gethexthumbnail(dim), dim)) {
+		if (!io.doSnapshot(ta.getText(), dbrp.dbr.dbg.getPixels())) {
+		//if (!io.doSnapshot(ta.getText(),
+		//	   dbrp.dbr.dbg.gethexthumbnail(dim), dim)) {
 		    // error
 		}
 

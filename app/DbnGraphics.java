@@ -587,8 +587,14 @@ public class DbnGraphics
     }
     
 
-    // this will go away soon
+    public byte[] getPixels() {
+	return pixels;
+    }
+}
 
+
+    // this will go away soon
+    /*
     public String gethexthumbnail(int n) 
     { 
 	return gethexthumbnail(n, 4); 
@@ -641,3 +647,4 @@ public class DbnGraphics
 	return s;
     }
 }
+    */

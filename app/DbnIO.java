@@ -106,15 +106,16 @@ public class DbnIO
     
     
     // width and height for imageData are always 101x101
-    public boolean fancySnapshot(String program, byte imageData[]) {
+    public boolean doSnapshot(String programStr, byte imageData[]) {
 	// adopted from a javaworld article, java tip #34
 	try {
-	    String saveUrl = app.getParameter("save_url");
-	    if (saveUrl == null) {
-		System.err.println("no save_url set");
-		return false;
-	    }
-	    URL url = new URL(saveUrl);
+	    //String saveUrl = app.getParameter("save_url");
+	    //URL url = new URL(saveUrl);
+	    //URL url = app.getDocumentBase();
+	    String document = app.getDocumentBase().toString();
+	    document = document.substring(0, document.lastIndexOf("?"));
+	    URL url = new URL(document);
+	    System.err.println("url is " + url);
 
 	    URLConnection conn = url.openConnection();
 	    conn.setDoInput(true);
@@ -125,21 +126,22 @@ public class DbnIO
 	    
 	    DataOutputStream printout = 
 		new DataOutputStream(conn.getOutputStream());
-	    
-	    String user = app.getParameter("user");
-	    if (user == null) {
-		System.err.println("no user name set");
-		return false;
-	    }
 
-	    String pgmStr = new String(makePgmData(imageData, 101, 101));
+	    //String user = app.getParameter("user");
+	    //if (user == null) {
+	    //System.err.println("no user name set");
+	    //return false;
+	    //}
+
+	    String saveAs = app.getParameter("save_as");
+	    String imageStr = new String(makePgmData(imageData, 101, 101));
 	    String content = 
-		"user=" + URLEncoder.encode(user) +
-		"&image=" + URLEncoder.encode(pgmStr) +
-		"&program=" + URLEncoder.encode(program);
+		"save_as=" + URLEncoder.encode(saveAs) + 
+		"&save_image=" + URLEncoder.encode(imageStr) +
+		"&save_program=" + URLEncoder.encode(programStr);
 
-	    System.err.println("here da content:");
-	    System.err.println(content);
+	    //System.err.println("here da content:");
+	    //System.err.println(content);
 
 	    printout.writeBytes(content);
 	    printout.flush();
@@ -165,6 +167,7 @@ public class DbnIO
     // dim is size of image (dim X dim) square
     // hexthumbnail is string of ascii encoded HEX (1 byte per pixel)
     // progtext is program
+    /*
     public boolean doSnapshot(String progtext, String hexthumbnail, int dim) {
 	// adopted from a javaworld article, java tip #34
 	try {
@@ -219,7 +222,7 @@ public class DbnIO
 	    return false;
 	}
     }
-
+    */
 
     static public byte[] makePgmData(byte inData[], int width, int height) {
 	//String headerStr = "P6 " + width + " " + height + " 255\n"; 
