@@ -1,41 +1,6 @@
 import java.io.*;
 import java.util.*;
 
-// FIXED? if error on last (empty) line, highlight it somehow
-
-// TODO the following just stops w/o any complaints:
-//      }
-// 
-//      paper 50
-
-// TODO font size too big to get entire error msg
-//      make sure all messages are short
-
-// TODO need adjustable auto-slowdown
-
-// TODO better method of highlighting errors - color, flash, ?
-
-// TODO need to internationalize // type program here
-//      as well as breaking out warnings/messages/errors to separate file
-
-// DONE make sense of all the vars madness
-
-// DONE preprocessor must remove comments and 
-//      (replace them with a blank line if they're on a sep line)
-
-// DONE if variable not found, warn as such ...
-//      (line said 4 vars needed after block)
-
-// DONE repeat statement, then blank line, then brace is ok
-
-// DONE take out 'found local var for repeat'
-
-// DONE (-x) doesn't work. shit. also (-mx/5+50)
-
-// DONE (-(x)) for math breaks things
-
-// DONE findFunction not working inside math
-
 
 public class DbnParser {
     // used while the parser is actually running

@@ -1,41 +1,6 @@
 import java.util.*;
 
 
-// TODO if a mini-applet has a bug, set status bar on rollover (hard)
-
-// FIXED? make empty lines highlight anyway 
-//      (add a space? highlight to end of \n?)
-
-/*
-// FIXED? this makes a bug: (also 3G tsuyoshi) 
-paper 0 
-pen 100 
-//repeat Y 0 100
-{ 
-   repeat X 0 100 
-   { 
-      paper 0 
-      line (X+50) (X+50) (50-X) (50-X) 
-      line (X) 80 (X) 20 
-      line 30 (X+40) 35 (X+30)
-      line (X+15) 50 (X+20) 60 
-      line (X*3) (X*3) (100-X*3) (100-X*3) 
-   } 
-} 
-*/
-
-// TODO can a NullPointerException be caught such that it would allow
-//      dbn to continue running, even if there was an internal error?
-
-// DONE would be nice to have auto-bug-reporting built into applet
-
-// DONE need to add 'order of operations' to math commands
-//      unless all math is assumed to move left to right (yuck)
-//      can cheat on this by putting parens around * and / expressions
-//      make an array of ints that have the math, another array with the ops
-//      multiply first, then divide, then etc.
-//      condense the array first with multiplies, moving left to right
-
 public class DbnEngine {
     DbnToken root;
     DbnProcessor parent;
