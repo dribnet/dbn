@@ -1,4 +1,4 @@
-#ifdef JDK11
+#ifdef FANCY
 
 
 import java.awt.*;

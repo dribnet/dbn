@@ -1,2 +1,2 @@
 @echo off
-.\bin\jre -mx48m -cp classes DbnApplication
+.\bin\jre -mx48m -cp lib\dbn.jar;lib\python.jar DbnApplication
