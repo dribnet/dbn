@@ -19,9 +19,11 @@ zip -0q ..\lib\dbn.jar *.class *.dbn *.gif
 cd ..
 
 rem -- build dbn.exe from the classes folder
-cd classes
-jexegen /w /main:DbnApplication /out:..\dbn.exe *.class *.dbn
-cd ..
+REM -- removed this because the behavior across machines
+REM -- using jview is so completely erratic.
+REM cd classes
+REM jexegen /w /main:DbnApplication /out:..\dbn.exe *.class *.dbn
+REM cd ..
 
 
 
