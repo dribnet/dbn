@@ -14,7 +14,7 @@ cd ..
 
 REM buzz.pl "sj -nowarn -d %ME%\classes" %OPTIONS% *.java scheme\*.java python\*.java
 
-buzz.pl "jikes +D -nowarn -d %ME%\classes" %OPTIONS% *.java scheme\*.java python\*.java
+buzz.pl "jikes +D -nowarn -d %ME%\classes" %OPTIONS% *.java scheme\*.java python\*.java %ME%\*.java
 
 cd %ME%
 
