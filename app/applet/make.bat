@@ -11,7 +11,7 @@ del classes\dbn.jar
 rem --- to be really strict, but that means that 
 rem --- printing goes away, which would be really bad
 set CLASSPATH2=%CLASSPATH%
-set CLASSPATH=jdk-102.zip
+set CLASSPATH=.\applet\jdk-102.zip
 
 cd ..
 buzz.pl "jikes +1.0 +D -nowarn -d applet\classes" *.java
