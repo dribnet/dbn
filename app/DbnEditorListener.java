@@ -1,3 +1,6 @@
+#ifdef JDK11
+
+
 import java.awt.*;
 import java.awt.event.*;
 
@@ -77,3 +80,6 @@ class DbnEditorListener extends KeyAdapter implements FocusListener {
 	deselect();
     }
 }
+
+
+#endif

@@ -103,13 +103,17 @@ public class DbnRunner implements Runnable {
 	
 	try {
 	    if (program.charAt(0) == ';') {
+#ifdef SCHEME
 		engine = new SchemeEngine(dbg, program);
 		engine.start();
+#endif
 	    } else if (program.charAt(0) == '#') {
+#ifdef PYTHON
 		forceStop = true;
 		engine = new PythonEngine(dbg, program);
 		engine.start();
 		forceStop = false;
+#endif
 	    } else {
 		String processed = preprocessor.process(program);
 		DbnParser parser = new DbnParser(processed.toCharArray());

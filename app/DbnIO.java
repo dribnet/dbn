@@ -155,7 +155,12 @@ public class DbnIO
 	    //}
 
 	    String saveAs = app.getParameter("save_as");
-	    String imageStr = new String(makePgmData(imageData, 101, 101));
+	    String imageStr = 
+#ifdef JDK11
+		new String(makePgmData(imageData, 101, 101));
+#else
+	        new String(makePgmData(imageData, 101, 101), 0);
+#endif
 	    String content = 
 		"save_as=" + URLEncoder.encode(saveAs) + 
 		"&save_image=" + URLEncoder.encode(imageStr) +
@@ -248,7 +253,12 @@ public class DbnIO
     static public byte[] makePgmData(byte inData[], int width, int height) {
 	//String headerStr = "P6 " + width + " " + height + " 255\n"; 
 	String headerStr = "P5 " + width + " " + height + " 255\n";
+#ifdef JDK11
 	byte header[] = headerStr.getBytes();
+#else
+	byte header[] = new byte[headerStr.length()];
+	headerStr.getBytes(0, header.length, header, 0);
+#endif
 	//int count = width * height * 3;
 	int count = width * height;
 	byte outData[] = new byte[header.length + count];

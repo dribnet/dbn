@@ -518,8 +518,10 @@ public class DbnGraphics {
     public int getConnector(String name, int slot) throws DbnException {
 	if (name.equals("net")) {
 	    return getNetwork(slot);
+#ifdef CRICKET
 	} else if (name.equals("sensor")) {
 	    return getSensor(slot);
+#endif
 	}
 	int values[] = (int[]) connectorTable.get(name);
 	if (values == null) {
@@ -539,9 +541,11 @@ public class DbnGraphics {
 	if (name.equals("net")) {
 	    setNetwork(slot, value); 
 	    return;
+#ifdef CRICKET
 	} else if (name.equals("sensor")) {
 	    setSensor(slot, value);
 	    return;
+#endif
 	}
 	int values[] = (int[]) connectorTable.get(name);
 	if (values == null) {
@@ -667,20 +671,21 @@ public class DbnGraphics {
     }
 
 
-    //SensorConnector sensor;
+#ifdef CRICKET
+    SensorConnector sensor;
 
     protected void openSensor() {
-	//sensor = new SensorConnector();
+	sensor = new SensorConnector();
     }
 
     protected int getSensor(int slot) throws DbnException {
-	//return sensor.getValue(slot);
-	return -1;
+	return sensor.getValue(slot);
     }
 
     protected void setSensor(int slot, int value) throws DbnException {
 	throw new DbnException("Cannot talk to sensor, only listen");
     }
+#endif
 
 
     ////////////////////////////////////////////////////////////

@@ -1,5 +1,4 @@
 import java.awt.*;
-//import java.applet.Applet;
 import java.util.*;
 
 
@@ -69,10 +68,12 @@ public class DbnGui extends Panel {
 	    p1.add("Center", ta = new TextArea(progs[0], 20, 48));
 	    
 	    if (!app.isMacintosh()) {
+#ifdef JDK11
 		DbnEditorListener listener = new DbnEditorListener(this);
 		ta.addKeyListener(listener);
 		ta.addFocusListener(listener);
 		ta.addKeyListener(new DbnKeyListener(this));
+#endif
 	    }
 
 	    // has to be capitalized. argh. (nope, that's not it either)
@@ -98,12 +99,11 @@ public class DbnGui extends Panel {
 		cmds.addItem(SNAPSHOT_ITEM);
 	    }
 	    if (app.isLocal()) {
-		// only show these when run as a file
+		// only show these when run as application
 		cmds.addItem(OPEN_ITEM);
 		cmds.addItem(SAVE_ITEM);
+		cmds.addItem(PRINT_ITEM);
 	    }
-	    cmds.addItem(PRINT_ITEM);
-
 	    p1.add(dbcp = new DbnControlPanel(app,this)); 
 	    p1.add(p2);
 	}
@@ -166,9 +166,10 @@ public class DbnGui extends Panel {
     }
 
     public void doPrint() {
+#ifdef JDK11
 	Frame frame = new Frame(); // bullocks
 	int screenWidth = getToolkit().getScreenSize().width;
-	frame.reshape(screenWidth - 10, 10, screenWidth + 100, 100);
+	frame.reshape(screenWidth + 20, 100, screenWidth + 100, 200);
 	frame.show();
 
 	Properties props = new Properties();
@@ -182,6 +183,7 @@ public class DbnGui extends Panel {
 	}
 	pj.end();
 	frame.dispose();
+#endif
     }
 
     public void doSnapshot() {

@@ -1,3 +1,6 @@
+#ifdef JDK11
+
+
 import java.awt.*;
 import java.awt.event.*;
 
@@ -23,3 +26,5 @@ public class DbnKeyListener extends KeyAdapter {
     }
 }
 
+
+#endif

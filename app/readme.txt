@@ -1,5 +1,5 @@
 DESIGN BY NUMBERS RELEASE NOTES
-Version 1.X, Released XXXX
+Version 1.3, Released November 10, 1999
 http://dbn.media.mit.edu 
 dbn-feedback@media.mit.edu
 
@@ -62,7 +62,7 @@ Send this mail to dbn-feedback@media.mit.edu
 
 PEOPLE
 DBN is the product of many people. Ben Fry is the chief 
-architect of the most current release, DBN 1.2. The previous 
+architect of the most current release, DBN 1.3. The previous 
 release, DBN 1.0.1 was created by Tom White. The original 
 version DBN 1.0 was created by John Maeda.
 
@@ -98,38 +98,31 @@ SUCH DAMAGES.
 
 CHANGES (technical section, can be ignored)
 
-IN PROGRESS: Version 1.X: Changes since 1.2.1
+Version 1.3: Changes since 1.2.1
 
+- added printing feature for downloadable dbn
+- drawing is now faster on the mac and elsewhere
 - added norefresh to DbnGraphics
-
 - re-oriented the screen layout
-
 - disabled paren balancing code for mac (paste causes crash)
-
 - added parenthesis balancing code
-
 - default directory and filename for file saving are
   now being respected or set.
-
 - fixed a bug that would cause dbn to die if the user
   tried to divide by zero
-
 - fixed a bug where field was not properly setting the 
   values of the screen's [x y] image array
-
 - refixed that bug again because it hadn't been completely fixed
-
 - fixed a bug where recursion was not working properly
-
 - turns off anti-alias between program executions,
   before it wasn't paying attention and leaving
   anti-alias turned on for the rest of the dbn session
+
 
 Version 1.2.1: Minor changes since 1.2
 
 - this version will only be updated on the website,
   since the bug fix doesn't affect the downloadable version
-
 - moved the application code out of DbnApplet so that it
   works with Netscape Navigator
 
@@ -138,12 +131,9 @@ Version 1.2: Changes and fixes since version 1.01
 
 - (major) new parser and execution engine
   increased stability and error messages for syntax problems
-
 - Multi-file viewing 'griddify' function
   view many dbnlets within a single applet
-
 - Won't show snapshot menu option if "user" parameter not specified
-
 - pgm file i/o methods replacing old snapshot code,
   code that talks to the dbn courseware better
 

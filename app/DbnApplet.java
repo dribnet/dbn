@@ -179,9 +179,11 @@ public class DbnApplet extends Applet
 		url = new URL(getCodeBase(), filename);
 		stream = url.openStream();
 	    } else {
+#ifdef JDK11
 		// this is jdk 1.1, but should be ok for app versions
 		url = getClass().getResource(filename);
 		stream = url.openStream();
+#endif
 	    } 
 
 	} catch (Exception e2) { try {
@@ -296,6 +298,7 @@ public class DbnApplet extends Applet
     }
 
     /* temporary, a little something for the kids */
+    /*
     static public void debugString(String s) {
 	byte output[] = s.getBytes();
 	for (int i = 0; i < output.length; i++) {
@@ -308,7 +311,7 @@ public class DbnApplet extends Applet
         }
 	System.out.println();
     }
-
+    */
 
     public void initLanguage() {
 	languageHash = new Hashtable();
