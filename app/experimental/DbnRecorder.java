@@ -1,6 +1,7 @@
 #ifdef RECORDER
 
 import java.awt.*;
+import java.awt.image.*;
 import java.io.*;
 
 
@@ -20,6 +21,7 @@ import quicktime.app.QTFactory;
 
 
 public class DbnRecorder implements Paintable, StdQTConstants, Errors {
+  static final boolean RECORD_TO_DISK = true;
   static DbnRecorder recorder;
 
   int width, height;
@@ -28,6 +30,11 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
   int lastX, lastY;
   boolean lastButton;
   //boolean firstFrame;
+
+  int tempFrameCount;
+  File tempFile;
+  DataOutputStream tempOutputStream;
+  ByteArrayOutputStream arrayOutputStream;
 
   QTCanvas canvas;
   QTImageDrawer qid;
@@ -50,11 +57,20 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
   Color cursorUpColor;
   Color cursorDownColor;
 
+  static int grays[];
+  static {
+    grays = new int[101];
+    for (int i = 0; i < 101; i++) {
+      int gray = ((100-i)*255/100);
+      //grays[i] = new Color(gray, gray, gray);
+      grays[i] = 0xff000000 | (gray << 16) | (gray << 8) | gray;
+    }
+  }
 
   // a finalizer should call canvas.removeClient() 
   // and then QTSession.close(), frame.dispose() could come after that too
 
-  public DbnRecorder(int width, int height) {
+  public DbnRecorder(int width, int height) throws Exception {
     // CreateMovie.<init>
     //per("DbnRecorder");
     this.width = width;
@@ -64,10 +80,12 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
     cursorDownColor = DbnApplet.getColor("cursor_down_color", Color.black);
     cursorUpColor = DbnApplet.getColor("cursor_up_color", Color.gray);
 
-    //FileDialog fd = new FileDialog(new Frame(), "Save Movie As...", 
-    //			   FileDialog.SAVE);
-    //fd.show();
-    //if (fd.getFile() == null) System.exit(0);
+    FileDialog fd = new FileDialog(new Frame(), "Save movie as...", 
+    			   FileDialog.SAVE);
+    fd.show();
+    if (fd.getFile() == null) {
+      throw new Exception("user cancelled movie creation");
+    }
 
     //System.out.println("creating recorder");
     try {
@@ -78,26 +96,20 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
       updateRects[0] = new Rectangle(0, 0, width, height);
 
       Frame frame = new Frame("DbnRecorder");
-      //frame.show();
 
       canvas = new QTCanvas(QTCanvas.kInitialSize, 0.5f, 0.5f);
       frame.add("Center", canvas);
-      //System.out.println("down here1");
-      //System.out.println("width, height = " + width + ", " + height);
       qid = new QTImageDrawer(this, new Dimension(width, height),
 			      Redrawable.kMultiFrame);
       qid.setRedrawing(true);
       canvas.setClient(qid, true);
-      //System.out.println("down here");
 
       frame.pack();
       frame.setLocation(100, 550);
       //frame.show();
 
-      //throw new QTIOException (userCanceledErr, "");
-
-      //movieFile = new QTFile(fd.getDirectory() + fd.getFile());
-
+      movieFile = new QTFile(fd.getDirectory() + fd.getFile());
+      /*
       String movieName = "outfile.mov";
       File file = new File(movieName);
       try {
@@ -114,18 +126,18 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
 	e.printStackTrace();
       }
       movieFile = new QTFile(QTFactory.findAbsolutePath(movieName));
-      //movieFile = new QTFile(file);
+      */
+
       movie = Movie.createMovieFile(movieFile, kMoviePlayer, 
 				    createMovieFileDeleteCurFile | 
 				    createMovieFileDontCreateResFile);
 
-      // CreateMovie.addVideoTrack()
+      // from CreateMovie.addVideoTrack()
       videoTrack = movie.addTrack(width, height, 0);  // no volume
       videoMedia = new VideoMedia(videoTrack, 1000);  // timescale
       videoMedia.beginEdits();
 
-      // CreateMovie.addVideoSample()
-      // add the actual frame to the qt movie
+      // from CreateMovie.addVideoSample()
       rect = new QDRect(width, height);
       gw = new QDGraphics(rect);
       int size = QTImage.getMaxCompressionSize(gw, rect, 
@@ -144,8 +156,16 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
 			       10, null, 0);
       description = sequence.getDescription();
 
+      if (RECORD_TO_DISK) {
+	tempFile = new File(fd.getDirectory(), fd.getFile() + ".tmp");
+	tempOutputStream =
+	  new DataOutputStream(new FileOutputStream(tempFile));
+      } else {
+	arrayOutputStream = new ByteArrayOutputStream(5 * 1024 * 8);
+	tempOutputStream = new DataOutputStream(arrayOutputStream);
+      }
+      tempFrameCount = 0;
       lastTime = System.currentTimeMillis();
-      //started = true;
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -153,52 +173,96 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
 
 
   static public void start(int width, int height) {
-    recorder = new DbnRecorder(width, height);
+    try {
+      recorder = new DbnRecorder(width, height);
+    } catch (Exception e) {
+      recorder = null;
+    }
   }
 
 
-  static public void addFrame(Image image, int mouseX, 
-			      int mouseY, boolean mouseDown) {
-    if ((recorder != null) && !finishing) 
-      recorder.add(image, mouseX, mouseY, mouseDown);
+  static public void addFrame(Image image, byte pixels[],
+			      int mouseX, int mouseY, boolean mouseDown) {
+    if ((recorder != null) && !finishing) {
+      recorder.add(image, pixels, mouseX, mouseY, mouseDown);
+    }
   }
 
   // the synchronized makes sure that this function finished
   // before stop() and subsequently finish() get called
-  synchronized public void add(Image image, int mouseX, 
-			      int mouseY, boolean mouseDown) {
+  synchronized public void add(Image image, byte pixels[], 
+			       int mouseX, int mouseY, boolean mouseDown) {
     if (recorder == null) return;
 
-    //int now = (int) (System.currentTimeMillis() - recorder.startTime);
     long currentTime = System.currentTimeMillis();
     if (currentTime - lastTime < 1000/30) return; // limit to 30 fps
-    if (lastTime == 0) {
-      lastImage = image;
+    if (lastTime == 0) { 
       lastTime = currentTime;
-      //lastTime = -1;
-      return;
-      /*
-    } else if (lastTime == -1) { 
-      lastImage = image; 
-      lastTime = currentTime; 
-      return;
-      */
-    }
-	       
-    int frameDuration = (int) (currentTime - lastTime);
-    if (frameDuration == 0) return;
-
-    //System.out.println("frameDuration = " + frameDuration);
+      return; 
+    } 
+    int frameDuration = (int) (currentTime - lastTime); 
+    if (frameDuration == 0) return; 
+    lastTime = currentTime;
 
     try {
-      // not sure if these lines go in 'start' or down here
-      //qid.redraw(null);
+      tempOutputStream.writeInt(frameDuration);
+      tempOutputStream.writeInt(mouseX);
+      tempOutputStream.writeInt(mouseY);
+      tempOutputStream.writeBoolean(mouseDown);
+      tempOutputStream.write(pixels);
+      tempFrameCount++;
 
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void makeQuickTime() throws IOException {
+    InputStream is = null;
+
+    if (RECORD_TO_DISK) {
+      tempOutputStream.close();
+      is = new FileInputStream(tempFile);
+    } else {
+      byte array[] = arrayOutputStream.toByteArray();
+      tempOutputStream.close();
+      is = new ByteArrayInputStream(array);
+    }
+    DataInputStream tempInputStream = new DataInputStream(is);
+
+    byte pixelBytes[] = new byte[width*height];
+    int pixels[] = new int[width*height];
+
+    // run through the temp file and get to work
+    for (int i = 0; i < tempFrameCount; i++) {
+      int frameDuration = tempInputStream.readInt();
+      int mouseX = tempInputStream.readInt();
+      int mouseY = tempInputStream.readInt();
+      boolean mouseDown = tempInputStream.readBoolean();
+      tempInputStream.readFully(pixelBytes);
+
+      for (int k = 0; k < pixels.length; k++) {
+	pixels[k] = grays[pixelBytes[k]];
+      }
+      MemoryImageSource mis = 
+	new MemoryImageSource(width, height, pixels, 0, width);
+      Image image = Toolkit.getDefaultToolkit().createImage(mis);
+      addQuickTime(image, mouseX, mouseY, mouseDown, frameDuration);
+    }
+    tempInputStream.close();
+
+    if (RECORD_TO_DISK) {
+      tempFile.delete();
+    }
+  }
+
+  public void addQuickTime(Image image, int mouseX, int mouseY, 
+			   boolean mouseDown, int frameDuration) {
+    try {
       qid.setGWorld(gw);
       qid.setDisplayBounds(rect);
       
-      // draw something here using dbn's graphics
-      Image currentImage = image;
+      lastImage = image;
       qid.redraw(null);
       
       CompressedFrameInfo info = 
@@ -210,9 +274,9 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
       videoMedia.addSample(imageHandle, 0, info.getDataSize(), 
 			   frameDuration, description, 1, 
 			   (isKeyFrame ? 0 : mediaSampleNotSync));
-      System.out.println("duration=" + frameDuration + ", " +
-			 "keyframe=" + isKeyFrame + ", " +
-			 "similarity=" + info.getSimilarity());
+      //System.out.println("duration=" + frameDuration + ", " +
+      //		 "keyframe=" + isKeyFrame + ", " +
+      //		 "similarity=" + info.getSimilarity());
       
       //print out ImageDescription for the last video media data ->
       //this has a sample count of 1 because we add each "frame" 
@@ -224,8 +288,8 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
       //np.setCurrentFrame (numFrames);
       qid.redraw(null);
       
-      lastTime = currentTime;
-      lastImage = currentImage;
+      //lastTime = currentTime;
+      //lastImage = currentImage;
       lastX = mouseX;
       lastY = mouseY;
       lastButton = mouseDown;
@@ -250,6 +314,8 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
     //if (finishing) return;
 
     try {
+      makeQuickTime();
+
       // the end of CreateMovie.addVideoTrack()
       videoMedia.endEdits();
       // trackstart, mediatime, duration, mediarate
@@ -259,8 +325,11 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
       OpenMovieFile outStream = OpenMovieFile.asWrite(movieFile); 
       movie.addResource(outStream, movieInDataForkResID, movieFile.getName());
       outStream.close();
-
       QTSession.close();
+
+    } catch (IOException e) {
+      e.printStackTrace();
+      
     } catch (QTException e) {
       e.printStackTrace();
     }
@@ -292,7 +361,7 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
 	g.drawLine(lastX, lastY - 5, lastX, lastY + 5);
       }
     } else {
-      System.out.println("drawing nothing");
+      //System.out.println("drawing nothing");
     }
     return updateRects;
   }
