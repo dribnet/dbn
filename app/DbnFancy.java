@@ -100,7 +100,8 @@ public class DbnFancy extends DbnApplet implements ActionListener
 	} else {
 	    currentPerson = cmd;
 	}
-	String title = "mas961" + File.separator + 
+	String course = "\\\\hub\\mas\\acg\\web\\docroot\\projects\\dbncourseware\\cgi-bin\\courseware\\courses\\mas961";
+	String title = course + File.separator + 
 	    currentPerson + File.separator + currentProblem + ".dbn";
 	File file = new File(title);
 	if (file.exists()) {
