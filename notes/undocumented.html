@@ -1,50 +1,57 @@
-<HTML>
+<html>
+<head>
+<title>Design By Numbers :: Things your mother didn't tell you about dbn </title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
 
-<HEAD> <TITLE> things your mother didn't tell you about dbn </TITLE> </HEAD>
-
-<BODY LINK="#333333" VLINK="#999999">
-
-<CENTER> <TABLE WIDTH="400"> <TR> <TD>
-<FONT FACE="arial, helvetica, sans-serif">
-
-<BR> <BR> <BR> <BR>
-
-<FONT SIZE="+2">undocumented dbn:<BR>advanced features</FONT> <BR>
-<FONT SIZE="-1">dbn-feedback@media.mit.edu</FONT>
-
-<BR> <BR> <BR>
-
-<FONT SIZE="-1">
-
-<A HREF="#refresh">reduce flicker with refresh/norefresh</A> <P>
-<A HREF="#array">the built in &lt;array&gt;</A> <P>
-<A HREF="#antialias">smooth, anti-aliased lines</A> <P>
-<A HREF="#pause">slow down with <B>pause</B> <P>
-<A HREF="#mod">the <B>%</B> operator (modulo division)</A> <P>
-<A HREF="#linenumber">the line number buffer</A> <P>
-
-</FONT>
-
-<BR> <BR> <BR> <BR>
-
-<A NAME="refresh"></A><B>flicker flicker</B> <P>
-
-<FONT SIZE="-1">
-when your dbn program is running, the interpreter uses
-patented ai-refresh(tm) technology to guess when 
-the dbn window should be updated. but like most AI, 
-it isn't (and can't be) perfect. so the discriminating
-programmer (the anal retentive designer), often finds
-that their program is flickering way too much.
-<P>
-the solution is to put <B>norefresh</B> at the beginning
-of your program, which will tell dbn not to update automatically.
-it will instead wait until your program calls <B>refresh</B>
-to show your changes in the drawing area.
-
-</FONT>
-
-<PRE>
+<body bgcolor="#FFFFFF">
+<p>&nbsp;</p>
+<table width="600" border="0" cellspacing="0" cellpadding="0">
+  <tr> 
+    <td width="150"><font face="Arial, Helvetica, sans-serif"><font color="#666666"><b><a href="./"><img src="images/arrowindex.gif" width="70" height="51" border="0"></a></b></font></font></td>
+    <td width="450"><img src="images/dbn.gif" width="190" height="51"></td>
+  </tr>
+  <tr> 
+    <td><img src="images/white.gif" width="143" height="40"></td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td valign="top"> 
+      <p><font face="Arial, Helvetica, sans-serif" size="-1"><br>
+        <br>
+        </font></p>
+      </td>
+    <td valign="top"> 
+      <p><font face="Arial, Helvetica, sans-serif"><b>Undocumented DBN: Advanced 
+        Features</b></font></p>
+      <p><font face="arial, helvetica, sans-serif"><a href="#refresh">reduce flicker 
+        with refresh/norefresh</a> </font> </p>
+      <p> <font face="arial, helvetica, sans-serif"><a href="#array">the built 
+        in &lt;array&gt;</a> </font> 
+      <p> <font face="arial, helvetica, sans-serif"><a href="#antialias">smooth, 
+        anti-aliased lines</a> </font> 
+      <p> <font face="arial, helvetica, sans-serif"><a href="#pause">slow down 
+        with <b>pause</b> </a></font> 
+      <p><font face="arial, helvetica, sans-serif"><a href="#mod">the <b>%</b> 
+        operator (modulo division)</a> </font> 
+      <p> <font face="arial, helvetica, sans-serif"><a href="#linenumber">the 
+        line number buffer</a> </font> 
+      <p> <font face="arial, helvetica, sans-serif"><br>
+        <br>
+        <br>
+        <br>
+        <a name="refresh"></a><b>flicker flicker</b> </font> 
+      <p> <font face="arial, helvetica, sans-serif"> when your dbn program is 
+        running, the interpreter uses patented ai-refresh(tm) technology to guess 
+        when the dbn window should be updated. but like most AI, it isn't (and 
+        can't be) perfect. so the discriminating programmer (the anal retentive 
+        designer), often finds that their program is flickering way too much. 
+        </font> 
+      <p><font face="arial, helvetica, sans-serif"> the solution is to put <b>norefresh</b> 
+        at the beginning of your program, which will tell dbn not to update automatically. 
+        it will instead wait until your program calls <b>refresh</b> to show your 
+        changes in the drawing area. </font> 
+      <pre><font face="arial, helvetica, sans-serif">
    norefresh
 
    forever
@@ -55,22 +62,15 @@ to show your changes in the drawing area.
       refresh   // update the screen
    }
 
-</PRE>
-
-
-
-<A NAME="array"></A><B>arrays</B> <P> 
-
-<FONT SIZE="-1">
-dbn doesn't support arrays, which makes some programmers very sad. 
-in a moment of weakness, the maintainer of dbn succumbed to these
-whiners and added an extra connector, called <B>array</B>.
-this array has 1000 elements, which you may get and set
-to your heart's content.
-
-</FONT>
-
-<PRE>
+</font></pre>
+      <font face="arial, helvetica, sans-serif"><a name="array"></a><b>arrays</b> 
+      </font> 
+      <p> <font face="arial, helvetica, sans-serif"> dbn doesn't support arrays, 
+        which makes some programmers very sad. in a moment of weakness, the maintainer 
+        of dbn succumbed to these whiners and added an extra connector, called 
+        <b>array</b>. this array has 1000 elements, which you may get and set 
+        to your heart's content. </font> 
+      <pre><font face="arial, helvetica, sans-serif">
     // a boring example to show syntax
     set &lt;array 1&gt; 30
     set &lt;array 2&gt; 80
@@ -80,20 +80,14 @@ to your heart's content.
     line 40 40 &lt;array 1&gt; &lt;array 2&gt;
 
 
-</PRE>
-
-
-
-<A NAME="antialias"><B>antialias</B> <P>
-
-<FONT SIZE="-1">
-this function enables and disables smoooove lines, by
-anti-aliasing them. sometimes this makes the lines look
-ugly and thick, but in other cases it might make your program
-look a little better. you be the judge.
-</FONT>
-
-<PRE>
+</font></pre>
+      <a name="antialias"></a><font face="arial, helvetica, sans-serif"><b>antialias</b> 
+      </font> 
+      <p> <font face="arial, helvetica, sans-serif"> this function enables and 
+        disables smoooove lines, by anti-aliasing them. sometimes this makes the 
+        lines look ugly and thick, but in other cases it might make your program 
+        look a little better. you be the judge. </font> 
+      <pre><font face="arial, helvetica, sans-serif">
     // turn anti-aliasing on
     antialias 100
 
@@ -105,69 +99,65 @@ look a little better. you be the judge.
     // anything from 1 to 100 does the same thing
 
 
-</PRE>
-
-
-
-<A NAME="pause"><B>pause</B> <P>
-
-<FONT SIZE="-1">
-pause is the german word for 'recess' (pronounced pow-zuh).
-</FONT>
-
-<PRE>
+</font></pre>
+      <a name="pause"></a><font face="arial, helvetica, sans-serif"><b>pause</b> 
+      </font> 
+      <p> <font face="arial, helvetica, sans-serif"> pause is the german word 
+        for 'recess' (pronounced pow-zuh). </font> 
+      <pre><font face="arial, helvetica, sans-serif">
    pause 5     // wait for 5 hundredths of a second
    pause 200   // wait for 2 seconds
 
 
-</PRE>
-
-
-
-<A NAME="modulo"><B>modulo this and that</B> <P>
-
-<FONT SIZE="-1">
-modulo, the % sign, is a math operator that gives
-you the remainder of a division between two numbers.
-
-</FONT>
-
-<PRE>
+</font></pre>
+      <a name="modulo"></a><font face="arial, helvetica, sans-serif"><b>modulo 
+      this and that</b> </font> 
+      <p> <font face="arial, helvetica, sans-serif"> modulo, the % sign, is a 
+        math operator that gives you the remainder of a division between two numbers. 
+        </font> 
+      <pre><font face="arial, helvetica, sans-serif">
    // sets a to the remainder of 11 divided by 2
    set a (11 % 2)  
 
 
-</PRE>
+</font></pre>
+      <a name="linenumber"></a><font face="arial, helvetica, sans-serif"><b>the 
+      magical line number buffer</b> </font> 
+      <p> <font face="arial, helvetica, sans-serif"> after running a program, 
+        hold down the shift key while dragging the mouse to and fro inside the 
+        dbn graphics area. as you drag over each pixel, the dbn editor highlight 
+        the line that was last to draw that pixel. ooh ahh! useful in understanding 
+        how dbn programs work. </font> 
+      <pre>
 
 
-
-<A NAME="linenumber"><B>the magical line number buffer</B> <P>
-
-<FONT SIZE="-1">
-after running a program, hold down the shift key while
-dragging the mouse to and fro inside the dbn graphics area.
-as you drag over each pixel, the dbn editor highlight the line 
-that was last to draw that pixel. ooh ahh! useful in 
-understanding how dbn programs work.
-
-
-</FONT>
-
-<PRE>
-
-
-</PRE>
-
-
-
-<FONT SIZE="-2">
-DBN features not mentioned in <EM>DBN in a Nutshell</EM><BR>
-Last updated March 6 2000 by Ben for DBN 2.0.1
-</FONT>
-
-</FONT>
-</TD> </TR> </TABLE> </CENTER>
-
-</BODY>
-
-</HTML>
+</pre>
+      <font face="arial, helvetica, sans-serif"> DBN features not mentioned in 
+      <em>DBN in a Nutshell</em><br>
+      Last updated March 6 2000 by Ben for DBN 2.0.1</font><font face="Courier New, Courier, mono" size="-1"> 
+      </font> </td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+    <td><br>
+      <br>
+      <br>
+      <br>
+    </td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+    <td> 
+      <p><font face="Arial, Helvetica, sans-serif" size="-3">Design By Numbers 
+        is Copyright 1999, Massachusetts Institute of Technology.<br>
+        </font><font face="Arial, Helvetica, sans-serif" size="-3">DBN 
+        was developed by the <a href="http://acg.media.mit.edu">Aesthetics and 
+        Computation Group</a> at the MIT Media Laboratory.<br>
+        </font></p>
+      </td>
+  </tr>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</body>
+</html>

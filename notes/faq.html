@@ -1,0 +1,278 @@
+<html>
+<head>
+<title>Design By Numbers</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body bgcolor="#FFFFFF">
+<p>&nbsp;</p>
+<table width="600" border="0" cellspacing="0" cellpadding="0">
+  <tr> 
+    <td width="150"><img src="../images/maeda.gif" width="126" height="51""></td>
+    <td width="450"><img src="../images/dbn.gif" width="190" height="51"></td>
+  </tr>
+  <tr> 
+    <td><img src="../images/white.gif" width="143" height="40"></td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td valign="top"></td>
+    <td valign="top"> 
+      <b><font face="Arial, Helvetica, sans-serif" color="#000000">Frequently 
+        Asked Questions about DBN</font></b>
+
+<BR> <BR> 
+
+      <p><font face="Arial, Helvetica, sans-serif" color="#666666"><b>
+      When I try running downloadable DBN on Windows, a command prompt
+      window flashes on the screen then disappears. What's wrong?
+      </b></font></p>	
+
+      <font face="Arial, Helvetica, sans-serif" size=-1>
+this is a very common problem (especially with windows 95 and 98),
+but can be caused by two things.
+<P>
+solution #1
+<P>
+try running DBN in a command prompt window to see if that works. that
+is, open up a command prompt, change to the dbn directory, and type
+'dbn' to run it.
+<P>
+if that works, then you should try moving your dbn folder to the base of
+your C:\ drive, and edit 'run.bat' by replacing 'c:\dbn\bin\jre'
+where you see 'bin\jre'.
+<P>
+solution #2
+<P>
+is there a file called 'dbn.pro' in the 'lib' folder? if so, you might
+have gotten an error like this:
+<P>
+<FONT SIZE=3><PRE>Error reading dbn.properties
+java.io.FileNotFoundException: lib/dbn.properties
+    at java.io.FileInputStream.&lt;init&gt;
+    at DbnApplication.main&lt;DbnApplication.java:37&gt;</PRE></FONT>
+<P>
+try re-extracting dbn.zip using winzip, and make sure that the
+option for "make MS-DOS (8.3) filenames" (or something like that) is
+disabled. otherwise you might run into some other random trouble with
+mis-named files (you'll notice there are a couple of .pro files in 
+the lib directory.
+      </font>
+
+      <BR> <BR> <BR> <BR>
+      <p><font face="Arial, Helvetica, sans-serif" color="#666666"><b>
+I am a designer working on project XXXX and for YYYYY big design
+firm. I'd like to use DBN for my next project, but it doesn't seem to
+support a large enough drawing area, or printing of high quality
+graphics. Why?
+      </b></font></p>	
+
+      <font face="Arial, Helvetica, sans-serif" size=-1>
+DBN doesn't yet support high quality printing of this kind, though a
+future version may. The current version was written as a teaching tool
+rather than a tool for regular use.
+      </font>
+
+      <BR> <BR> <BR> <BR>
+      <p><font face="Arial, Helvetica, sans-serif" color="#666666"><b>
+Is there a manual or a complete reference for the DBN language? 
+      </b></font></p>	
+
+      <font face="Arial, Helvetica, sans-serif" size=-1>
+we don't really have a listing for the complete syntax of the language. we
+have some scrawled notes at http://dbn.media.mit.edu/info/commands.html,
+but that is an incomplete list (and not a clear explanation of each
+command).
+<P>
+we hope to post something like this someday on the web site, but time
+constraints have prevented us from doing so. perhaps someone in the dbn
+community will do this.
+      </font>
+
+
+      <BR> <BR> <BR> <BR>
+      <p><font face="Arial, Helvetica, sans-serif" color="#666666"><b>
+How do I include my DBN program on my own web page?
+      </b></font></p>	
+
+      <font face="Arial, Helvetica, sans-serif" size=-1>
+Get the skinny at <A
+HREF="http://dbn.media.mit.edu/info/dbn-on-web.html">http://dbn.media.mit.edu/info/dbn-on-web.html</A>
+      </font>
+
+
+      <BR> <BR> <BR> <BR>
+      <p><font face="Arial, Helvetica, sans-serif" color="#666666"><b>
+How do I use DBN in other languages?
+      </b></font></p>	
+
+      <font face="Arial, Helvetica, sans-serif" size=-1>
+See information at <A HREF="http://dbn.media.mit.edu/info/languages.html">http://dbn.media.mit.edu/info/languages.html</A>
+      </font>
+
+
+
+      <BR> <BR> <BR> <BR>
+      <p><font face="Arial, Helvetica, sans-serif" color="#666666"><b>
+What type of math is DBN capable of?
+      </b></font></p>	
+
+      <font face="Arial, Helvetica, sans-serif" size=-1>
+currently supported operators are + - / * and %. all math goes inside
+parenthesis, and is entirely integer-based (not 'real's or floating point
+values).
+      </font>
+
+
+
+      <BR> <BR> <BR> <BR>
+      <p><font face="Arial, Helvetica, sans-serif" color="#666666"><b>
+Where are the decimal places? Why does (80/100) equal zero instead of 0.8?
+      </b></font></p>	
+
+      <font face="Arial, Helvetica, sans-serif" size=-1>
+dbn doesn't support decimal places, it's all integer math.
+
+you can get around this by multiplying numbers to make them larger and
+dividing back down, though it's not terribly pretty. you could rewrite
+your function in a way that works--for instance, the line function
+y = mx + b, where m is 0.8 could be written as y = (8*x)/10 + b.
+      </font>
+
+
+
+      <BR> <BR> <BR> <BR>
+      <p><font face="Arial, Helvetica, sans-serif" color="#666666"><b>
+What about making DBN open source?
+      </b></font></p>	
+
+      <font face="Arial, Helvetica, sans-serif" size=-1>
+currently, there are no plans to make dbn 'open source'. we've discussed
+it internally, and given it serious thought, but it's not currently a
+priority. mostly, this is because dbn is intended as a language for
+teaching computational design, as a opposed to a general-purpose language
+for day-to-day work. if open-sourcing it would be likely to make it a
+better teaching language, then it might be more likely that we'd pursue
+it. it's an interesting idea, though, and we may do something with it in
+the future.
+      </font>
+
+
+
+      <BR> <BR> <BR> <BR>
+      <p><font face="Arial, Helvetica, sans-serif" color="#666666"><b>
+Is there a way to save the picture to TIFF, GIF etc. format? Is
+there a way to have a bigger drawing screen? How do I use color in
+DBN?
+      </b></font></p>	
+
+      <font face="Arial, Helvetica, sans-serif" size=-1>
+we have tested features such as these, and have used them in some
+seminars and workshops. we haven't yet decided whether or not to
+release these features, or if we have the time to support them. it is
+likely that some of these features will be made available in DBN 3.0, 
+which may be released as 'use at your own risk/unsupported'.
+      </font>
+
+
+
+      <BR> <BR> <BR> <BR>
+      <p><font face="Arial, Helvetica, sans-serif" color="#666666"><b>
+How do I run DBN under Linux?
+      </b></font></p>	
+
+      <font face="Arial, Helvetica, sans-serif" size=-1>
+you'll have to do this by hand, because we aren't yet supporting
+linux for DBN. however, it does work with a little tweaking. Here are
+some basic directions that we gave to someone using a redhat distro.
+<P>
+1. download the windows version to your linux box, unzip it
+2. cd to the newly created 'dbn' directory
+3. type 'java -cp lib/dbn.jar DbnApplication'
+<P>
+if you get a message like "bash: java:  command not found" then that
+means that you need to get java. it can be downloaded from:
+<A
+HREF="http://java.sun.com/j2se/1.3/jre/download-linux.html">http://java.sun.com/j2se/1.3/jre/download-linux.html</A><BR>
+click the 'continue' link under 'redhat rpm shell script'
+<P>
+after that, follow the install instructions at 
+<A HREF="http://java.sun.com/j2se/1.3/jre/install-linux.html">http://java.sun.com/j2se/1.3/jre/install-linux.html</A>
+<P>
+after that, try typing 'java' and see if it works. if installation was
+successful, you should get some usage info (instead of the command not
+found). if that works, you should be able to run DBN using the steps
+above.
+      </font>
+
+
+
+      <BR> <BR> <BR> <BR>
+      <p><font face="Arial, Helvetica, sans-serif" color="#666666"><b>
+Will learning DBN help me learn how to program in JAVA or C?
+      </b></font></p>	
+
+      <font face="Arial, Helvetica, sans-serif" size=-1>
+No. Programming in JAVA or C is quite different from programming in
+DBN. It will help introduce you to the basic ideas and concepts of
+programming, which might help you become more engaged in learning JAVA
+or C.
+      </font>
+
+
+
+      <BR> <BR> <BR> <BR>
+      <p><font face="Arial, Helvetica, sans-serif" color="#666666"><b>
+When I leaf through the book, I see all this math. I don't think I
+could ever do this. Do you have a better way?
+      </b></font></p>	
+
+      <font face="Arial, Helvetica, sans-serif" size=-1>
+If you leaf through the book you will learn nothing. If you leaf
+through a book on drawing you will also learn nothing. The only way
+you will learn is by actually typing in the programs and seeing them
+work (and not work); the same way you would have to actually practice
+drawing to learn how to draw. There is no "math" in DBN; there are
+only drawing exercises which are posed in a non-hand-based type of
+manner.
+      </font>
+
+
+<!-- template for additional questions 
+
+      <BR> <BR> <BR> <BR>
+      <p><font face="Arial, Helvetica, sans-serif" color="#666666"><b>
+
+      </b></font></p>	
+
+      <font face="Arial, Helvetica, sans-serif" size=-1>
+
+      </font>
+-->
+
+<!-- end of content section of page -->
+      </td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+    <td><br>
+      <br>
+      <br>
+    </td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+    <td> 
+      <p><font face="Arial, Helvetica, sans-serif" size="-3">Design By Numbers 
+        is Copyright 1999-2000, Massachusetts Institute of Technology.<br>
+        </font><font face="Arial, Helvetica, sans-serif" size="-3">DBN 
+        was developed by the <a href="http://acg.media.mit.edu">Aesthetics and 
+        Computation Group</a> at the MIT Media Laboratory.<br>
+        </font></p>
+      </td>
+  </tr>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<HTML>
+
+<BODY>
+
+<P>list of commands:</P>
+
+<P><B>paper n</B>: takes 1 arg from 0 to 100, cleans out the current
+page and sets its black percentage<BR>
+
+<B>pen n</B>: takes 1 arg from 0 to 100, sets the black percent to
+draw<BR>
+
+<B>line x0 y0 x1 y1</B>: takes 4 args to draw a line<BR>
+
+comments are lines that start with //<BR>
+
+blocks are in <B>{}, </B>they are used with conditionals and
+repeats<B><BR>
+
+{}</B> are always started on their own line.<BR>
+
+<B>set name val</B>: makes named numeric quanitifiers<BR>
+
+<B>repeat name beginval endval</B> immediately followed by a
+<B>{</B>block<B>}</B>: sets up a loop<BR>
+
+math ops are always expressed in <B>()</B>, can use <B>+*/-</B><BR>
+
+<B>[x y]</B> is a means to access the dots of page, can do a set [x
+y] 100, or a set A [x y]<BR>
+
+nested loop as means to step image<BR>
+
+<B>same? val1 val2</B> immediately followed by a {block}<BR>
+
+also <B>smaller? different? </B>(no more as defined in tw
+meeting)<BR>
+
+<B>command name var1 var2 varn</B> immediately followed by a {block}:
+sets up named procedure (currently vars are global and not local
+framed -- they need to be locally defined)<BR>
+
+connectors are enclosed in<B> </B> &lt;&gt;, there are currently the
+following: <B>&lt;mouse n&gt;</B> where n is 1 to 3<B> , &lt;key
+n&gt;</B> where n is 1 to 26, <B>&lt;net n&gt;</B> where n is 1 to
+1000<BR>
+
+<B>forever</B>: special repeat construct that lasts forever. is
+implicitly double buffered<BR>
+
+<!--<B>escape</B>: special way to exit a forever<BR>-->
+
+<B>load</B>: lets you load in a library of commands<BR>
+
+<B>number name var1 var2 varn </B>is way to define a function
+
+</P>
+
+<P>&nbsp;</P>
+
+<P>&nbsp;</P>
+</BODY>
+</HTML>
