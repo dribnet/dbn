@@ -145,6 +145,18 @@ public class DbnApplet extends Applet
 	    ps.println("</APPLET>");
 	    ps.println("</BODY> </HTML>");
 	    ps.close();
+
+	    // copy DbnException.class, DbnGraphics.class, 
+	    // DbnApplet.class, and DbnPlayer.class to the directory
+
+	    // execute javac with parameters:
+	    // String outputdir = new File(filename).getPath();
+	    // javac -classpath outputdir;%CLASSPATH% outputdir\*.java
+
+	    // if that's no good (which it's not)
+	    // need to instead use sun.tools.javac.Main,
+	    // which should be separated out from the core source base
+	    // using metrowerks' nice binding stuff
 	    
 	} catch (Exception e) {
 	    e.printStackTrace();

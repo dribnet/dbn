@@ -271,6 +271,7 @@ public class DbnToken {
 	    convertChildren();
 	    lessIndent();
 	    outputln("}");
+	    outputln();
 
 	    outputln("long lastSleepTime;");
 	    outputln("private final void sleepIfTired()");
@@ -286,7 +287,6 @@ public class DbnToken {
 	    outputln("} catch (InterruptedException e) { }");
 	    lessIndent();
 	    outputln("}");
-	    outputln();
 
 	    lessIndent();
 	    outputln("}");
