@@ -7,7 +7,8 @@ public class DbnEngine {
     DbnGraphics graphics;
     boolean stopFlag;
 
-    static final int STACK_SIZE = 100;
+    //static final int STACK_SIZE = 100;
+    int stackSize = 100;
     Hashtable stack[];
     int stackIndex = 0;
 
@@ -20,7 +21,7 @@ public class DbnEngine {
 
     public void start() throws DbnException {
 	stopFlag = false;
-	stack = new Hashtable[STACK_SIZE];
+	stack = new Hashtable[stackSize];
 	execRoot();	
     }
 
@@ -556,15 +557,21 @@ public class DbnEngine {
 
 
     void pushVariables(Hashtable newbie) throws DbnException {
-	if (stackIndex == STACK_SIZE) {
-	    die("stack overflow error.", null);
+	if (stackIndex == stackSize) {
+	    Hashtable temp[] = new Hashtable[stackSize*2];
+	    System.arraycopy(stack, 0, temp, 0, stackSize);
+	    stack = temp;
+	    stackSize *= 2;
+	    //die("stack overflow error.", null);
 	}
 	stack[stackIndex++] = newbie;
     }
 
 
     Hashtable popVariables() throws DbnException {
-	if (stackIndex == 0) die("stack underflow error.", null);
+	if (stackIndex == 0) {
+	    die("stack underflow error.", null);
+	}
 	stackIndex--;
 	Hashtable deadMan = stack[stackIndex];
 	stack[stackIndex] = null;
@@ -573,8 +580,12 @@ public class DbnEngine {
 
 
     private void die(String message, DbnToken where) throws DbnException {
-	DbnException e = new DbnException(message, where);
-	System.err.println(e);
-	throw e;
+	//DbnException e = new DbnException(message, where);
+	//System.err.println(e);
+	//throw e;
+	if (where != null) {
+	    throw new DbnException(message, where);
+	} 
+	throw new DbnException(message);
     }
 }

@@ -603,7 +603,15 @@ public class DbnParser {
 	if (!consumeSpaces()) return false;
 
 	DbnToken test = new DbnToken(DbnToken.COMMAND, cmd);
-	DbnToken command = parent.findFunction(cmd);
+	DbnToken command = null;
+	//	System.err.println("looking for " + cmd + 
+	//	   " def is " + currentDef.name);
+	if ((currentDef != null) && (currentDef.name.equals(cmd))) {
+	    command = currentDef;
+	    //System.err.println("got it");
+	} else {
+	    command = parent.findFunction(cmd);
+	}
 	if (command == null) return false;
 
 	// command def is followed by an eol and a block
