@@ -113,10 +113,9 @@ public class DbnEditor extends Panel implements DbnEnvironment {
 
 
   public void doPlay() {
-    //initiate();
-    //runner = new DbnRunner(textarea.getText(), graphics, this);
     runner.setProgram(textarea.getText());
     runner.start();
+    graphics.requestFocus();
   }
 
 

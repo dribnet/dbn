@@ -265,6 +265,8 @@ public class DbnApplet extends Applet
     } else {
       Toolkit tk = Toolkit.getDefaultToolkit();
       image =  tk.getImage("lib/" + name);
+      //URL url = DbnApplet.class.getResource(name);
+      //image = tk.getImage(url);
     }
     MediaTracker tracker = new MediaTracker(applet);
     tracker.addImage(image, 0);

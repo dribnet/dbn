@@ -1,5 +1,5 @@
 DESIGN BY NUMBERS RELEASE NOTES
-Version 2.0, Released January 11, 2000
+Version 2.0.1, Released January 14, 2000
 http://dbn.media.mit.edu 
 dbn-feedback@media.mit.edu
 
@@ -103,6 +103,13 @@ SUCH DAMAGES.
 
 
 CHANGES (technical section that you're welcome to ignore)
+
+Version 2.0.1: Changes since 2.0
+
+- oops! Andrew Otwell pointed out that <key> was having
+  difficulties (thanks Andrew), because of an oversight
+  by the programmer who was in too much of a hurry to get
+  DBN2K out the door (boo Ben). this has been fixed.
 
 
 Version 2.0: Changes since 1.3

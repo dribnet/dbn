@@ -140,7 +140,7 @@ public class DbnEditorGraphics extends DbnGraphics {
     x -= gx;
     y -= gy;
 
-    if (e.shiftDown() && (mouse[2] == 100)) {
+    if (e.shiftDown() /*&& (mouse[2] == 100)*/) {
       //System.out.println(getLine(x, height1 - y));
       editor.highlightLine(getLine(x, height1 - y));
       return true;
