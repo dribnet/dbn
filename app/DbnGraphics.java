@@ -898,23 +898,18 @@ public class DbnGraphics extends Panel {
     return new Dimension(width, height);
   }
 
-  //long lastNight;
+
   public void update() {
-    /*
-    long t = System.currentTimeMillis();
-    if (t - lastNight > 100) {
-      System.err.println("sleeping");
-      try {
-	Thread.sleep(5);
-      } catch (InterruptedException e) { }
-      lastNight = t;
-    }
-    */
-    //paint(this.getGraphics());
     if (panelg == null)
       panelg = this.getGraphics();
     if (panelg != null)
       paint(panelg);
+
+#ifdef RECORDER
+    // maybe this should go inside DbnEditorGraphics, 
+    // but i'm not sure
+    DbnRecorder.addFrame(pixels);
+#endif
   }
 
   public void update(Graphics g) {
@@ -931,7 +926,7 @@ public class DbnGraphics extends Panel {
       g.fillRect(0, 0, width, height);
     }
     // screen goes null on quit, throws an exception
-    if (screen != null) {  
+    if (screen != null) {
       screen.drawImage(image, 0, 0, null); //this);
     }
   }

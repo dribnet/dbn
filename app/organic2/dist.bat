@@ -6,6 +6,6 @@ rem --- there is no applet version for this stuff (yet)
 rem --- this is where most development is being done
 
 rm -f dbn.zip
-zip -rq dbn.zip run.bat bin\*.dll bin\*.exe lib\*.properties lib\*.jar lib\security\java.security lib\*.py lib\pawt\*.py
+zip -rq dbn.zip run.bat bin\*.dll bin\*.exe lib\*.gif lib\*.properties lib\*.jar lib\security\java.security lib\*.py lib\pawt\*.py
 
 echo Remove dbn.zip when finished.
