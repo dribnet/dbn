@@ -12,10 +12,10 @@ rem cleanup the stuff that changes the most
 del classes\*.class 
 
 set CLASSPATH2=%CLASSPATH%
-set CLASSPATH=organic2\lib\python.jar;%CLASSPATH%
+set CLASSPATH=organic2\lib\jpython.jar;%CLASSPATH%
 
 cd ..
-buzz.pl "jikes +D -nowarn -d organic2\classes" -dJDK11 -dPYTHON -dSCHEME -dFANCY *.java
+buzz.pl "jikes +D -nowarn -d organic2\classes" -dJDK11 -dPYTHON -dSCHEME -dFANCY *.java scheme\*.java python\*.java
 cd organic2
 
 set CLASSPATH=%CLASSPATH2%
