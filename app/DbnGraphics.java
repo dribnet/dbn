@@ -245,7 +245,7 @@ public class DbnGraphics extends Panel {
       pixels[i] = color;
       lines[i] = currentLine;
     }
-    slowdown();
+    //slowdown();
   }
 
 
@@ -463,7 +463,7 @@ public class DbnGraphics extends Panel {
     int index = (height1-y)*width + x;
     pixels[index] = penColor;
     lines[index] = currentLine;
-    slowdown();
+    //slowdown();
   }
 
   private int lineClipCode(float x, float y) {
@@ -498,7 +498,7 @@ public class DbnGraphics extends Panel {
     //setPixel(x, y, gray, gray, gray);
     pixels[index] = makeGray(gray); //makeColor(red, green, blue);
     lines[index] = currentLine;
-    slowdown();
+    //slowdown();
   }
 
   public void setPixel(int x, int y, int which, int value) {
@@ -511,7 +511,7 @@ public class DbnGraphics extends Panel {
     pixels[index] &= ~(0xff << place);
     pixels[index] |= colorMap[value] << place;
     lines[index] = currentLine;
-    slowdown();
+    //slowdown();
   }
 
   public int getPixel(int x, int y) {
@@ -1045,17 +1045,18 @@ public class DbnGraphics extends Panel {
 
   ////////////////////////////////////////////////////////////
 
+
   boolean slowInited;
   long lastMillis;
   int slowCounter;
 
-  static int SLOW_COUNT = 5;
-  static int SLOW_MILLIS = 100;
+  static int SLOW_COUNT;
+  static int SLOW_MILLIS;
 
   private final void slowdown() {
     if (!slowInited) {
       slowdown = DbnApplet.getBoolean("slowdown", true);
-      SLOW_COUNT = DbnApplet.getInteger("slowdown.count", 5);
+      SLOW_COUNT = DbnApplet.getInteger("slowdown.count", 2);
       SLOW_MILLIS = DbnApplet.getInteger("slowdown.millis", 100);
       slowInited = true;
     }
@@ -1138,7 +1139,10 @@ public class DbnGraphics extends Panel {
     flushfire = -1;
   }
 
+  // inside a repeat block, this done at the start of single iteration
   public void beginRepeat() {
+    slowdown();
+
     insiderepeatp = true;
     repeatlevel++;
     if (insideforeverp) {
@@ -1158,7 +1162,8 @@ public class DbnGraphics extends Panel {
       }
     }
   }
-    
+
+  // inside repeat block, this at end of iteration
   public void endRepeat() {
     if (repeatlevel==1)
       insiderepeatp = false;
