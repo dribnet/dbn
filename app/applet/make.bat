@@ -5,8 +5,8 @@ rem -- it has no I18N support and is generally really wimpy
 rem -- because of netscape's bad java support
 rem -- it is fully and forcefully jdk 1.0 compliant (yuck)
 
-del classes\*.class
-del classes\dbn.jar
+rm classes\*.class
+rm classes\dbn.jar
 
 rem --- to be really strict, but that means that 
 rem --- printing goes away, which would be really bad

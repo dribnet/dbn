@@ -71,7 +71,7 @@ foreach $arg (@ARGV) {
 	    if ($dir eq "") {
 		$dir = '.';
 	    } else {
-		print "creating dir $temp_dir$separator$dir\n";
+		#print "creating dir $temp_dir$separator$dir\n";
 		mkdir("$temp_dir$separator$dir", 0777) || die $!;
 	    }
 	    opendir(DIR, $dir) || die $!;

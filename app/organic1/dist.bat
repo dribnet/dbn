@@ -10,3 +10,5 @@ rm -rf CVS
 cd jscheme
 rm -rf CVS
 cd ..\..
+
+echo Delete the 'dbn' folder when finished.

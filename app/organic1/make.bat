@@ -1,20 +1,25 @@
 @echo off
 
-rem -- this is dbn for the organic course
-rem -- includes scheme but not python
 rem -- this is for applet/courseware only, not downloadable
-rem -- requires jdk 1.1 compliant browser
+rem -- for the organic course, includes scheme but not python
+rem -- this version may go away if we can figure out security issues
 
-rem del classes\*.class 
-rem del classes\dbn.jar
+rem -- ** requires jdk 1.1 compliant browser **
+rem -- windows nav 4.x -- mostly works
+rem -- windows ie 4.x -- fully works
+rem -- mac nav 4.x -- does not work
+rem -- mac ie 4.x -- works with mrj
+
+rm -f classes\*.class 
+rm -f classes\dbn.jar
 
 cd ..
 buzz.pl "jikes +D -nowarn -d organic1\classes" -dJDK11 -dSCHEME *.java scheme\*.java
 cd organic1
 
-rem cd classes
-rem zip -0q dbn.jar *.class *.dbn jscheme\*.class
-rem cd ..
+cd classes
+zip -0q dbn.jar *.class *.dbn jscheme\*.class
+cd ..
 
 
 
