@@ -151,6 +151,10 @@ public class DbnApplet extends Applet
      * 4. http://thehost/whatever.dbn
      */
     public String readFile(String filename) {
+	if (filename.length() == 0) {
+	    return null;
+	}
+
 	URL url;
 	InputStream stream = null;
 	String openMe;

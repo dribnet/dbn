@@ -89,7 +89,7 @@ public class DbnGui extends Panel {
 	    p2.add(cmds = new Choice());
 	    p2.add(doitbut = new Button(" Do it "));
 	    
-	    // can always beautify code
+	    // can beautify code, but not with scheme (or python)
 	    cmds.addItem(BEAUTIFY_ITEM);
 	    
 	    // don't add snapshot command if running locally
@@ -162,12 +162,12 @@ public class DbnGui extends Panel {
     }
 
     public void doSnapshot() {
-	msg("Taking snapshot...");
+	msg("Sending your file to the server...");
 	if (io.doSnapshot(ta.getText(), 
 			  dbrp.runners[dbrp.current].dbg.getPixels())) {
-	    msg("Done taking snapshot.");
+	    msg("Done saving file.");
 	} else {
-	    msg("Could not make snapshot.");
+	    msg("Problem: Your work could not be saved.");
 	}
     }
 
@@ -193,9 +193,10 @@ public class DbnGui extends Panel {
 
     public void doBeautify() {
 	String prog = ta.getText();
-	if (prog.charAt(0) == '#') return;  // python
-	if (prog.charAt(0) == ';') return;  // lisp
-
+	if ((prog.charAt(0) == '#') || (prog.charAt(0) == ';')) {
+	    msg("Only DBN code can be made beautiful.");
+	    return;
+	}
 	char program[] = prog.toCharArray();
 	StringBuffer buffer = new StringBuffer();
 	boolean gotBlankLine = false;
@@ -301,8 +302,9 @@ public class DbnGui extends Panel {
 	if (getrunningp()) terminate();
 	ta.setText(s);
     }
-    public void initiate()
-    {
+
+    public void initiate() {
+	//System.out.println("dbngui initiated");
 	// tell to start
 	dbrp.setProgram(ta.getText());
 	dbrp.initiate();

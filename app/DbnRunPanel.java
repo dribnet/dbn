@@ -318,7 +318,9 @@ public class DbnRunPanel extends Panel {
 	    }		
 	}
 	screen.drawImage(offscreen, 0, 0, this);
-	runners[current].render();
+	//runners[current].render();
+	screen.drawImage(runners[current].dbg.image,
+			 runnerX[current], runnerY[current], this);
     }
 
 

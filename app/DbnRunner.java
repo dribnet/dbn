@@ -68,6 +68,7 @@ public class DbnRunner implements Runnable {
     }
     
     public boolean isRunning() {
+	//System.out.println("state of runner is " + state);
 	return (state == RUNNER_STARTED);
     }
 
@@ -104,10 +105,8 @@ public class DbnRunner implements Runnable {
 		engine = new SchemeEngine(dbg, program);
 		engine.start();
 	    } else if (program.charAt(0) == '#') {
-		/*
 		engine = new PythonEngine(dbg, program);
 		engine.start();
-		*/
 	    } else {
 		String processed = preprocessor.process(program);
 		DbnParser parser = new DbnParser(processed.toCharArray());
@@ -138,13 +137,11 @@ public class DbnRunner implements Runnable {
     public void stop() {
 	if (engine != null) {
 	    engine.stop();
-	    engine = null;
-	    /*
 	    if (engine instanceof PythonEngine) {
 		thread.stop();
 		thread = null;
 	    }
-	    */
+	    engine = null;
 	}
 	msg(""); 
     }

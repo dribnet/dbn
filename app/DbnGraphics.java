@@ -638,14 +638,15 @@ public class DbnGraphics {
     }
 
 
-    SensorConnector sensor;
+    //SensorConnector sensor;
 
     protected void openSensor() {
-	sensor = new SensorConnector();
+	//sensor = new SensorConnector();
     }
 
     protected int getSensor(int slot) throws DbnException {
-	return sensor.getValue(slot);
+	//return sensor.getValue(slot);
+	return -1;
     }
 
     protected void setSensor(int slot, int value) throws DbnException {

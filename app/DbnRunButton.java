@@ -13,7 +13,7 @@ public class DbnRunButton extends Panel {
     int playn, stopn;
 	
     int marg = 4;
-	
+    
     public DbnRunButton(DbnGui gui) {
 	super();
 	this.gui = gui;
@@ -32,11 +32,15 @@ public class DbnRunButton extends Panel {
     }
 	
     public void initiated() {
-	repaint();  // re-added for key commands
+	//repaint();  // re-added for key commands
+	//System.out.println("dbrb started");
+	paint(this.getGraphics());
     }
 
     public void terminated() {
-	repaint();
+	//System.out.println("dbrb stopped");
+	paint(this.getGraphics());
+	//repaint();
     }
 	
     public boolean mouseEnter(Event ev, int x, int y) {
@@ -45,14 +49,14 @@ public class DbnRunButton extends Panel {
 	g.drawRect(marg,marg,cbh-marg*2,cbh-marg*2);
 	return true;
     }
-	
+
     public boolean mouseExit(Event ev, int x, int y) {
 	Graphics g = this.getGraphics();
 	g.setColor(Color.gray);
 	g.drawRect(marg,marg,cbh-marg*2,cbh-marg*2);
 	return true;
     }
-	
+
     public void drawmain(Graphics g, boolean runningp) {
 	g.setColor(gui.getPanelBgColor()); 
 	g.fillRect(0, 0, cbw, cbh);
@@ -60,14 +64,12 @@ public class DbnRunButton extends Panel {
 	g.setColor(Color.darkGray);
 		
 	g.fillRect(marg,marg,cbh-marg*2,cbh-marg*2);
-		
-	if (runningp) 
-	    g.setColor(Color.orange);
-	else
-	    g.setColor(Color.green);
+
 	if (runningp) {
+	    g.setColor(Color.orange);
 	    g.fillPolygon(stopxs,stopys,stopn);	
 	} else {
+	    g.setColor(Color.green);
 	    g.fillPolygon(playxs,playys,playn);	
 	}
     }
