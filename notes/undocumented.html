@@ -1,0 +1,173 @@
+<HTML>
+
+<HEAD> <TITLE> things your mother didn't tell you about dbn </TITLE> </HEAD>
+
+<BODY LINK="#333333" VLINK="#999999">
+
+<CENTER> <TABLE WIDTH="400"> <TR> <TD>
+<FONT FACE="arial, helvetica, sans-serif">
+
+<BR> <BR> <BR> <BR>
+
+<FONT SIZE="+2">undocumented dbn:<BR>advanced features</FONT> <BR>
+<FONT SIZE="-1">dbn-feedback@media.mit.edu</FONT>
+
+<BR> <BR> <BR>
+
+<FONT SIZE="-1">
+
+<A HREF="#refresh">reduce flicker with refresh/norefresh</A> <P>
+<A HREF="#array">the built in &lt;array&gt;</A> <P>
+<A HREF="#antialias">smooth, anti-aliased lines</A> <P>
+<A HREF="#pause">slow down with <B>pause</B> <P>
+<A HREF="#mod">the <B>%</B> operator (modulo division)</A> <P>
+<A HREF="#linenumber">the line number buffer</A> <P>
+
+</FONT>
+
+<BR> <BR> <BR> <BR>
+
+<A NAME="refresh"></A><B>flicker flicker</B> <P>
+
+<FONT SIZE="-1">
+when your dbn program is running, the interpreter uses
+patented ai-refresh(tm) technology to guess when 
+the dbn window should be updated. but like most AI, 
+it isn't (and can't be) perfect. so the discriminating
+programmer (the anal retentive designer), often finds
+that their program is flickering way too much.
+<P>
+the solution is to put <B>norefresh</B> at the beginning
+of your program, which will tell dbn not to update automatically.
+it will instead wait until your program calls <B>refresh</B>
+to show your changes in the drawing area.
+
+</FONT>
+
+<PRE>
+   norefresh
+
+   forever
+   {
+      paper &lt;mouse 1&gt;
+      pen  &lt;mouse 2&gt;
+      line 30 30 &lt;mouse 1&gt; &lt;mouse 2&gt;
+      refresh   // update the screen
+   }
+
+</PRE>
+
+
+
+<A NAME="array"></A><B>arrays</B> <P> 
+
+<FONT SIZE="-1">
+dbn doesn't support arrays, which makes some programmers very sad. 
+in a moment of weakness, the maintainer of dbn succumbed to these
+whiners and added an extra connector, called <B>array</B>.
+this array has 1000 elements, which you may get and set
+to your heart's content.
+
+</FONT>
+
+<PRE>
+    // a boring example to show syntax
+    set &lt;array 1&gt; 30
+    set &lt;array 2&gt; 80
+    set &lt;array 1000&gt; 40
+    paper &lt;array 1000&gt;
+    // draw a line from 40, 40 to 30, 80
+    line 40 40 &lt;array 1&gt; &lt;array 2&gt;
+
+
+</PRE>
+
+
+
+<A NAME="antialias"><B>antialias</B> <P>
+
+<FONT SIZE="-1">
+this function enables and disables smoooove lines, by
+anti-aliasing them. sometimes this makes the lines look
+ugly and thick, but in other cases it might make your program
+look a little better. you be the judge.
+</FONT>
+
+<PRE>
+    // turn anti-aliasing on
+    antialias 100
+
+    // turn anti-aliasing off
+    antialias 0
+
+    // this would also turn anti-aliasing on
+    antialias 1
+    // anything from 1 to 100 does the same thing
+
+
+</PRE>
+
+
+
+<A NAME="pause"><B>pause</B> <P>
+
+<FONT SIZE="-1">
+pause is the german word for 'recess' (pronounced pow-zuh).
+</FONT>
+
+<PRE>
+   pause 5     // wait for 5 hundredths of a second
+   pause 200   // wait for 2 seconds
+
+
+</PRE>
+
+
+
+<A NAME="modulo"><B>modulo this and that</B> <P>
+
+<FONT SIZE="-1">
+modulo, the % sign, is a math operator that gives
+you the remainder of a division between two numbers.
+
+</FONT>
+
+<PRE>
+   // sets a to the remainder of 11 divided by 2
+   set a (11 % 2)  
+
+
+</PRE>
+
+
+
+<A NAME="linenumber"><B>the magical line number buffer</B> <P>
+
+<FONT SIZE="-1">
+after running a program, hold down the shift key while
+dragging the mouse to and fro inside the dbn graphics area.
+as you drag over each pixel, the dbn editor highlight the line 
+that was last to draw that pixel. ooh ahh! useful in 
+understanding how dbn programs work.
+
+
+</FONT>
+
+<PRE>
+
+
+</PRE>
+
+
+
+<FONT SIZE="-2">
+DBN features not mentioned in <EM>DBN in a Nutshell</EM><BR>
+Last updated March 6 2000 by Ben for DBN 2.0.1
+</FONT>
+
+</FONT>
+</TD> </TR> </TABLE> </CENTER>
+
+</BODY>
+
+</HTML>

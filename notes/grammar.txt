@@ -1,0 +1,130 @@
+  // elementary defs
+
+  EOL -> \r
+         \n
+         \r\n
+
+  NUM -> [+-][0-9]+  (no decimals)
+
+  NAME -> [a-zA-Z][a-zA-Z0-9_]+  # can't start w/ number)
+
+  PIXEL -> [ VALUE VALUE ]
+
+  VARIABLE -> xxNAME 
+              PIXEL
+              OUTPUT_CONNECTOR
+	      STACK_VARIABLE
+
+  BLOCK -> { EOL STATEMENT* } EOL
+
+  VALUE -> NUMBER
+           VARIABLE
+           MATH
+           PIXEL
+	   INPUT_CONNECTOR
+
+  MATH -> ( VALUE [OPERATOR VALUE]* )
+
+  OPERATOR -> ADD
+              SUBTRACT
+              MULTIPLY
+              DIVIDE
+
+  ADD      -> +
+  SUBTRACT -> - 
+  MULTIPLY -> *
+  DIVIDE   -> /
+
+  CONNECTOR -> < NAME VALUE >	      
+
+  INPUT_CONNECTOR -> <mouse VALUE>
+                     <key VALUE>
+                     <net VALUE>
+		     <time VALUE>
+                     <FUNCTION VALUE*>
+
+  OUTPUT_CONNECTOR -> <net NUM>
+
+
+  // actual defs
+  
+  RETURN_VALUE -> value VALUE EOL
+
+  COMMAND_DEF -> command NAME NAME* EOL BLOCK
+
+  FUNCTION_DEF -> number NAME NAME* EOL BLOCK
+
+  REPEAT -> repeat VARIABLE VALUE VALUE EOL BLOCK
+
+  FOREVER -> forever EOL BLOCK
+
+  SET -> set VARIABLE VALUE EOL
+
+  PAPER -> paper VALUE EOL
+
+  PEN -> pen VALUE EOL
+
+  LINE -> LINE VALUE VALUE VALUE VALUE EOL
+
+  COMMAND -> NAME VALUE* EOL
+
+  SMALLER -> smaller? VALUE VALUE BLOCK EOL
+
+  NOTSMALLER -> notsmaller? VALUE VALUE BLOCK EOL
+
+  SAME -> same? VALUE VALUE BLOCK EOL
+
+  NOTSAME -> notsame? VALUE VALUE BLOCK EOL
+
+  STATEMENT -> DEFINITION
+               REPEAT
+               FOREVER
+               SET
+               PAPER
+               PEN
+               LINE
+               COMMAND
+               SMALLER
+               NOTSMALLER
+               SAME
+               NOTSAME
+	       EOL
+	       BLOCK
+
+  STATEMENTS -> STATEMENT*
+
+
+# a program is made up of STATEMENTS
+
+
+paper <val>
+pen <val>
+line <x1> <y1> <x2> <y2>
+
+set <name> <val>
+set [<x> <y>] <val>
+set <name> [<x> <y>]
+
+(<math>)
+
+repeat <name> <beginval> <endval> { <block> }
+forever { <block> }
+escape
+
+smaller? <v1> <v2> { <block> }
+notsmaller? <v1 <v2> { <block> }
+same? <v1> <v2> { <block> }
+
+// comment
+
+<key <val>>
+<net <val>>
+<functionname 20 10 3>
+
+command <var1> <var2> .. <varn> { <block> }
+load <filename>
+
+"paper", "pen", "line", "repeat", "forever", 
+"set", "command", "number", "field", "refresh",
+"mouse", "keyboard", "net", "time",
+"same?", "notsame?", "smaller?", "notsmaller?"
