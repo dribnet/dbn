@@ -1,0 +1,14 @@
+// Painting with the mouse
+// <mouse 1> is the x position of the mouse
+// <mouse 2> is the y position of the mouse
+// <mouse 3> is 100 if the button is clicked, 0 if not
+paper 0
+forever
+{
+   pen (<time 4>)
+   line 20 30 <mouse 1> <mouse 2>
+   same? <mouse 3> 100
+   {
+      line 70 30 <mouse 1> <mouse 2>
+   }
+}
