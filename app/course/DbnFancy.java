@@ -10,20 +10,14 @@ import java.awt.event.*;
 
 
 public class DbnFancy extends DbnApplication implements ItemListener {    
-  //DbnApplet applet;
-  //Frame frame;
-  //TextArea description;
-
-  //MultiLineLabel description;
-
   String location;
   String currentProblem;
   String currentPerson;
 
-  Vector titles = new Vector();
-  Vector titleOffsets = new Vector();
-  Vector designations = new Vector();
-  Vector descriptions = new Vector();
+  Vector titles;
+  Vector designations;
+  Vector descriptions;
+  Vector people;
 
   Menu problemMenu;
   Menu peopleMenu;
@@ -40,49 +34,56 @@ public class DbnFancy extends DbnApplication implements ItemListener {
     return description;
   }
 
-  /*TextArea description, DbnApplet applet*/
+
   public DbnFancy() throws IOException {
-    //frame.hide();
-
-    //this.frame = frame;
-    //this.description = description;
-    //this.applet = applet;
-
-    //description = new TextArea("", 5, 40);
-    /*
-    description = 
-      new MultiLineLabel("", new Font("SansSerif", Font.PLAIN, 12),
-			 650, 30, 30, MultiLineLabel.LEFT);
-    description.setBackground(new Color(0xCC, 0xCC, 0xCC));
-    description.setForeground(new Color(0x33, 0x33, 0x33));
-    */
-    //frame.add("South", description);
-    //frame.pack();
-
-    //try {
-    //new DbnFancy(frame, textarea, app);
-    //} catch (IOException e) {
-    //e.printStackTrace();
-    //System.exit(1);
-    //}
-
     MenuBar mb = new MenuBar();
-    
-    location = get("courseware.location");
-    //System.out.println("location is " + location);
+
+    titles = new Vector();
+    designations = new Vector();
+    descriptions = new Vector();
+    people = new Vector();
+    readCourse(titles, designations, descriptions, people);
+
+    problemMenu = new Menu("Problem");
+    Enumeration e = designations.elements();
+    while (e.hasMoreElements()) {
+      String designation = (String) e.nextElement();
+      CheckboxMenuItem mi = new CheckboxMenuItem(designation);
+      mi.addItemListener(this);
+      problemMenu.add(mi);
+    }
+    mb.add(problemMenu);
+
+    peopleMenu = new Menu("People");
+    e = people.elements();
+    while (e.hasMoreElements()) {
+      String person = (String) e.nextElement();
+      CheckboxMenuItem mi = new CheckboxMenuItem(person);
+      mi.addItemListener(this);
+      peopleMenu.add(mi);
+    }
+    mb.add(peopleMenu);
+
+    frame.setMenuBar(mb);
+  }
+
+
+  static public void readCourse(Vector titles, Vector designations, 
+				Vector descriptions, Vector people) 
+    throws IOException {
+    String location = DbnApplet.get("courseware.location");
     if (location == null) {
       System.err.println("must set courseware.location in dbn.properties");
-      System.exit(0);
+      System.exit(1);
     }
     if (!location.endsWith("/")) {
       location += "/";
     }
 
-    problemMenu = new Menu("Problem");
-
-    String problems = readFile(location + "problems.txt");
+    String problems = DbnApplet.applet.readFile(location + "problems.txt");
     if (problems == null) {
-      System.err.println("no problems found");
+      System.err.println(location + "problems.txt not found");
+      System.exit(1);
     }
     int problemOffset = 0;
     int problemNumber = 0;
@@ -100,7 +101,7 @@ public class DbnFancy extends DbnApplication implements ItemListener {
       switch (line.charAt(1)) {
       case 'h':
 	titles.addElement(content);
-	titleOffsets.addElement(new Integer(problemOffset));
+	//titleOffsets.addElement(new Integer(problemOffset));
 	break;
       case 'p':
 	if (number != problemNumber) {
@@ -108,9 +109,6 @@ public class DbnFancy extends DbnApplication implements ItemListener {
 	  problemNumber = number;
 	}
 	String designation = "" + problemNumber + (char)('A' + problemLetter);
-	CheckboxMenuItem mi = new CheckboxMenuItem(designation);
-	mi.addItemListener(this);
-	problemMenu.add(mi);
 	designations.addElement(designation);
 	descriptions.addElement(content);
 	problemLetter++;
@@ -120,21 +118,14 @@ public class DbnFancy extends DbnApplication implements ItemListener {
 	break;
       }
     }
-    mb.add(problemMenu);
 
-    peopleMenu = new Menu("People");
-    String people = readFile(location + "people.txt");
-    reader = new BufferedReader(new StringReader(people));
+    String persons = DbnApplet.applet.readFile(location + "people.txt");
+    reader = new BufferedReader(new StringReader(persons));
     line = null;
     while ((line = reader.readLine()) != null) {
       if (line.length() == 0) continue;
-      CheckboxMenuItem mi = new CheckboxMenuItem(line);
-      mi.addItemListener(this);
-      peopleMenu.add(mi);
+      people.addElement(line);
     }
-    mb.add(peopleMenu);    
-
-    frame.setMenuBar(mb);
   }
 
 
@@ -196,42 +187,6 @@ public class DbnFancy extends DbnApplication implements ItemListener {
       System.exit(1);
     }
   }
-  /*
-    Frame frame = new Frame("DBN");
-    frame.addWindowListener(new WindowAdapter() {
-      public void windowClosing(WindowEvent e) {
-	System.exit(0);
-      }
-    });
-    Dimension screen = 
-      Toolkit.getDefaultToolkit().getScreenSize();
-    frame.reshape(screen.width+10, 10, 100, 200);
-    frame.show();
-    DbnApplet app = new DbnApplet();
-    app.applet = app;
-    app.properties = new Properties();
-    try {
-      app.properties.load(new FileInputStream("dbn.properties"));
-    } catch (Exception e1) {
-      try {
-	app.properties.load(new FileInputStream("lib/dbn.properties"));
-      } catch (Exception e) {
-	System.err.println("Error reading dbn.properties");
-	e.printStackTrace();
-	System.exit(1);
-      }
-    }
-    int width = app.getInteger("width", 600);
-    int height = app.getInteger("height", 350);
-
-    // ms jdk requires that BorderLayout is set explicitly
-    frame.setLayout(new BorderLayout());
-    frame.add("Center", app);
-    app.init();
-    Insets insets = frame.getInsets();
-    frame.reshape(50, 50, width + insets.left + insets.right, 
-		  height + insets.top + insets.bottom);
-  */
 }
 
 

@@ -8,6 +8,7 @@ import java.util.*;
 
 public class MultiLineLabel extends Component {
   // User-specified attributes
+  Font font;
   String label;             // The label, not broken into lines
   int marginWidth;         // Left and right margins
   int marginHeight;        // Top and bottom margins
@@ -36,7 +37,8 @@ public class MultiLineLabel extends Component {
   public MultiLineLabel(String label, Font font, int componentWidth,
 			int marginWidth, int marginHeight, int alignment) {
     this.label = label;
-    super.setFont(font);
+    //super.setFont(font);
+    this.font = font;
     this.componentWidth = componentWidth;
     this.marginWidth = marginWidth;
     this.marginHeight = marginHeight;
@@ -94,6 +96,7 @@ public class MultiLineLabel extends Component {
 
 
   public void paint(Graphics screen) {
+    screen.setFont(font);
     Dimension size = size();
     int savedWidth = componentWidth;
     if (size.width < componentWidth) {
@@ -135,7 +138,7 @@ public class MultiLineLabel extends Component {
 
     Vector vector = new Vector();
     StringTokenizer st = new StringTokenizer(label);
-    FontMetrics metrics = getToolkit().getFontMetrics(getFont());
+    FontMetrics metrics = getToolkit().getFontMetrics(font);
 
     String currentLine = st.hasMoreTokens() ? st.nextToken() : null;
     while (st.hasMoreTokens()) {

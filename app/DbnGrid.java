@@ -2,6 +2,11 @@
 #ifndef PLAYER
 
 
+// doesn't actually need app passed in to the constructor
+
+// need to find a good generic solution to the multiple runner issue
+
+
 import java.awt.*;
 import java.util.*;
 
@@ -13,61 +18,8 @@ import java.awt.event.*;
 // mouse downs that are captured outside the DbnPanels
 // kill the currently 'running' dbn program
 
-// this is jdk 1.1 only.. this is only used by the 
+// DbnGrid is jdk 1.1 only.. this is only used by the 
 // courseware and by downloadable, both of which require it
-
-class DbnGridBoobyPrize implements KeyListener, 
-  MouseListener, MouseMotionListener
-{
-  DbnGraphics graphics;
-
-  public DbnGridBoobyPrize(DbnGraphics graphics) {
-    this.graphics = graphics;
-  }
-
-  public void mouseEntered(MouseEvent e) { 
-    graphics.mouseEnter(null, e.getX(), e.getY());
-  }
-
-  public void mouseExited(MouseEvent e) { 
-    graphics.mouseExit(null, e.getX(), e.getY());
-  }
-  
-  public void mousePressed(MouseEvent e) {
-    graphics.mouseDown(null, e.getX(), e.getY());
-  }
-
-  public void mouseReleased(MouseEvent e) { 
-    graphics.mouseUp(null, e.getX(), e.getY());
-  }
-
-  public void mouseClicked(MouseEvent e) {
-    graphics.mouseDown(null, e.getX(), e.getY());
-    graphics.mouseUp(null, e.getX(), e.getY());
-  }
-
-  public void mouseDragged(MouseEvent e) {
-    graphics.mouseDrag(null, e.getX(), e.getY());
-  }
-
-  public void mouseMoved(MouseEvent e) {
-    graphics.mouseMove(null, e.getX(), e.getY());
-  }
-
-  public void keyPressed(KeyEvent e) {
-    graphics.keyDown(null, (int)e.getKeyChar());
-  }
-
-  public void keyReleased(KeyEvent e) {
-    graphics.keyUp(null, (int)e.getKeyChar());
-  }
-
-  public void keyTyped(KeyEvent e) {
-    graphics.keyDown(null, (int)e.getKeyChar());
-    graphics.keyUp(null, (int)e.getKeyChar());
-  }
-}
-
 
 public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
   static final int MARGARINE = 20;
@@ -94,8 +46,6 @@ public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
   public void setup(String programs[]) {
     this.programs = programs;
 
-    //gwidth = 101;
-    //gheight = 101;
     gwidth = DbnApplet.getInteger("graphics_width", 101);
     gheight = DbnApplet.getInteger("graphics_height", 101);
 
@@ -287,15 +237,14 @@ public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
       if (runners.size() > 0) {
 	// some bizarre state that can show up on an
 	// inconsistency of some kind. yuck.
-	//System.err.println("golan GOLAN GOLLANNN!");
 	Enumeration e = runners.elements();
 	while (e.hasMoreElements()) {
 	  DbnRunner deadguy = (DbnRunner)e.nextElement();
 	  deadguy.stop();
 	}
-	for (int i = 0; i < gcount; i++) {
+	//for (int i = 0; i < gcount; i++) {
 	  //graphics[gcurrent].disable();
-	}
+	//}
       }
     }
     //System.err.println("forced termination not implemented");
@@ -315,6 +264,61 @@ public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
   public boolean keyDown(Event ev, int n) {
     System.out.println((char) n);
     return false;
+  }
+}
+
+
+// worthless piece of shit code
+
+class DbnGridBoobyPrize implements KeyListener, 
+  MouseListener, MouseMotionListener
+{
+  DbnGraphics graphics;
+
+  public DbnGridBoobyPrize(DbnGraphics graphics) {
+    this.graphics = graphics;
+  }
+
+  public void mouseEntered(MouseEvent e) { 
+    graphics.mouseEnter(null, e.getX(), e.getY());
+  }
+
+  public void mouseExited(MouseEvent e) { 
+    graphics.mouseExit(null, e.getX(), e.getY());
+  }
+  
+  public void mousePressed(MouseEvent e) {
+    graphics.mouseDown(null, e.getX(), e.getY());
+  }
+
+  public void mouseReleased(MouseEvent e) { 
+    graphics.mouseUp(null, e.getX(), e.getY());
+  }
+
+  public void mouseClicked(MouseEvent e) {
+    graphics.mouseDown(null, e.getX(), e.getY());
+    graphics.mouseUp(null, e.getX(), e.getY());
+  }
+
+  public void mouseDragged(MouseEvent e) {
+    graphics.mouseDrag(null, e.getX(), e.getY());
+  }
+
+  public void mouseMoved(MouseEvent e) {
+    graphics.mouseMove(null, e.getX(), e.getY());
+  }
+
+  public void keyPressed(KeyEvent e) {
+    graphics.keyDown(null, (int)e.getKeyChar());
+  }
+
+  public void keyReleased(KeyEvent e) {
+    graphics.keyUp(null, (int)e.getKeyChar());
+  }
+
+  public void keyTyped(KeyEvent e) {
+    graphics.keyDown(null, (int)e.getKeyChar());
+    graphics.keyUp(null, (int)e.getKeyChar());
   }
 }
 

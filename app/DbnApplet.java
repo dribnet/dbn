@@ -106,6 +106,9 @@ public class DbnApplet extends Applet
       setLayout(new BorderLayout());
       add("Center", grid);
       environment = grid;
+
+    } else if (mode.equals("none")) {
+      // don't do anything, handled by subclass
     }
 #endif PLAYER
   }
