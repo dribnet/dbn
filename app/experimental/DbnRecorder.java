@@ -52,10 +52,10 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
     this.width = width;
     this.height = height;
 
-    FileDialog fd = new FileDialog(new Frame(), "Save Movie As...", 
-				   FileDialog.SAVE);
-    fd.show();
-    if (fd.getFile() == null) System.exit(0);
+    //FileDialog fd = new FileDialog(new Frame(), "Save Movie As...", 
+    //			   FileDialog.SAVE);
+    //fd.show();
+    //if (fd.getFile() == null) System.exit(0);
 
     System.out.println("creating recorder");
     try {
@@ -63,7 +63,7 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
 
       // NumberPainter.<init>, because setClient will call paint()
       updateRects = new Rectangle[1];
-      updateRects[0] = new Rectangle(width, height);
+      updateRects[0] = new Rectangle(40, 20, width, height);
 
       Frame frame = new Frame("DbnRecorder");
       //frame.show();
@@ -84,8 +84,8 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
 
       //throw new QTIOException (userCanceledErr, "");
 
-      movieFile = new QTFile(fd.getDirectory() + fd.getFile());
-      //movieFile = new QTFile("outfile.mov");
+      //movieFile = new QTFile(fd.getDirectory() + fd.getFile());
+      movieFile = new QTFile(QTFactory.findAbsolutePath("outfile.mov"));
       movie = Movie.createMovieFile(movieFile, kMoviePlayer, 
 				    createMovieFileDeleteCurFile | 
 				    createMovieFileDontCreateResFile);
@@ -117,7 +117,7 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
 
       lastTime = System.currentTimeMillis();
       //started = true;
-    } catch (QTException e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
   }
@@ -132,7 +132,9 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
     if ((recorder != null) && !finishing) recorder.add(image);
   }
 
-  public void add(Image image) {
+  // the synchronized makes sure that this function finished
+  // before stop() and subsequently finish() get called
+  synchronized public void add(Image image) {
     if (recorder == null) return;
 
     //int now = (int) (System.currentTimeMillis() - recorder.startTime);
@@ -146,11 +148,11 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
     int frameDuration = (int) (currentTime - lastTime);
     if (frameDuration == 0) return;
 
-    System.out.println("frameDuration = " + frameDuration);
+    //System.out.println("frameDuration = " + frameDuration);
 
     try {
       // not sure if these lines go in 'start' or down here
-      //qid.redraw(null);
+      qid.redraw(null);
 
       qid.setGWorld(gw);
       qid.setDisplayBounds(rect);
@@ -168,8 +170,9 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
       videoMedia.addSample(imageHandle, 0, info.getDataSize(), 
 			   frameDuration, description, 1, 
 			   (isKeyFrame ? 0 : mediaSampleNotSync));
-      //System.out.println("keyframe=" + isKeyFrame + 
-      //		 ", similarity=" + info.getSimilarity());
+      System.out.println("duration=" + frameDuration + ", " +
+			 "keyframe=" + isKeyFrame + ", " +
+			 "similarity=" + info.getSimilarity());
       
       //print out ImageDescription for the last video media data ->
       //this has a sample count of 1 because we add each "frame" 
@@ -189,6 +192,16 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
     }
   }
 
+
+  static public void stop() {
+    if ((recorder == null) || finishing) return;
+    System.out.println("stopping recorder");
+
+    finishing = true;
+    recorder.finish();
+    finishing = false;
+    recorder = null;
+  }
 
   public void finish() {
     //if (finishing) return;
@@ -210,16 +223,6 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
     }
   }
 
-  static public void stop() {
-    if ((recorder == null) || finishing) return;
-    System.out.println("stopping recorder");
-
-    finishing = true;
-    recorder.finish();
-    finishing = false;
-    recorder = null;
-  }
-
 
   // paintable methods
 
@@ -233,9 +236,11 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
   }
 
   public Rectangle[] paint(Graphics g) {
-    //System.out.println("painting");
+    System.out.println("painting");
+    g.setColor(Color.white);
+    g.fillRect(0, 0, width, height);
     g.setColor(Color.red);
-    g.fillRect(0, 0, 90, 90);
+    g.fillRect(0, 0, 40, 90);
     //if (lastImage != null)
     //g.drawImage(lastImage, 0, 0, null);
     return updateRects;
