@@ -14,6 +14,8 @@ public class DbnEngine {
   Hashtable stack[];
   int stackIndex = 0;
   
+  static final boolean watchCurrent = true;
+  
   
   DbnEngine() { }  // so it can be subclassed for scheme and python
   
@@ -29,8 +31,9 @@ public class DbnEngine {
     stack = new Hashtable[stackSize];
     
 #ifdef VIS
-    System.out.println("C dbn");
+      System.out.println("C dbn");
 #endif
+
     execRoot();	
   }
   
@@ -41,9 +44,8 @@ public class DbnEngine {
   
   
   void execRoot() throws DbnException {
-#ifdef VIS
-    setCurrent(root);
-#endif
+    if (watchCurrent) setCurrent(root);
+
     pushLocalVariables(root);
     execStatements(root.children[0]);
     popVariables();
@@ -51,9 +53,8 @@ public class DbnEngine {
 
 
   void execStatements(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
+
     if (stopFlag) return;
 
     for (int i = 0; i < current.childCount; i++) {
@@ -66,9 +67,8 @@ public class DbnEngine {
   int lastNight;
 
   void execStatement(DbnToken statement) throws DbnException {
-#ifdef VIS
-    setCurrent(statement);
-#endif
+    if (watchCurrent) setCurrent(statement);
+
 
     //long t = System.currentTimeMillis();
     //if (t - lastNight > 1000) {
@@ -81,7 +81,7 @@ public class DbnEngine {
       } catch (InterruptedException e) { }
       lastNight = 0;
     }
-#endif
+
 
     DbnToken current = statement.children[0];
     switch (current.kind) {
@@ -122,26 +122,23 @@ public class DbnEngine {
 
 
   void execBlock(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
+
     execStatements(current);
   }
 
 
   void execReturnValue(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
+
     int amount = getValue(current.children[0]);
     setStackVariable("_result", amount);
   }
 
 
   void execCommand(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
+
     DbnToken command = current.findFunction(current.name);
     int paramCount = command.childCount - 1;
     // put all params for function and local vars onto the stack
@@ -156,9 +153,8 @@ public class DbnEngine {
 
 
   void execRepeat(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
+
     //System.out.println("            REPEAT");
 
     DbnToken iterator = current.children[0];
@@ -205,9 +201,8 @@ public class DbnEngine {
 
 
   void execForever(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
+
     //System.out.println("               FOREVER");
     DbnToken block = current.children[0];
     // rilly important to be checking stopFlag
@@ -221,44 +216,34 @@ public class DbnEngine {
 
 
   void execSet(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
+
     DbnToken variable = current.children[0];
-#ifdef VIS
-    setCurrent(current.children[0]);
-#endif
+    if (watchCurrent) setCurrent(current.children[0]);
+
     DbnToken value = current.children[1];
-#ifdef VIS
-    setCurrent(current.children[1]);
-#endif
+    if (watchCurrent) setCurrent(current.children[1]);
+
     setValue(variable, getValue(value));
-#ifdef VIS
-    setCurrent(variable);
-#endif
+    if (watchCurrent) setCurrent(variable);
   }
 
 
   void execPaper(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
     graphics.paper(getValue(current.children[0]));
   }
 
 
   void execPen(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
     graphics.pen(getValue(current.children[0]));
   }
 
    
   void execLine(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
+
     int x1 = getValue(current.children[0]);
     int y1 = getValue(current.children[1]);
     int x2 = getValue(current.children[2]);
@@ -268,9 +253,8 @@ public class DbnEngine {
 
 
   void execField(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
+
     int x1 = getValue(current.children[0]);
     int y1 = getValue(current.children[1]);
     int x2 = getValue(current.children[2]);
@@ -287,33 +271,26 @@ public class DbnEngine {
 
 
   void execAntiAlias(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
     graphics.antialias(getValue(current.children[0]));
   }
 
 
   void execRefresh(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
     graphics.refresh();
   }
 
 
   void execNoRefresh(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
     graphics.norefresh();
   }
 
 
   void execComparison(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
+
     boolean result = false;
     int value1 = getValue(current.children[0]);
     int value2 = getValue(current.children[1]);
@@ -333,17 +310,15 @@ public class DbnEngine {
 
 
   int getValue(DbnToken value) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(value);
+
     DbnToken current = null;
     if (value.kind != DbnToken.VALUE) {
       current = value;
     } else {
       current = value.children[0];
-#ifdef VIS
-      setCurrent(current);
-#endif
+      if (watchCurrent) setCurrent(current);
+
     }
     switch (current.kind) {
     case DbnToken.PIXEL:           
@@ -366,26 +341,21 @@ public class DbnEngine {
 
 
   int getPixel(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
+
     return graphics.getPixel(getValue(current.children[0]),
 			     getValue(current.children[1]));
   }
 
 
   int getNumber(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
     return current.number;
   }
 
 
   int getMath(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
 
     int valueCount = (current.childCount+1) / 2;
     int values[] = new int[valueCount];
@@ -503,9 +473,8 @@ public class DbnEngine {
 
 
   int getConnector(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
+
     //if (graphics.isConnector(current.name))
     return graphics.getConnector(current.name,
 				 getValue(current.children[0]));
@@ -515,9 +484,8 @@ public class DbnEngine {
 
 
   int getVariable(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
+
     if (current.childCount == 0) {
       if (current.name == null) {
 	die("confused, trying to set no-name var", current);
@@ -530,15 +498,14 @@ public class DbnEngine {
 
 
   int getFunction(DbnToken current) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(current);
+
     DbnToken function = current.findFunction(current.name);
     int paramCount = function.childCount - 1;
     pushFunctionVariables(current, paramCount);
 
     // push a spot for the result onto the stack
-    DbnToken token = new DbnToken(DbnToken.NUMBER, 0);
+    DbnToken token = new DbnToken(DbnToken.NUMBER, 0, -1);
     Hashtable table = new Hashtable();
     table.put("_result", token);
     pushVariables(table);
@@ -559,9 +526,7 @@ public class DbnEngine {
 
 
   void setValue(DbnToken value, int amount) throws DbnException {
-#ifdef VIS
-    setCurrent(current);
-#endif
+    if (watchCurrent) setCurrent(value);
 
     switch (value.kind) {
 
@@ -651,7 +616,7 @@ public class DbnEngine {
       Enumeration e = current.variables.keys();
       while (e.hasMoreElements()) {
 	String name = (String) e.nextElement();
-	table.put(name, new DbnToken(DbnToken.NUMBER, 0));
+	table.put(name, new DbnToken(DbnToken.NUMBER, 0, -1));
       }
     }
     pushVariables(table);
@@ -674,7 +639,7 @@ public class DbnEngine {
     for (int i = 0; i < paramCount; i++) {
       String name = function.children[i].name;
       int amount = getValue(current.children[i]);
-      table.put(name, new DbnToken(DbnToken.NUMBER, amount));
+      table.put(name, new DbnToken(DbnToken.NUMBER, amount, -1));
       //System.out.println("  param " + name + " = " + amount);
     }
 
@@ -686,7 +651,7 @@ public class DbnEngine {
 	String name = (String) e.nextElement();
 	if (!table.containsKey(name)) {
 	  //System.err.println("adding local " + name);
-	  table.put(name, new DbnToken(DbnToken.NUMBER, 0));
+	  table.put(name, new DbnToken(DbnToken.NUMBER, 0, -1));
 	  //} else {
 	  //System.err.println("has local " + name);
 	  //System.out.println("  " + name + " = empty");
@@ -719,13 +684,16 @@ public class DbnEngine {
     return deadMan;
   }
     
-#ifdef VIS
+
   public void setCurrent(DbnToken current) {
+#ifndef VIS
+    graphics.setLine(current.line);
+#else
     System.out.println("M dbn " + current.serialName + " " +
 		       System.currentTimeMillis());
     System.out.println("Q 200");
-  }
 #endif
+  }
 
 
   private void die(String message, DbnToken where) throws DbnException {

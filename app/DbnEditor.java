@@ -65,7 +65,7 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     left.add("North", buttons);
 
     graphics = new DbnEditorGraphics(gwidth, gheight, tickColor,
-				     bgColor, bgStippleColor);
+				     bgColor, bgStippleColor, this);
     left.add("Center", graphics);
 
     //Panel gutter = new Panel();
@@ -404,42 +404,50 @@ public class DbnEditor extends Panel implements DbnEnvironment {
   }
 
 
-  public void error(DbnException e) {   // part of DbnEnvironment
-    if (e.line >= 0) {
-      String s = textarea.getText();
-      int len = s.length();
-      int lnum = e.line;
-      int st = -1, end = -1;
-      int lc = 0;
-      if (lnum == 0) st = 0;
-      for (int i = 0; i < len; i++) {
-	//if ((s.charAt(i) == '\n') || (s.charAt(i) == '\r')) {
-	boolean newline = false;
-	if (s.charAt(i) == '\r') {
-	  if ((i != len-1) && (s.charAt(i+1) == '\n')) i++;
-	  lc++;
-	  newline = true;
-	} else if (s.charAt(i) == '\n') {
-	  lc++;
-	  newline = true;
-	}
-	if (newline) {
-	  if (lc == lnum)
-	    st = i+1;
-	  else if (lc == lnum+1) {
-	    end = i;
-	    break;
-	  }
+  public void highlightLine(int lnum) {
+    if (lnum < 0) {
+      textarea.select(0, 0);
+      return;
+    }
+    //System.out.println(lnum);
+    String s = textarea.getText();
+    int len = s.length();
+    //int lnum = .line;
+    int st = -1, end = -1;
+    int lc = 0;
+    if (lnum == 0) st = 0;
+    for (int i = 0; i < len; i++) {
+      //if ((s.charAt(i) == '\n') || (s.charAt(i) == '\r')) {
+      boolean newline = false;
+      if (s.charAt(i) == '\r') {
+	if ((i != len-1) && (s.charAt(i+1) == '\n')) i++;
+	lc++;
+	newline = true;
+      } else if (s.charAt(i) == '\n') {
+	lc++;
+	newline = true;
+      }
+      if (newline) {
+	if (lc == lnum)
+	  st = i+1;
+	else if (lc == lnum+1) {
+	  end = i;
+	  break;
 	}
       }
-      if (end == -1) end = len;
-      //System.out.println("st/end: "+st+"/"+end);
-      textarea.select(st, end+1);
-      //if (iexplorerp) {
-      //textarea.invalidate();
-      //textarea.repaint();
-      //}
     }
+    if (end == -1) end = len;
+    //System.out.println("st/end: "+st+"/"+end);
+    textarea.select(st, end+1);
+    //if (iexplorerp) {
+    //textarea.invalidate();
+    //textarea.repaint();
+    //}
+  }
+
+
+  public void error(DbnException e) {   // part of DbnEnvironment
+    if (e.line >= 0) highlightLine(e.line); 
     //dbcp.repaint(); // button should go back to 'play'
     //System.err.println(e.getMessage());
     message("Problem: " + e.getMessage());

@@ -33,7 +33,10 @@ public class DbnGraphics extends Panel {
   byte penColor;
   int pixelCount;
   boolean antialias;
-        
+
+  int lines[];
+  int currentLine;
+
   int width, height;
   int width1, height1;
 
@@ -75,6 +78,7 @@ public class DbnGraphics extends Panel {
 
     pixelCount = width * height;
     pixels = new byte[pixelCount];  // all set to zero
+    lines = new int[pixelCount];
     penColor = 100;
 
 #ifdef CRICKET
@@ -82,6 +86,16 @@ public class DbnGraphics extends Panel {
 #endif
     //currentDbnGraphics = this;
     //dbr.render();
+  }
+
+
+  public void setLine(int which) {
+    currentLine = which;
+  }
+
+  public int getLine(int x, int y) {
+    return lines[(height1-((y<0)?0:((y>height1)?height1:y)))*width + 
+		((x<0)?0:((x>width1)?width1:x))];
   }
 
 
@@ -137,7 +151,10 @@ public class DbnGraphics extends Panel {
     */
 
     byte bval = (byte) bound(val, 100);
-    for (int i = 0; i < pixelCount; i++) pixels[i] = bval;
+    for (int i = 0; i < pixelCount; i++) {
+      pixels[i] = bval;
+      lines[i] = currentLine;
+    }
     g.setColor(grays[bval]);
     g.fillRect(0, 0, width, height);
   }
@@ -165,6 +182,7 @@ public class DbnGraphics extends Panel {
       int pp = width*(height1-j);
       for (int i = x1; i <= x2; i++) {
 	pixels[pp+i] = bval;
+	lines[pp+i] = currentLine;
       }
     }		
     g.setColor(grays[val]);
@@ -206,6 +224,7 @@ public class DbnGraphics extends Panel {
     //if(val>100) val = 100;
     //else if(val < 0) val = 0;
     pixels[index] = (byte)val;
+    lines[index] = currentLine;
 	
     if (antialias) {
       g.setColor(grays[val]);
@@ -452,8 +471,10 @@ public class DbnGraphics extends Panel {
     
 
   public void reset() {
-    for (int i = 0; i < pixelCount; i++) 
+    for (int i = 0; i < pixelCount; i++) {
       pixels[i] = 0;
+      lines[i] = -2;
+    }
 
     if (g != null) {
       g.setColor(grays[0]);
@@ -484,7 +505,9 @@ public class DbnGraphics extends Panel {
     myFlush(FDOT);
     if (x < 0 || x > width1 || y < 0 || y > height1) return;
     int checkVal = bound(val, 100);
-    pixels[(height1-y)*width + x] = (byte)checkVal;
+    int index = (height1-y)*width + x;
+    pixels[index] = (byte)checkVal;
+    lines[index] = currentLine;
     g.setColor(grays[checkVal]);
     g.drawLine(x, height1-y, x, height1-y);
   }
@@ -970,33 +993,33 @@ public class DbnGraphics extends Panel {
   }
 
 
-  public boolean mouseDown(Event ev, int x, int y) {
+  public boolean mouseDown(Event e, int x, int y) {
     mouse[2] = 100;
-    return updateMouse(x, y);
+    return updateMouse(e, x, y);
   }
 
-  public boolean mouseUp(Event ev, int x, int y) {
+  public boolean mouseUp(Event e, int x, int y) {
     mouse[2] = 0;
-    return updateMouse(x, y);
+    return updateMouse(e, x, y);
   }
 
-  public boolean mouseMove(Event ev, int x, int y) {
-    return updateMouse(x, y);
+  public boolean mouseMove(Event e, int x, int y) {
+    return updateMouse(e, x, y);
   }
  
-  public boolean mouseDrag(Event ev, int x, int y) {
-    return updateMouse(x, y);
+  public boolean mouseDrag(Event e, int x, int y) {
+    return updateMouse(e, x, y);
   }
 
-  public boolean mouseEnter(Event ev, int x, int y) {
-    return updateMouse(x, y);
+  public boolean mouseEnter(Event e, int x, int y) {
+    return updateMouse(e, x, y);
   }
 
-  public boolean mouseExit(Event ev, int x, int y) {
-    return updateMouse(x, y);
+  public boolean mouseExit(Event e, int x, int y) {
+    return updateMouse(e, x, y);
   }
 
-  public boolean updateMouse(int x, int y) {
+  public boolean updateMouse(Event e, int x, int y) {
     //System.out.println("updateMouse " + x + ", " + y);
     mouse[0] = x;
     mouse[1] = height1 - y;

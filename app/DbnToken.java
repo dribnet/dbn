@@ -9,6 +9,8 @@ public class DbnToken {
   String name;
   int number;
 
+  int line;  // line number for token
+
 #ifdef VIS
   // for tree output
   static int serialIndex = 1;
@@ -75,22 +77,26 @@ public class DbnToken {
   static final int STATEMENTS  = 72;
 
 
-  DbnToken(int kind) {
+  DbnToken(int kind, int line) {
     this.kind = kind;
+    this.line = line;
   }
 
-  DbnToken(int kind, String name) {
+  DbnToken(int kind, String name, int line) {
     this.kind = kind;
     this.name = name;
+    this.line = line;
   }
 
-  DbnToken(int kind, int number) {
+  
+  DbnToken(int kind, int number, int line) {
     this.kind = kind;
     this.number = number;
+    this.line = line;
   }
-    
 
-  void addChild(DbnToken newbie) {
+
+  void addChild(DbnToken newbie, int line) {
     if (children == null) {
       children = new DbnToken[10];
     } else if (childCount == children.length) {
@@ -99,33 +105,34 @@ public class DbnToken {
       children = temp;
     }
     newbie.parent = this;
+    newbie.line = line;
     children[childCount++] = newbie;
   }
 
-  DbnToken addChild(int kind) {
-    DbnToken newbie = new DbnToken(kind);
-    addChild(newbie);
+  DbnToken addChild(int kind, int line) {
+    DbnToken newbie = new DbnToken(kind, line);
+    addChild(newbie, line);
     return newbie;
   }
 
-  DbnToken addChild(int kind, String name) {
-    DbnToken newbie = new DbnToken(kind, name);
-    addChild(newbie);
+  DbnToken addChild(int kind, String name, int line) {
+    DbnToken newbie = new DbnToken(kind, name, line);
+    addChild(newbie, line);
     return newbie;
   }
 
-  DbnToken addChild(int kind, int number) {
-    DbnToken newbie = new DbnToken(kind, number);
-    addChild(newbie);
+  DbnToken addChild(int kind, int number, int line) {
+    DbnToken newbie = new DbnToken(kind, number, line);
+    addChild(newbie, line);
     return newbie;
   }
 
 
-  DbnToken addVariable(String title) {
+  DbnToken addVariable(String title, int line) {
     if (variables == null) variables = new Hashtable();
 
     // this will store the value for the execution engine
-    DbnToken newbie = new DbnToken(VARIABLE, title);
+    DbnToken newbie = new DbnToken(VARIABLE, title, line);
     variables.put(title, newbie);
     return newbie;
   }

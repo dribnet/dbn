@@ -15,12 +15,18 @@ public class DbnEditorGraphics extends DbnGraphics {
   Color bgStippleColor;
   //Image bgImage;
 
+  DbnEditor editor;
+  Frame frame;
+
+
   public DbnEditorGraphics(int width, int height, Color tickColor,
-			   Color bgColor, Color bgStippleColor) {
+			   Color bgColor, Color bgStippleColor, 
+			   DbnEditor editor) {
     super(width, height);
     this.tickColor = tickColor;
     this.bgColor = bgColor;
     this.bgStippleColor = bgStippleColor;
+    this.editor = editor;
   }
 
   public Dimension preferredSize() {
@@ -119,9 +125,28 @@ public class DbnEditorGraphics extends DbnGraphics {
     screen.drawImage(screenImage, 0, 0, null);
   }
 
-  public boolean updateMouse(int x, int y) {
-    mouse[0] = x - gx;
-    mouse[1] = height1 - (y - gy);
+
+  public boolean mouseEnter(Event e, int x, int y) {    
+    if (frame == null) {
+      // shhh! don't tell anyone!
+      frame = (Frame) getParent().getParent().getParent().getParent();
+      // that is the nastiest piece of code in the codebase
+    }
+    frame.setCursor(Frame.CROSSHAIR_CURSOR);
+    return super.mouseEnter(e, x, y);
+  }
+
+  public boolean updateMouse(Event e, int x, int y) {
+    x -= gx;
+    y -= gy;
+
+    if (e.shiftDown() && (mouse[2] == 100)) {
+      //System.out.println(getLine(x, height1 - y));
+      editor.highlightLine(getLine(x, height1 - y));
+      return true;
+    }
+    mouse[0] = x;
+    mouse[1] = height1 - y;
     return true;
   }
 }

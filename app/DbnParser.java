@@ -48,7 +48,7 @@ public class DbnParser {
     line = 0;  // NOTE changed to zero, b/c that's what gui wants
     p = data;
     index = 0;
-    root = new DbnToken(DbnToken.ROOT);
+    root = new DbnToken(DbnToken.ROOT, line);
 
     root.functions = new Hashtable();
     root.functions.put("command", new Object());
@@ -91,7 +91,7 @@ public class DbnParser {
     
     
   boolean parseStatements(DbnToken parent) throws DbnException {
-    DbnToken current = parent.addChild(DbnToken.STATEMENTS);
+    DbnToken current = parent.addChild(DbnToken.STATEMENTS, line);
     while (parseStatement(current)) { }
     return true;
   }
@@ -110,7 +110,7 @@ public class DbnParser {
     String word = consumeWord();
     if ((word == null) || (word.length() == 0)) return false;
 	
-    DbnToken current = parent.addChild(DbnToken.STATEMENT);
+    DbnToken current = parent.addChild(DbnToken.STATEMENT, line);
 	
     switch (word.charAt(0)) {
     case 'a':
@@ -176,7 +176,7 @@ public class DbnParser {
     }
     int kind = hasReturnValue ? 
       DbnToken.FUNCTION_DEF : DbnToken.COMMAND_DEF;
-    DbnToken current = parent.addChild(kind, title);
+    DbnToken current = parent.addChild(kind, title, line);
     currentDef = current;
     int paramCount = 0;
     while (!parseEOL()) {
@@ -186,9 +186,9 @@ public class DbnParser {
 	die(name + " cannot be used twice");
       }
       // add as a local var in vars table (for parser)
-      DbnToken newbie = current.addVariable(name);
+      DbnToken newbie = current.addVariable(name, line);
       // also add as parameter to function (for engine)
-      current.addChild(newbie);
+      current.addChild(newbie, line);
     }
 
     if (!parseBlock(current)) {
@@ -206,7 +206,7 @@ public class DbnParser {
     if (!consumeSpaces()) {
       die("incomplete value statement");
     }
-    DbnToken current = parent.addChild(DbnToken.RETURN_VALUE);
+    DbnToken current = parent.addChild(DbnToken.RETURN_VALUE, line);
     if (!parseValue(current)) {
       die("the value command must be followed by a value");
     }
@@ -219,7 +219,7 @@ public class DbnParser {
   boolean parseComparison(DbnToken parent, int which) throws DbnException {
     if (!consumeSpaces()) return false;
 
-    DbnToken current = parent.addChild(which);
+    DbnToken current = parent.addChild(which, line);
     if (!parseValue(current) || !parseValue(current)) {
       die("a comparison must be followed by two things " +
 	  "that are being compared");
@@ -245,14 +245,14 @@ public class DbnParser {
     if (p[index] != '-') return false;
     index++;
 
-    DbnToken value = parent.addChild(DbnToken.VALUE);
+    DbnToken value = parent.addChild(DbnToken.VALUE, line);
 
-    DbnToken newbie = value.addChild(DbnToken.MATH);
+    DbnToken newbie = value.addChild(DbnToken.MATH, line);
 
-    DbnToken temp = newbie.addChild(DbnToken.VALUE);
-    temp.addChild(DbnToken.NUMBER, -1);
-    newbie.addChild(DbnToken.MULTIPLY);
-    DbnToken current = newbie.addChild(DbnToken.VALUE);
+    DbnToken temp = newbie.addChild(DbnToken.VALUE, line);
+    temp.addChild(DbnToken.NUMBER, -1, line);
+    newbie.addChild(DbnToken.MULTIPLY, line);
+    DbnToken current = newbie.addChild(DbnToken.VALUE, line);
 
     if (parseMath(current)) return true;
     else if (parseVariable(current)) return true;
@@ -265,7 +265,7 @@ public class DbnParser {
   boolean parseValue(DbnToken parent) throws DbnException {
     if (!consumeSpaces()) return false;
 
-    DbnToken current = parent.addChild(DbnToken.VALUE);
+    DbnToken current = parent.addChild(DbnToken.VALUE, line);
     if (parsePixel(current)) return true;
     else if (parseNumber(current)) return true;
     else if (parseMath(current)) return true;
@@ -278,7 +278,7 @@ public class DbnParser {
   boolean parsePixel(DbnToken parent) throws DbnException {
     //System.err.println("  at pixel, p[index] == " + p[index]);
     if (!consumeSpaces()) return false;
-    DbnToken test = new DbnToken(DbnToken.PIXEL);
+    DbnToken test = new DbnToken(DbnToken.PIXEL, line);
 	
     if (p[index] == '[') {
       index++;
@@ -287,7 +287,7 @@ public class DbnParser {
 	  consumeSpaces() &&
 	  p[index] == ']') {
 	index++;
-	parent.addChild(test);
+	parent.addChild(test, line);
 	return true;
       }
       die("found a [ but no ] to match it");
@@ -304,7 +304,7 @@ public class DbnParser {
     int oldIndex = index;
     Integer number = consumeNumber();
     if (number != null) {
-      parent.addChild(DbnToken.NUMBER, number.intValue());
+      parent.addChild(DbnToken.NUMBER, number.intValue(), line);
       return true;
     }
     index = oldIndex;
@@ -317,11 +317,11 @@ public class DbnParser {
     if (p[index] == '(') {
       //System.err.println("  reading math");
       index++;
-      DbnToken test = new DbnToken(DbnToken.MATH);
+      DbnToken test = new DbnToken(DbnToken.MATH, line);
       boolean working = false;
       if (parseValue(test)) working = true;
       if (!working) {
-	test = new DbnToken(DbnToken.MATH);
+	test = new DbnToken(DbnToken.MATH, line);
 	if (parseNegatedValue(test)) working = true;
       }
       if (working) {
@@ -329,7 +329,7 @@ public class DbnParser {
 	  consumeSpaces();
 	  if (p[index] == ')') {
 	    index++;
-	    parent.addChild(test);
+	    parent.addChild(test, line);
 	    return true;
 	  } else {
 	    if (!parseOperator(test)) {
@@ -377,7 +377,7 @@ public class DbnParser {
       if (node != null) {
 	// parent will always be a VALUE, so it's clear that
 	// it's a variable being *used* versus being declared
-	parent.addChild(DbnToken.VARIABLE, name);
+	parent.addChild(DbnToken.VARIABLE, name, line);
 	return true;
 	//} else {
 	//System.err.println("'" + name + "' is not a var");
@@ -386,17 +386,17 @@ public class DbnParser {
     }
 
     // try some other things
-    DbnToken test = new DbnToken(DbnToken.VARIABLE);
+    DbnToken test = new DbnToken(DbnToken.VARIABLE, line);
 
     // is it the value of a particular pixel?
     if (parsePixel(test)) {
-      parent.addChild(test);
+      parent.addChild(test, line);
       return true;
     }
 
     // is it an output connector?
     if (parseConnector(test, false)) {
-      parent.addChild(test);
+      parent.addChild(test, line);
       return true;
     }
     return false;
@@ -407,11 +407,11 @@ public class DbnParser {
     if (!consumeSpaces()) return false;
 
     switch (p[index]) {
-    case '*': index++; parent.addChild(DbnToken.MULTIPLY); return true;
-    case '/': index++; parent.addChild(DbnToken.DIVIDE); return true;
-    case '+': index++; parent.addChild(DbnToken.ADD); return true;
-    case '-': index++; parent.addChild(DbnToken.SUBTRACT); return true;
-    case '%': index++; parent.addChild(DbnToken.MODULO); return true;
+    case '*': index++; parent.addChild(DbnToken.MULTIPLY, line); return true;
+    case '/': index++; parent.addChild(DbnToken.DIVIDE, line); return true;
+    case '+': index++; parent.addChild(DbnToken.ADD, line); return true;
+    case '-': index++; parent.addChild(DbnToken.SUBTRACT, line); return true;
+    case '%': index++; parent.addChild(DbnToken.MODULO, line); return true;
     }
     return false;
   }
@@ -426,7 +426,7 @@ public class DbnParser {
     index++;
     if (!parseEOL()) return false;
 	
-    DbnToken current = parent.addChild(DbnToken.BLOCK);
+    DbnToken current = parent.addChild(DbnToken.BLOCK, line);
     while (parseStatement(current)) { }
     if (!consumeSpaces() || (p[index] != '}')) {
       die("missing a right-hand squiggle: }  ");
@@ -440,7 +440,7 @@ public class DbnParser {
 
 
   boolean parseForever(DbnToken parent) throws DbnException {
-    DbnToken current = parent.addChild(DbnToken.FOREVER);
+    DbnToken current = parent.addChild(DbnToken.FOREVER, line);
 
     if (!consumeSpaces() || !parseEOL()) {
       die("forever must be followed by a new line");
@@ -456,7 +456,7 @@ public class DbnParser {
     if (!consumeSpaces()) {
       die("repeat must be followed by something");
     }
-    DbnToken current = parent.addChild(DbnToken.REPEAT);
+    DbnToken current = parent.addChild(DbnToken.REPEAT, line);
     //currentBlock = current;
     if (!parseVariable(current)) {
       // add the variable as a local variable to the block
@@ -465,11 +465,11 @@ public class DbnParser {
       //DbnToken symbol = current.addVariable(name);
       DbnToken symbol = null;
       if (currentDef != null) {
-	symbol = currentDef.addVariable(name);
+	symbol = currentDef.addVariable(name, line);
       } else {
-	symbol = root.addVariable(name);
+	symbol = root.addVariable(name, line);
       }
-      current.addChild(symbol);
+      current.addChild(symbol, line);
       //} else {
       //System.err.println("found local var for repeat");
     }
@@ -491,7 +491,7 @@ public class DbnParser {
     if (!consumeSpaces()) {
       die("incomplete set statement");
     }
-    DbnToken current = parent.addChild(DbnToken.SET);
+    DbnToken current = parent.addChild(DbnToken.SET, line);
     if (!parseVariable(current)) {
       String name = consumeWord();
       if (name.length() != 0) {
@@ -499,13 +499,13 @@ public class DbnParser {
 	DbnToken symbol = null;
 	if (currentDef != null) {
 	  //System.out.println("  creating local variable: " + name);
-	  symbol = currentDef.addVariable(name);
+	  symbol = currentDef.addVariable(name, line);
 	} else {
 	  //System.out.println("  creating global variable: " + name);
-	  symbol = root.addVariable(name);
+	  symbol = root.addVariable(name, line);
 	}
 	//symbol = parent.addVariable(name);
-	current.addChild(symbol);
+	current.addChild(symbol, line);
 	//DbnToken var = current.addChild(DbnToken.VARIABLE);
       } else {
 	die("set needs to be followed by a variable");
@@ -525,7 +525,7 @@ public class DbnParser {
     if (!consumeSpaces()) {
       die("incomplete paper statement");
     }
-    DbnToken current = parent.addChild(DbnToken.PAPER);
+    DbnToken current = parent.addChild(DbnToken.PAPER, line);
     if (!parseValue(current)) {
       die("paper must be followed by a value");
     }
@@ -537,7 +537,7 @@ public class DbnParser {
     if (!consumeSpaces()) {
       die("incomplete pen statement");
     }
-    DbnToken current = parent.addChild(DbnToken.PEN);
+    DbnToken current = parent.addChild(DbnToken.PEN, line);
     if (!parseValue(current)) {
       die("pen must be followed by a value");
     }
@@ -550,7 +550,7 @@ public class DbnParser {
     if (!consumeSpaces()) {
       die("incomplete line statement");
     }
-    DbnToken current = parent.addChild(DbnToken.LINE);
+    DbnToken current = parent.addChild(DbnToken.LINE, line);
     for (int i = 0; i < 4; i++) {
       if (!parseValue(current)) {
 	die("a line needs 4 numbers or variables");
@@ -565,7 +565,7 @@ public class DbnParser {
     if (!consumeSpaces()) {
       die("incomplete line statement");
     }
-    DbnToken current = parent.addChild(DbnToken.FIELD);
+    DbnToken current = parent.addChild(DbnToken.FIELD, line);
     for (int i = 0; i < 5; i++) {
       if (!parseValue(current)) {
 	die("field must be followed by 5 values");
@@ -579,7 +579,7 @@ public class DbnParser {
     if (!consumeSpaces()) {
       die("incomplete pause statement");
     }
-    DbnToken current = parent.addChild(DbnToken.PAUSE);
+    DbnToken current = parent.addChild(DbnToken.PAUSE, line);
     if (!parseValue(current)) {
       die("pause must be followed by a value");
     }
@@ -591,7 +591,7 @@ public class DbnParser {
     if (!consumeSpaces()) {
       die("incomplete antialias statement");
     }
-    DbnToken current = parent.addChild(DbnToken.ANTIALIAS);
+    DbnToken current = parent.addChild(DbnToken.ANTIALIAS, line);
     if (!parseValue(current)) {
       die("antialias must be followed by a value");
     }
@@ -600,13 +600,13 @@ public class DbnParser {
 
 
   boolean parseRefresh(DbnToken parent) throws DbnException {
-    DbnToken current = parent.addChild(DbnToken.REFRESH);
+    DbnToken current = parent.addChild(DbnToken.REFRESH, line);
     return true;
   }
 
 
   boolean parseNoRefresh(DbnToken parent) throws DbnException {
-    DbnToken current = parent.addChild(DbnToken.NOREFRESH);
+    DbnToken current = parent.addChild(DbnToken.NOREFRESH, line);
     return true;
   }
 
@@ -614,7 +614,7 @@ public class DbnParser {
   boolean parseCommand(DbnToken parent, String cmd) throws DbnException {
     if (!consumeSpaces()) return false;
 
-    DbnToken test = new DbnToken(DbnToken.COMMAND, cmd);
+    DbnToken test = new DbnToken(DbnToken.COMMAND, cmd, line);
     DbnToken command = null;
     //	System.err.println("looking for " + cmd + 
     //	   " def is " + currentDef.name);
@@ -640,7 +640,7 @@ public class DbnParser {
     if (!parseEOL()) {
       die("expecting end of line after use of " + cmd);
     }
-    parent.addChild(test);
+    parent.addChild(test, line);
     return true;
   }
 
@@ -672,9 +672,9 @@ public class DbnParser {
 	name.equals("mouse") || name.equals("time") || 
 	name.equals("array") || name.equals("sensor")) {
       current = parent.addChild(input ? DbnToken.INPUT_CONNECTOR : 
-				DbnToken.OUTPUT_CONNECTOR, name);
+				DbnToken.OUTPUT_CONNECTOR, name, line);
     } else {
-      current = parent.addChild(DbnToken.FUNCTION, name);
+      current = parent.addChild(DbnToken.FUNCTION, name, line);
       //DbnToken function = parent.findFunction(name);
       DbnToken function = root.findFunction(name);
       if (function == null) {

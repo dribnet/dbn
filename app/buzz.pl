@@ -38,10 +38,15 @@ if ($classpath eq "") {
     if ($windows) {
 	@elements = split(';', $ENV{"PATH"});
 	foreach $element (@elements) {
-	    print "trying $element\\java.exe\n";
+	    #print "trying $element\\java.exe\n";
 	    if (-f "$element\\java.exe") {
 		$classpath = "$element\\..\\lib\\classes.zip";
+		print "found java: $element\\java.exe\n";
+		last;
 	    }
+	}
+	if ($classpath eq "") {
+	    die "java.exe is not in your path, and classpath not set";
 	}
     } else {
 	die "code for searching path not written for unix";
