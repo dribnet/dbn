@@ -1,4 +1,37 @@
+COURSEWARE
+_ things to change on an install:
+_   /index.html, /cgi-bin/index.html, globals.pl
+_ fixadmin.pl probably not needed
+_ add something to courseware to point at local <net> server
+_   (or maybe the applet will do this by default?)
+_ try courseware with hotjava and see if it fixes things
+_ courseware caching in browser (grr)
+_   courseware difficulties ruin the simplicity of the system
+_ merge code from imrf server
+
+
+FEATURES
+_ should recorder be included? could prolly be done easy
+_   but only in application version, and add a record button to bar
+
+_ completely switch to jdk 1.1
+_   strip out old code for jdk 1.0 support
+_   make cgi that will detect browser type to warn on the mac
+_     (or even on the pc with crusty navigator)
+_ make print statements show up in dark blue area
+_ pause/continue ability
+_ fix the naming for all the properties before releasing new rev
+_ people can't run programs using <net> on their own web pages
+_ better default .tif names for screen grab 
+_ break out of forever (used to be in the language)
+_ floating point numbers (toggle from dbn.properties?)
+
+
 BUGS
+_ dbn applets sometimes have problems with multiple on one page
+_   make get method only static for application
+_   ? if multiple applets on web page, kill others on start
+_   ? only run while mouse is inside applet area
 _ why does it have a problem with no newline at end of program
 _   in particular, when last line is a comment
 _ set problems with inserted preprocessor stuff (fixed)
@@ -8,29 +41,6 @@ _   (add a space? highlight to end of \n?)
 _ fix dbnletters.dbn to be more like what's in the book
 _   include a credit to peter cho in the comments?
 _   run a script on all courseware material to fix refs to old fxns
-
-
-PROBLEMS
-_ people can't run programs using <net> on their own web pages
-
-
-VERSION 3
-_ completely switch to jdk 1.1
-_   strip out old code for jdk 1.0 support
-_   make cgi that will detect browser type to warn on the mac
-_     (or even on the pc with crusty navigator)
-_ commands inside a random { } aren't run
-_ add default magnification, along with paper size
-_ make print statements show up in dark blue area
-_ pause/continue ability
-_ fix the naming for all the properties before releasing new rev
-
-_ better default .tif names for screen grab 
-
-
-LANGUAGE
-_ break out of forever (used to be in the language)
-_ floating point numbers (toggle from dbn.properties?)
 
 
 MAC - BUGS
@@ -82,21 +92,6 @@ _ rewrite in python, have self-contained java web server/engine
 _   or use perl-based web server that runs CGI as well
 _ make courseware save old versions of programs in log file format
 
-
-ENV
-_ env. toggle for showing a function name each time its hit
-_ env. toggle for showing line numbers within a function
-_   i'm here messages, tie in with breakpoints for debugger
-_   lightweight debugger, doesn't slow down, runs in back
-_ env. toggle to show attr/value for some var in simple way
-_ comments as debugging descriptors, output to console, shown in context
-_ comments as naming for shapes drawn after it,
-_   or some other model of naming based on inserted text with "" or // or #
-_   could fit nicely with printf-style statements and comments
-_   comments would contain descriptions //!blah for printing and formatting
-_ sketchbook - doodling/scribbling area.. since wacom tablet easily accessible
-
-
 _ controlling colors and other properties from inside dbn
 _   generic properties sheet might be better than none
 _   comments are the descriptive text, use multi-line parsing code
@@ -114,6 +109,7 @@ _ need to have someone go through and fix the pieces to be archived
 _   older projects are already starting to rot on new version of dbn
 _ movies
 _   animated GIFs or courseware/server-based movie-making solution
+
 yeah right
 _ jpython -> java syntax conversion
 _   try jpython->java compiler in browser 
