@@ -2,9 +2,10 @@
 require 'globals.pl';
 package courseware;
 use CGI qw(:standard);
+#use strict;
 
 #welcoming party
-$begin_message = "";
+$courseware::begin_message = "";
 
 # Convert the form input
 $short_title = lc(param("short_title")); 		#the name of the course directory

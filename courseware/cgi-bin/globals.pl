@@ -4,9 +4,9 @@ package courseware;
 # Globals and goodness -- information required by all scripts
 
 # Begin Unix, PC location information
-   $path = "courseware";
-   $url = "http://acg.media.mit.edu/projects/dbncourseware";
-   $cgiurl = "http://acg.media.mit.edu/projects/dbncourseware/cgi-bin";
+   $path = "/mas/acg/web/docroot.dbn/courseware";
+   $url = "http://dbn.media.mit.edu/courseware";
+   $cgiurl = "http://dbn.media.mit.edu/courseware/cgi-bin";
 # End Unix, PC location information
 
 # Begin Mac location information

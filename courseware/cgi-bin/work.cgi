@@ -77,8 +77,8 @@ END_of_middle1
 	      print("<param name=\"program\" value=\"$cgiurl/fetch.cgi?file=$program\">\n");
 	  } else {
 	     if (-f "$path/$program") { 
-		 print("<param name=\"program\" value=\"$path/$program\">\n");
-		 #print("<param name=\"program\" value=\"$url/$program\">\n");
+		 #print("<param name=\"program\" value=\"$path/$program\">\n");
+		 print("<param name=\"program\" value=\"$url/$program\">\n");
 	     } else {
 		 print("<param name=\"program\" value=\"\">\n");
 	     }  

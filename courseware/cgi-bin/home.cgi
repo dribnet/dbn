@@ -2,6 +2,7 @@
 require 'globals.pl';
 package courseware;
 use CGI param;
+#use CGI qw(:standard);
 
 $user = param("user");
 $course = param("course");

@@ -51,8 +51,8 @@ if ($person eq "*everyone*") {
 	    print("<param name=\"program$i\" value=\"$cgiurl/fetch.cgi?file=$program\">\n");
 	} else {
 	    if (-f "$path/$program") {  # if the program exists
-		print("<param name=\"program$i\" value=\"$path/$program\">\n");
-		#print("<param name=\"program$i\" value=\"$url/$program\">\n");
+		#print("<param name=\"program$i\" value=\"$path/$program\">\n");
+		print("<param name=\"program$i\" value=\"$url/$program\">\n");
 	    } else {
 		print("<param name=\"program$i\" value=\"\">\n");
 	    }
@@ -142,8 +142,8 @@ if ($person eq "*everyone*") {
 	    print("<param name=\"program$i\" value=\"$cgiurl/fetch.cgi?file=$program\">\n");
 	} else {
 	    if (-f "$path/$program") {
-		print("<param name=\"program$i\" value=\"$path/$program\">\n");
-		#print("<param name=\"program$i\" value=\"$url/$program\">\n");
+		#print("<param name=\"program$i\" value=\"$path/$program\">\n");
+		print("<param name=\"program$i\" value=\"$url/$program\">\n");
 	    } else {
 		print("<param name=\"program$i\" value=\"\">\n");
 	    }
