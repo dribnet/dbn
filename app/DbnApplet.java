@@ -301,7 +301,7 @@ public class DbnApplet extends Applet
 	languageEncoding = getParameter("encoding");
 	String lang = getParameter("language"); 
 	languageTable = (lang == null) ? null :
-	    languageTable = (char[][])languageHash.get(lang);
+	    (char[][])languageHash.get(lang);
 
 	/*
 	for (int j = 0; j < languageHash.size()-1; j++) {
