@@ -14,8 +14,7 @@ public class DbnEditorListener extends KeyAdapter implements FocusListener {
   int tabSize;
   boolean autoIndent;
 
-  //DbnGui gui;
-  //DbnEditor editor;
+  boolean balanceParens;
   boolean balancing = false;
   TextArea tc;
   int selectionStart, selectionEnd;
@@ -26,9 +25,7 @@ public class DbnEditorListener extends KeyAdapter implements FocusListener {
     tabSize = DbnApplet.getInteger("editor.tabSize", 2);
     tabString = spaces.substring(0, tabSize);
     autoIndent = DbnApplet.getBoolean("editor.autoIndent", false);
-
-    //this.gui = gui;
-    //this.editor = editor;
+    balanceParens = DbnApplet.getBoolean("editor.balanceParens", false);
   }
 
   public void keyPressed(KeyEvent event) {
@@ -41,41 +38,43 @@ public class DbnEditorListener extends KeyAdapter implements FocusListener {
     //System.err.println((int)c);
     switch ((int) c) {
     case ')':
-      position = tc.getCaretPosition() + 1;
-      char contents[] = tc.getText().toCharArray();
-      int counter = 1; // char not in the textfield yet
-      //int index = contents.length-1;
-      int index = tc.getCaretPosition() - 1;
-      boolean error = false;
-      if (index == -1) {  // special case for first char
-	counter = 0;
-	error = true;
-      }
-      while (counter != 0) {
-	if (contents[index] == ')') counter++;
-	if (contents[index] == '(') counter--;
-	index--;
-	if ((index == -1) && (counter != 0)) {
+      if (balanceParens) {
+	position = tc.getCaretPosition() + 1;
+	char contents[] = tc.getText().toCharArray();
+	int counter = 1; // char not in the textfield yet
+	//int index = contents.length-1;
+	int index = tc.getCaretPosition() - 1;
+	boolean error = false;
+	if (index == -1) {  // special case for first char
+	  counter = 0;
 	  error = true;
-	  break;
+	}
+	while (counter != 0) {
+	  if (contents[index] == ')') counter++;
+	  if (contents[index] == '(') counter--;
+	  index--;
+	  if ((index == -1) && (counter != 0)) {
+	    error = true;
+	    break;
+	  }
+	}
+	if (error) {
+	  //System.err.println("mismatched paren");
+	  Toolkit.getDefaultToolkit().beep();
+	  tc.select(0, 0);
+	  tc.setCaretPosition(position);
+	}
+	tc.insert(")", position-1);
+	event.consume();
+	if (!error) {
+	  selectionStart = index+1;
+	  selectionEnd = index+2;
+	  tc.select(selectionStart, selectionEnd);
+	  balancing = true;
 	}
       }
-      if (error) {
-	//System.err.println("mismatched paren");
-	Toolkit.getDefaultToolkit().beep();
-	tc.select(0, 0);
-	tc.setCaretPosition(position);
-      }
-      tc.insert(")", position-1);
-      event.consume();
-      if (!error) {
-	selectionStart = index+1;
-	selectionEnd = index+2;
-	tc.select(selectionStart, selectionEnd);
-	balancing = true;
-      }
       break;
-	    
+
     case 9:  // expand tabs
       if (expandTabs) {
 	//System.out.println("start = " + tc.getSelectionStart());
@@ -89,10 +88,10 @@ public class DbnEditorListener extends KeyAdapter implements FocusListener {
 
     case 10:  // auto-indent
       if (autoIndent) {
-	contents = tc.getText().toCharArray();
+	char contents[] = tc.getText().toCharArray();
 	// back up until \r \r\n or \n.. @#($* cross platform
 	//index = contents.length-1;
-	index = tc.getCaretPosition() - 1;
+	int index = tc.getCaretPosition() - 1;
 	int spaceCount = 0;
 	boolean finished = false;
 	while ((index != -1) && (!finished)) {
@@ -105,10 +104,13 @@ public class DbnEditorListener extends KeyAdapter implements FocusListener {
 	  }
 	  index--;
 	}
-	//System.out.println("space count is " + spaceCount);
-	//String separator = System.getProperty("line.separator");
-	tc.replaceRange(newline + spaces.substring(0, spaceCount), 
-			tc.getSelectionStart(), tc.getSelectionEnd());
+
+	// !@#$@#$ MS VM doesn't move the caret position to the
+	// end of an insertion after it happens, even though sun does
+	String insertion = newline + spaces.substring(0, spaceCount);
+	int oldCarrot = tc.getSelectionStart();
+	tc.replaceRange(insertion, oldCarrot, tc.getSelectionEnd());
+	tc.setCaretPosition(oldCarrot + insertion.length() - 1);
 	event.consume();
       }
       break;

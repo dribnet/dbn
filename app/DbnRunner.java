@@ -84,7 +84,7 @@ public class DbnRunner implements Runnable {
 	engine = new DbnEngine(parser.getRoot(), graphics);
 	engine.start();
       }
-      System.out.println("finished");
+      //System.out.println("finished");
       state = RUNNER_FINISHED;
       env.finished();
       graphics.update();

@@ -350,7 +350,8 @@ public class DbnApplet extends Applet
   static public Font getFont(String which) {
     if (which.equals("editor")) {
       // 'Monospaced' and 'courier' also caused problems.. ;-/
-      return new Font("monospaced", Font.PLAIN, 12);
+      //return new Font("monospaced", Font.PLAIN, 12);
+      return new Font("Monospaced", Font.PLAIN, 12);
     }
     return null;
   }

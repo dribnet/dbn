@@ -5,17 +5,19 @@ rem --- creates full downloadable dbn for the organic course
 rem --- there is no applet version for this stuff (yet)
 
 rem --- unzip jpython.jar into classes folder
-unzip -d classes lib/jpython.jar
+unzip -qd classes lib/jpython.jar
 
 rem --- build dbn.exe from the classes folder
 cd classes
-jexegen /r /w /main:DbnApplication /out:..\dbn.exe *.class *.dbn com org
+rem jexegen /r /w /main:DbnApplication /out:..\dbn.exe *.class *.dbn com\* org\*
+jexegen /r /main:DbnApplication /out:..\dbn.exe *.class *.dbn com\* org\*
 cd ..
 
 rem --- build dbn.cab from the classes folder
+rem --- ms tools have idiotic syntax for recursion, 
+rem --- in case you're wondering what \* is. (whack star?)
 cd classes
-cabarc -r -p N dbn.cab *.dbn *.class jscheme\*.class org com
-rem cabarc -r -p N dbn.cab *.dbn *.class jscheme\*.class org\python\compiler\*.class org\python\core\*.class org\python\modules\*.class org\python\parser\*.class org\python\rmi\*.class org\python\util\*.class
+cabarc -r -p N dbn.cab *.dbn *.class jscheme\*.class org\* com\*
 cd ..
 rem --- sign dbn.cab with acg certificate
 signcode -n "Design By Numbers" -j javasign.dll -jp LOW -spc ..\..\cert\acgcert.spc -v ..\..\cert\acgkey.pvk classes\dbn.cab
