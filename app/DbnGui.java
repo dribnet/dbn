@@ -785,7 +785,7 @@ public class DbnGui extends Panel {
 	cmds.addItem(BEAUTIFY_ITEM);
 	
 	// don't add snapshot command if running locally
-	if (!app.isLocal()) {
+	if (!app.isLocal() && (app.getParameter("user") != null)) {
 	    cmds.addItem(SNAPSHOT_ITEM);
 	}
 	if (app.isLocal()) {
