@@ -176,12 +176,14 @@ public class DbnGui extends Panel {
 	PrintJob pj = getToolkit().getPrintJob(frame, "DBN", props);
 	if (pj != null) {
 	    Graphics g = pj.getGraphics();
-	    //dbrp.runners[dbrp.current].dbg.print(g, 100, 100); 
-	    g.drawImage(dbrp.runners[dbrp.current].dbg.image, 100, 100, null);
+	    dbrp.runners[dbrp.current].dbg.print(g, 100, 100); 
+	    // jdk 1.1 is a piece of crap, the following 
+	    // line works only half the time.
+	    //g.drawImage(dbrp.runners[dbrp.current].dbg.image, 100, 100, null);
 	    g.dispose();
 	    g = null;
+	    pj.end();
 	}
-	pj.end();
 	frame.dispose();
 #endif
     }
