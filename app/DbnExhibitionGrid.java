@@ -305,6 +305,7 @@ public class DbnExhibitionGrid extends Panel implements DbnEnvironment {
 	}
 	// move the selected one to the location of the 
 	// previously selected one
+	/*
 	Point lastloc, newloc;
 	DbnGraphics gnew = graphics[which];
 	newloc = gnew.getLocation();
@@ -315,6 +316,7 @@ public class DbnExhibitionGrid extends Panel implements DbnEnvironment {
 	    lastloc = new Point(blessedX, blessedY);
 	}
 	gnew.setLocation(lastloc);
+	*/
 	/*
 	Point blessed, newblessed;
 	newblessed = graphics[which].getLocation();
