@@ -207,14 +207,12 @@ class DbnRunButton extends Panel {
 	
     int marg = 4;
 	
-    public DbnRunButton(DbnGui gui)
-    {
+    public DbnRunButton(DbnGui gui) {
 	super();
 	this.gui = gui;
     }
 	
-    public void idle()
-    {
+    public void idle() {
 	Graphics g = this.getGraphics();
 		
 	tc++; tc=tc%2;
@@ -226,8 +224,7 @@ class DbnRunButton extends Panel {
 	g.drawRect(marg,marg,cbh-marg*2,cbh-marg*2);
     }
 	
-    public void initiated()
-    {
+    public void initiated() {
 	//repaint();
     }
 
@@ -236,24 +233,21 @@ class DbnRunButton extends Panel {
 	repaint();
     }
 	
-    public boolean mouseEnter(Event ev, int x, int y)
-    {
+    public boolean mouseEnter(Event ev, int x, int y) {
 	Graphics g = this.getGraphics();
 	g.setColor(Color.black);
 	g.drawRect(marg,marg,cbh-marg*2,cbh-marg*2);
 	return true;
     }
 	
-    public boolean mouseExit(Event ev, int x, int y)
-    {
+    public boolean mouseExit(Event ev, int x, int y) {
 	Graphics g = this.getGraphics();
 	g.setColor(Color.gray);
 	g.drawRect(marg,marg,cbh-marg*2,cbh-marg*2);
 	return true;
     }
 	
-    public void drawmain(Graphics g, boolean runningp)
-    {
+    public void drawmain(Graphics g, boolean runningp) {
 	g.setColor(gui.getPanelBgColor()); 
 	g.fillRect(0, 0, cbw, cbh);
 		
@@ -272,8 +266,7 @@ class DbnRunButton extends Panel {
 	}
     }
 	
-    public boolean mouseDown(Event ev, int x, int y)
-    {
+    public boolean mouseDown(Event ev, int x, int y) {
 	if (!gui.getrunningp()) {
 	    drawmain(this.getGraphics(),true);
 	    gui.initiate();
@@ -391,8 +384,11 @@ class DbnRunPanel extends Panel {
 	//TEMPER = progs[0];
     }
     
-    public boolean keyDown(Event ev, int n)
-    {
+    public boolean keyDown(Event ev, int n) {
+	//System.err.println("key was " + n);
+	// on key 27, stop
+	if (n == 27) app.gui.terminate();  // ooh.. ugly
+
         if (n>='a'&&n<='z') {
             int ind = n-'a';
             keyt[ind] = System.currentTimeMillis();
@@ -405,8 +401,7 @@ class DbnRunPanel extends Panel {
         return true;
     }
 
-    public boolean keyUp(Event ev, int n)
-    {
+    public boolean keyUp(Event ev, int n) {
         if (n>='a'&&n<='z') {
             int ind = n-'a';
             keyt[ind] = -1;
@@ -425,8 +420,7 @@ class DbnRunPanel extends Panel {
     // certain amount of time, if exceed then flush. autokey
     // events come in as keydown so should refresh naturally
 
-    public void servicekeys(long curt)
-    {
+    public void servicekeys(long curt) {
         int i; 
         for(i=0;i<26;i++) {
             if (ekey[i]==100) {
@@ -437,9 +431,8 @@ class DbnRunPanel extends Panel {
             }
         }
     }
-	
-    public void initiate()
-    {
+    
+    public void initiate() {
         for(int i=0;i<26;i++) {
             ekey[i] = 0;
             keyt[i] = -1;
@@ -449,20 +442,16 @@ class DbnRunPanel extends Panel {
 	dbr.start();
     }
 	
-    public void terminate()
-    {
+    public void terminate() {
 	dbr.stop();
     }
 	
-    public void setProgram(String s)
-    {
+    public void setProgram(String s) {
 	dbr.setProgram(s);
     }
 	
-    public boolean mouseDown(Event ev, int x, int y)
-    {
+    public boolean mouseDown(Event ev, int x, int y) {
 	int i; 
-
 	if (dbrvlen == 1) {
 	} else {
 	    DbnRunner df = null;
@@ -891,7 +880,7 @@ public class DbnGui extends Panel {
 	p1.add(dbrp = new DbnRunPanel(app, this, progs));
 	p1.add(ta = new TextArea(progs[0], 20, 40));
 
-	ParenBalancer pb = new ParenBalancer();
+	DbnParenBalancer pb = new DbnParenBalancer(this);
 	ta.addKeyListener(pb);
 	ta.addFocusListener(pb);
 
@@ -941,48 +930,48 @@ public class DbnGui extends Panel {
 	
     public boolean action(Event evt, Object arg) {
     	if (evt.target == cmds) {
+	    // could also do it here, i s'pose
 
     	} else if (evt.target == doitbut) {
-	    if (cmds.getSelectedItem().equals(BEAUTIFY_ITEM)) {
-		beautify();
-
-	    } else if (cmds.getSelectedItem().equals(SNAPSHOT_ITEM)) {
-		msg("Saving file...");
-		//DbnIO io = new DbnIO(app);
-		//int dim = 20;
-		if (!io.doSnapshot(ta.getText(), dbrp.dbr.dbg.getPixels())) {
-		    msg("Could not save file.");
-		} else {
-		    msg("Done saving file.");
-		}
-
-	    } else if (cmds.getSelectedItem().equals(SAVE_ITEM)) {
-		//DbnIO io = new DbnIO(app);
-		if (!io.doLocalWrite(ta.getText())) {
-		    // error
-		}
-
-	    } else if (cmds.getSelectedItem().equals(OPEN_ITEM)) {
-		//DbnIO io = new DbnIO(app);
-		String s = io.doLocalRead();
-		if (s!=null) {
-		    ta.setText(s);
-		} else {
-		    // cancelled
-		}
-	    }
+	    String selected = cmds.getSelectedItem();
+	    if (selected.equals(BEAUTIFY_ITEM)) doBeautify();
+	    else if (selected.equals(SNAPSHOT_ITEM)) doSnapshot();
+	    else if (selected.equals(SAVE_ITEM)) doSave();
+	    else if (selected.equals(OPEN_ITEM)) doOpen();
     	}
         return true;
     }
-	
-    //public void snapshot() {
-    //}
-	
+
+    public void doSnapshot() {
+	msg("Taking snapshot...");
+	if (!io.doSnapshot(ta.getText(), dbrp.dbr.dbg.getPixels())) {
+	    msg("Could not make snapshot.");
+	} else {
+	    msg("Done taking snapshot.");
+	}
+    }
+
+    public void doSave() {
+	msg("Saving file...");
+	if (io.doLocalWrite(ta.getText())) {
+	    msg("Done saving file.");
+	} else {
+	    msg("Did not write file.");
+	}	    
+    }
+
+    public void doOpen() {
+	String program = io.doLocalRead();
+	if (program != null) {
+	    ta.setText(program);
+	}
+    }
+
     public void idle(long t) {
 	dbrp.idle(t);
     }
 
-    public void beautify() {
+    public void doBeautify() {
 	char program[] = ta.getText().toCharArray();
 	StringBuffer buffer = new StringBuffer();
 	boolean gotBlankLine = false;
@@ -1130,19 +1119,26 @@ public class DbnGui extends Panel {
 }
 
 
-class ParenBalancer extends KeyAdapter implements FocusListener {
+class DbnEditorListener extends KeyAdapter implements FocusListener {
+    DbnGui gui;
     boolean balancing = false;
     TextArea tc;
     int selectionStart, selectionEnd;
     int position;
-    
+
+    public DbnEditorListener(DbnGui gui) {
+	this.gui = gui;
+    }
+
     public void keyPressed(KeyEvent event) {
 	// only works with TextArea, because it needs 'insert'
 	//TextComponent tc = (TextComponent) event.getSource();
 	tc = (TextArea) event.getSource();
 	deselect();
 	char c = event.getKeyChar();
-	if (c == ')') {
+	//System.err.println((int)c);
+	switch ((int) c) {
+	case ')':
 	    position = tc.getCaretPosition() + 1;
 	    char contents[] = tc.getText().toCharArray();
 	    int counter = 1; // char not in the textfield yet
@@ -1176,6 +1172,9 @@ class ParenBalancer extends KeyAdapter implements FocusListener {
 		tc.select(selectionStart, selectionEnd);
 		balancing = true;
 	    }
+	    break;
+
+	case  1: tc.selectAll(); break;  // control a for select all
 	}
     }
 
@@ -1192,6 +1191,26 @@ class ParenBalancer extends KeyAdapter implements FocusListener {
 
     public void focusLost(FocusEvent event) {
 	deselect();
+    }
+}
+
+
+class DbnKeyListener extends KeyAdapter {
+    DbnGui gui;
+
+    public DbnKeyListener(DbnGui gui) {
+	this.gui = gui;
+    }
+
+    public void keyPressed(KeyEvent event) {
+	case  2: gui.doBeautify(); break;  // control b for beautify
+	case 15: gui.doOpen(); break;  // control o for open
+	case 18: gui.initiate(); break;  // control r for run
+	case 19: gui.doSave(); break;  // control s for save
+	case 20: gui.doSnapshot(); break;  // control t for snapshot
+	    // escape only works from the runpanel, because that's
+	    // who's getting all the key events while running
+	    //case 27: gui.terminate(); break;  // escape to stop	
     }
 }
 

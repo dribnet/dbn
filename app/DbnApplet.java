@@ -98,7 +98,9 @@ public class DbnApplet extends Applet
 		}
 	    }
 	} else {
-	    prog = prog.replace(';','\n');
+	    // don't replace the semicolons if it was scheme
+	    if (prog.charAt(0) != ';') 
+		prog = prog.replace(';','\n');
 	    wasInline = true;
 	}
 	if (progs == null) {
@@ -107,7 +109,7 @@ public class DbnApplet extends Applet
 	}
 	add("Center", gui = new DbnGui(this, progs));
 	// otherwise inline progs will look scary
-	if (wasInline) gui.beautify();
+	if (wasInline) gui.doBeautify();
     }
 
     public String getParameter(String name) {
