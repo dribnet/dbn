@@ -1,5 +1,5 @@
 DESIGN BY NUMBERS RELEASE NOTES
-Version 1.2.1, Released 9.12.99
+Version 1.X, Released XXXX
 http://dbn.media.mit.edu 
 dbn-feedback@media.mit.edu
 
@@ -20,7 +20,7 @@ the beginning of your program to include their functions.
 * MACINTOSH PEOPLE READ THIS!
 The Macintosh version requires Macintosh Runtime for 
 Java (MRJ), 2.1.2 (or newer). This can be downloaded 
-from Apple at http://www.apple.com/java/. Previous 
+from Apple at http://www.apple.com/java. Previous 
 versions of MRJ were incompatible, slow and buggy, so 
 you should definitely be using the most recent version. 
 MRJ in fact continues to be somewhat incompatible, slow 
@@ -32,6 +32,7 @@ set earlier than 1970. There is a problem with MRJ that
 will cause your machine to behave highly erratically 
 under this condition.
 
+
 * WINDOWS PEOPLE READ THIS!
 The Windows version of the DBN download includes JRE,
 the Java Runtime Environment. This means that you won't
@@ -40,6 +41,14 @@ start DBN, just double-click the file titled 'run.bat'.
 
 
 * KNOWN ISSUES
+There is a problem with functions that are too heavily
+recursive. You will know you have run up against this 
+problem if you get a "java.lang.StackOverFlowError" 
+after your program has been running for a while. A fix
+for this would require major work on dbn's internal engine.
+
+
+* IF YOU HAVE PROBLEMS
 We're working to iron out any inconsistencies and 
 outstanding issues. If you run across what appears to be
 a bug, send email with the following:
@@ -52,13 +61,18 @@ Send this mail to dbn-feedback@media.mit.edu
 
 
 PEOPLE
-The DBN development team is composed of:
-John Maeda
-Tom White (chief architect)
-Ben Fry (graphics, i/o, multilanguage, parser G4)
-Lauren Dubick (database and dbn2 site)
-Casey Reas (courseware)
-Elise Co and Jocelyn Lin (cgi-ers)
+DBN is the product of many people. Ben Fry is the chief 
+architect of the most current release, DBN 1.2. The previous 
+release, DBN 1.0.1 was created by Tom White. The original 
+version DBN 1.0 was created by John Maeda.
+
+Concurrently we have several DBN-related developments. 
+A DBN courseware system architected by Casey Reas, 
+a user site by Lauren Dubick, and a cast of DBN workshop 
+material that has been administered in Seoul, Tokyo, LA, 
+New York, and Cambridge. Other people that have contributed 
+to DBN development are Peter Cho, Elise Co, Golan Levin, 
+Jocelyn Lin, and Josh Nimoy. 
 
 
 LICENSE
