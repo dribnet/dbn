@@ -47,6 +47,7 @@ public class Experimental extends DbnApplication implements ActionListener {
 	case 0:
 	  ((DbnEditor)environment).doRecord();
 	  break;
+#ifdef CONVERTER
 	case 2:
 	  try {
 	    convert(((DbnEditor)environment).textarea.getText());
@@ -61,7 +62,7 @@ public class Experimental extends DbnApplication implements ActionListener {
 	    e.printStackTrace();
 	  }
 	  break;
-
+#endif
 	case 5:
 	  benchmark();
 	  break;

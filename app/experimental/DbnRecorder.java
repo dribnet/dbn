@@ -161,19 +161,27 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
   }
 
 
-  static public void addFrame(Image image, byte pixels[],
+  static public void addFrame(/*Image image,*/ int pixels[],
 			      int mouseX, int mouseY, boolean mouseDown) {
     //if ((recorder != null) && !finishing) {
     if (recorder != null) {
-      recorder.add(image, pixels, mouseX, mouseY, mouseDown);
+      //System.out.println("adding frame");
+      recorder.add(/*image,*/ pixels, mouseX, mouseY, mouseDown);
+      //} else {
+      //System.out.println("not adding frame");
     }
   }
 
+  //boolean adding = false;
   // the synchronized makes sure that this function finished
   // before stop() and subsequently finish() get called
-  synchronized public void add(Image image, byte pixels[], 
+  synchronized public void add(/*Image image,*/ int pixels[], 
 			       int mouseX, int mouseY, boolean mouseDown) {
+    //if ((recorder == null) || (tempOutputStream == null)) return;
     if (recorder == null) return;
+    //if (adding) return;
+    //adding = true;
+
 
     long currentTime = System.currentTimeMillis();
     if (currentTime - lastTime < 1000/30) return; // limit to 30 fps
@@ -186,16 +194,24 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
     lastTime = currentTime;
 
     try {
+      //synchronized (tempOutputStream) {
+      //System.out.println("write tos");
       tempOutputStream.writeInt(frameDuration);
       tempOutputStream.writeInt(mouseX);
       tempOutputStream.writeInt(mouseY);
       tempOutputStream.writeBoolean(mouseDown);
-      tempOutputStream.write(pixels);
+      //tempOutputStream.write(pixels);
+      for (int i = 0; i < pixels.length; i++) {
+	tempOutputStream.writeInt(pixels[i]);
+      }
       tempFrameCount++;
+      //System.out.println("done tos");
+      //}
 
     } catch (IOException e) {
       e.printStackTrace();
     }
+    //adding = false;
   }
 
   public void makeQuickTime() throws IOException {
@@ -212,7 +228,7 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
     }
     DataInputStream tempInputStream = new DataInputStream(is);
 
-    byte pixelBytes[] = new byte[width*height];
+    //byte pixelBytes[] = new byte[width*height];
     int pixels[] = new int[width*height];
 
     // run through the temp file and get to work
@@ -221,11 +237,14 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
       int mouseX = tempInputStream.readInt();
       int mouseY = tempInputStream.readInt();
       boolean mouseDown = tempInputStream.readBoolean();
-      tempInputStream.readFully(pixelBytes);
-
-      for (int k = 0; k < pixels.length; k++) {
-	pixels[k] = grays[pixelBytes[k]];
+      for (int j = 0; j < pixels.length; j++) {
+	pixels[j] = tempInputStream.readInt();
       }
+      //tempInputStream.readFully(pixelBytes);
+
+      //for (int k = 0; k < pixels.length; k++) {
+      //pixels[k] = grays[pixelBytes[k]];
+      //}
       MemoryImageSource mis = 
 	new MemoryImageSource(width, height, pixels, 0, width);
       Image image = Toolkit.getDefaultToolkit().createImage(mis);
@@ -286,15 +305,16 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
   }
 
 
-  static public void stop() {
-    //if ((recorder == null) || finishing) return;
-    if (recorder == null) return;
-    //System.out.println("stopping recorder");
+  //static boolean stopping = false;
 
-    //finishing = true;
+  static public void stop() {
+    if (recorder == null) return;
+    //if (stopping) return;
+    //stopping = true;
+
     recorder.finish();
-    //finishing = false;
     recorder = null;
+    //stopping = false;
   }
 
   public void finish() {

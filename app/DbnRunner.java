@@ -83,6 +83,9 @@ public class DbnRunner implements Runnable {
 	if (!root.findToken(DbnToken.SIZE)) {
 	  graphics.size(101, 101, 1);
 	}
+	if (root.findToken(DbnToken.REFRESH)) {
+	  graphics.aiRefresh = false;
+	}
 	engine = new DbnEngine(root, graphics);
 	engine.start();
       }

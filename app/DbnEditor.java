@@ -141,9 +141,10 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     terminate();
     buttons.clear();
     playing = false;
-#ifdef RECORDER
-    DbnRecorder.stop();
-#endif
+    //#ifdef RECORDER
+    //System.out.println("stopping inside doStop()");
+    //DbnRecorder.stop();
+    //#endif
   }
 
 
@@ -242,6 +243,7 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     buttons.clear();
   }
 
+
   public void doSnapshot() {
     //dbcp.msg("Sending your file to the server...");
     message("Sending your file to the server...");
@@ -291,6 +293,38 @@ public class DbnEditor extends Panel implements DbnEnvironment {
       message("Problem: Your work could not be saved.");
     }
     buttons.clear();
+  }
+
+
+  public void doSaveTiff() {
+    message("Saving TIFF image...");
+    String s = textarea.getText();
+    FileDialog fd = new FileDialog(new Frame(), 
+				   "Save image as...", 
+				   FileDialog.SAVE);
+    fd.setDirectory(lastDirectory);
+    fd.setFile("untitled.tif");
+    fd.show();
+	
+    String directory = fd.getDirectory();
+    String filename = fd.getFile();
+    if (filename == null) return;
+
+    File file = new File(directory, filename);
+    try {
+      FileOutputStream fos = new FileOutputStream(file);
+      byte data[] = graphics.makeTiffData();
+      fos.write(data);
+      fos.flush();
+      fos.close();
+
+      lastDirectory = directory;
+      message("Done saving image.");
+
+    } catch (IOException e) {
+      e.printStackTrace();
+      message("An error occurred, no image could be written.");
+    }
   }
 
 

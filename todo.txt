@@ -8,6 +8,8 @@ _ add default magnification, along with paper size
 _ make print statements show up in dark blue area
 _ pause/continue ability
 
+_ better default .tif names for screen grab 
+
 
 LANGUAGE
 _ break out of forever

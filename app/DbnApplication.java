@@ -11,7 +11,11 @@ import java.awt.event.*;
 // when using dbn as an application instead of an applet
 // (this will always be done with jdk 1.1 or higher)
 
-public class DbnApplication extends DbnApplet {
+public class DbnApplication extends DbnApplet 
+#ifdef RECORDER
+implements ActionListener
+#endif
+{
   Frame frame;
   WindowAdapter windowListener;
 
@@ -34,6 +38,15 @@ public class DbnApplication extends DbnApplet {
     };
     frame.addWindowListener(windowListener);
 
+#ifdef RECORDER
+    MenuBar menubar = new MenuBar();
+    Menu goodies = new Menu("DBN");
+    goodies.add(new MenuItem("Save QuickTime movie..."));
+    goodies.add(new MenuItem("Quit"));
+    goodies.addActionListener(this);
+    menubar.add(goodies);
+    frame.setMenuBar(menubar);
+#endif
     /*
     frame.addWindowListener(new WindowAdapter() {
       public void windowClosing(WindowEvent e) {
@@ -70,6 +83,17 @@ public class DbnApplication extends DbnApplet {
     frame.pack();
     //frame.show();
   }
+
+#ifdef RECORDER
+  public void actionPerformed(ActionEvent event) {
+    String command = event.getActionCommand();
+    if (command.equals("Save QuickTime movie...")) {
+      ((DbnEditor)environment).doRecord();
+    } else if (command.equals("Quit")) {
+      System.exit(0);
+    }
+  }
+#endif
 }
 
 #endif

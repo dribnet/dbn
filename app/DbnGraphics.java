@@ -33,7 +33,10 @@ public class DbnGraphics extends Panel {
   Image dbnImage;
   MemoryImageSource dbnSource;
 
-  Graphics g;
+  Image lastImage;
+  Graphics lastGraphics;
+
+  //Graphics g;
   int gx, gy;
 
   int pixels[];
@@ -42,9 +45,6 @@ public class DbnGraphics extends Panel {
 
   //boolean antialias;
   int magnification = 1;
-
-  Image lastImage;
-  Graphics lastImageg;
 
   Color bgColor;
   Frame frame;
@@ -140,7 +140,7 @@ public class DbnGraphics extends Panel {
 
     //if (oldWidth != width || oldHeight != height)
     repack();
-    update();
+    //update();
   }
 
   /*
@@ -668,8 +668,8 @@ public class DbnGraphics extends Panel {
 
   public Dimension preferredSize() {
     //System.out.println("setting new preferred size");
-    return new Dimension(width1*magnification + 30, 
-			 height1*magnification + 30);
+    return new Dimension(width1*magnification /*+ 30*/, 
+			 height1*magnification /*+ 30*/);
     //return new Dimension(width, height);
   }
 
@@ -686,11 +686,10 @@ public class DbnGraphics extends Panel {
     }
 
 #ifdef RECORDER
-    // maybe this should go inside DbnEditorGraphics, 
-    // but i'm not sure
-    //DbnRecorder.addFrame(pixels);
-    DbnRecorder.addFrame(dbnImage, pixels, mouse[0], 
-			 height1-mouse[1], (mouse[2] == 100));
+    //System.out.println("update calling addFrame");
+    // maybe this should go inside DbnEditorGraphics? not sure
+    DbnRecorder.addFrame(pixels, mouse[0], height1-mouse[1], 
+			 (mouse[2] == 100));
 #endif
   }
 
@@ -712,7 +711,6 @@ public class DbnGraphics extends Panel {
       Dimension dim = preferredSize();
       baseImage = createImage(dim.width, dim.height);
       baseGraphics = baseImage.getGraphics();
-
       lastImage = createImage(width, height);
       lastGraphics = lastImage.getGraphics();
 
@@ -734,10 +732,12 @@ public class DbnGraphics extends Panel {
   public void paint(Graphics g) {
     base();
 
-    if (dbnImage != null) {
+    //if (dbnImage != null) {
+    if (baseImage != null) {
       baseGraphics.drawImage(dbnImage, gx, gy, 
 			     width*magnification, height*magnification, null);
       // copy into buffer for writing to a tiff or quicktime
+      //System.out.println(lastGraphics);
       lastGraphics.drawImage(dbnImage, 0, 0, null); 
       
       //} else {
@@ -755,9 +755,9 @@ public class DbnGraphics extends Panel {
 
 
   public void paint() {
-  // blit only changed portion
-    g.drawImage(dbnImage, gx, gy, 
-		width*magnification, height*magnification, null);
+    // blit only changed portion
+    panelGraphics.drawImage(dbnImage, gx, gy, 
+			    width*magnification, height*magnification, null);
   }
 
 
@@ -784,9 +784,9 @@ public class DbnGraphics extends Panel {
     tiff[117] = (byte) ((count) & 0xff);
     int index = 768;
     for (int i = 0; i < pixels.length; i++) {
-      tiff[index++] = (pixels[i] >> 16) & 0xff;
-      tiff[index++] = (pixels[i] >> 8) & 0xff;
-      tiff[index++] = pixels[i] & 0xff;
+      tiff[index++] = (byte) ((pixels[i] >> 16) & 0xff);
+      tiff[index++] = (byte) ((pixels[i] >> 8) & 0xff);
+      tiff[index++] = (byte) ((pixels[i] >> 0) & 0xff);
     }
     return tiff;
   }

@@ -41,10 +41,13 @@ public class DbnEditorGraphics extends DbnGraphics {
     if (baseImage == null) updateBase = true;
 
     if (updateBase) {
-      //System.out.println("calling base inside editor");
+      // these few lines completely identical to DbnGraphics.base()
       Dimension dim = preferredSize();
       baseImage = createImage(dim.width, dim.height);
       baseGraphics = baseImage.getGraphics();
+      lastImage = createImage(width, height);
+      lastGraphics = lastImage.getGraphics();
+
       gx = (dim.width - width*magnification) / 2;
       gy = (dim.height - height*magnification) / 2;
 
@@ -135,6 +138,23 @@ public class DbnEditorGraphics extends DbnGraphics {
     return true;
   }
 */ 
+
+  public boolean updateMouse(Event e, int x, int y) {
+    super.updateMouse(e, x, y);
+
+    //#ifdef RECORDER
+    if (e.controlDown() && (mouse[2] == 100)) {
+      //Experimental.screenGrab(lastImage, width, height);
+      editor.doSaveTiff();
+    }
+    //#endif
+
+    if (e.shiftDown()) {
+      editor.highlightLine(getLine(x, height1 - y));
+    }
+
+    return true;
+  }
 }
 
 

@@ -97,7 +97,7 @@ public class PockyVision extends Window implements DbnEnvironment, Runnable {
       }
     });
 
-    graphics = new DbnGraphics(WIDE, HIGH);
+    graphics = new DbnGraphics(WIDE, HIGH, Color.white);
     add(graphics);
     graphics.setVisible(false);
 
