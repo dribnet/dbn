@@ -4,45 +4,31 @@ TODO allow param tag for network host when dbn being run locally
 
 TODO mouse flakiness solved by using "set mx <mouse 1>"
 
-TODO write down defaults for each of the tags
+TODO write language docs o'reilly style
 
-TODO write language docs
-
-TODO make dbn runtime
+TODO make dbn runtime (runner + runpanel + graphics + half of applet/io)
 
 TODO make griddify version load more quickly
 
-make righthand side of dbn edit window behave better (especially on mac)
-resize to usability, select lines correctly, select all, click drag
-scrolls window. maybe external window? maybe wide window with dbn in upper
-left hand corner?
+TODO click and drag scrolls textarea
 
 TODO reduce the amount of flashing that the applet does
      especially on the mac (reduce number of components involved)
 
-maybe move connectors, graphics and i/o together. make graphics a
-'runtime' environment, supplied by the host. gui is the host that takes
-care of cosmetics like telling the applet what to do.
+TODO make more static objects where possible, rather than creating 
+     new instances each time a piece is run
 
-make more static objects where possible, rather than creating new
-instances each time a piece is run
+TODO figure out why network is running so slow. 
+     send network data as large blocks? (entire block would be 1000
+     bytes, just 1k, not bad. this means 3 updates/sec over modem 
+     which is faster than current response time. need to
+     figure out if bottleneck is server or client induced. 
 
-figure out why network is running so slow. send network data as large
-blocks? (entire block would be 1000 bytes, just 1k, not bad. this means 3
-updates/sec over modem which is faster than current response time. need to
-figure out if bottleneck is server or client induced.
+TODO get rid of pop-up menu
 
-command keys for save/run
-
-get rid of pop-up menu
-
-network down/disconnect crashes applet without notice
-
-applet flaking out
-
-arrayindexoutofbounds exception while running
-
-couldn't restart afterwards (network down?)
+TODO network down/disconnect crashes applet without notice
+     arrayindexoutofbounds exception while running
+     couldn't restart afterwards (network down?)
 
 TODO error message for non-existent variable reads
      like "line needs 4 vars" instead of "unknown var"
@@ -67,14 +53,15 @@ TODO font size too big to get entire error msg
 TODO need adjustable auto-slowdown (not ai-refresh)
 
 TODO better method of highlighting errors - color, flash, ?
+     actually get highlighting working better
 
 TODO need to internationalize type program here
      as well as breaking out warnings/messages/errors to separate file
 
 TODO would be nice to have auto-bug-reporting built into applet
 
-make mrj menubar behave a little better, have file->quit menu,
-add an about box under the apple/help menu:
+TODO make mrj menubar behave a little better, have file->quit menu,
+     add an about box under the apple/help menu:
 
 > Add a 'MENU' resource with an ID of 1128 to override the default Apple
 > menu. It should just have a single "About MyApp..." item followed by a
@@ -87,6 +74,16 @@ add an about box under the apple/help menu:
 
 
 FINISHED
+
+DONE select all for righthand side
+
+DONE move connectors, graphics and i/o together. 
+     make graphics a 'runtime' environment, supplied by the host. 
+     gui takes care of cosmetics like telling the applet what to do.
+
+DONE command keys for save/run
+
+DONE write down defaults for each of the tags
 
 DONE make sense of all the vars madness
 
@@ -129,7 +126,8 @@ DONE set <net 1> 40 is broken
 
 DONE finish converter
 
-ADDED NOTE IN README date < 1970 causes big trouble and exceptions
+DONE date < 1970 causes big trouble and exceptions
+     (added note to the readme)
 
 DONE fixed bug where field didn't update pixels
 
