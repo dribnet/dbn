@@ -361,10 +361,10 @@ class DbnRunPanel extends Panel {
     {
 	dbr = db;
 
-	Hashtable exthash = dbr.dbg.getexthash();
-	emouse = (int[])exthash.get("mouse");
-	ekey = (int[])exthash.get("key");
-	etime = (int[])exthash.get("time");
+	Hashtable connectorTable = dbr.dbg.getConnectorTable();
+	emouse = (int[]) connectorTable.get("mouse");
+	ekey = (int[]) connectorTable.get("key");
+	etime = (int[]) connectorTable.get("time");
     }
 
     public DbnRunner newdbr_at(DbnApplet app, DbnGui gui, String prog, 
@@ -449,7 +449,6 @@ class DbnRunPanel extends Panel {
     public void terminate()
     {
 	dbr.stop();
-	//	System.out.println("terminated");
     }
 	
     public void setProgram(String s)
@@ -685,7 +684,6 @@ class DbnRunPanel extends Panel {
 	// mode then tell dbngui that 
 	// it's okay to go ahead and do its thing
 	app.gui.runpanelrefreshed();
-	//	System.out.println("ha!");
     }
     
     /*
@@ -731,6 +729,7 @@ class DbnControlPanel extends DbnControlPanelNull {
 	
     public void msg(String s)
     {
+	//System.err.println("setting message " + s);
 	msgta.setText(s);
     }
 	
@@ -821,7 +820,7 @@ public class DbnGui extends Panel {
 	return panelBgColor;
     }
 
-    // show a string in the browser menu, 
+    // show a string in the browser status bar
     // like "Loading cheesedanish.dbn..."
     String currentStatus;
     public void showStatus(String status) {
@@ -908,10 +907,12 @@ public class DbnGui extends Panel {
     }
 	
     public boolean action(Event evt, Object arg) {
-    	if (evt.target==cmds) {
-    	} else if (evt.target==doitbut) {
+    	if (evt.target == cmds) {
+
+    	} else if (evt.target == doitbut) {
 	    if (cmds.getSelectedItem().equals(BEAUTIFY_ITEM)) {
 		beautify();
+
 	    } else if (cmds.getSelectedItem().equals(SNAPSHOT_ITEM)) {
 		DbnIO io = new DbnIO(app);
 		int dim = 20;
@@ -919,11 +920,13 @@ public class DbnGui extends Panel {
 				   dbrp.dbr.dbg.gethexthumbnail(dim), dim)) {
 		    // error
 		}
+
 	    } else if (cmds.getSelectedItem().equals(SAVE_ITEM)) {
 		DbnIO io = new DbnIO(app);
 		if (!io.doLocalWrite(ta.getText())) {
 		    // error
 		}
+
 	    } else if (cmds.getSelectedItem().equals(OPEN_ITEM)) {
 		DbnIO io = new DbnIO(app);
 		String s = io.doLocalRead();
@@ -937,17 +940,14 @@ public class DbnGui extends Panel {
         return true;
     }
 	
-    public void snapshot()
-    {
-    }
+    //public void snapshot() {
+    //}
 	
-    public void idle(long t)
-    {
+    public void idle(long t) {
 	dbrp.idle(t);
     }
 
-    public void beautify()
-    {
+    public void beautify() {
 	char program[] = ta.getText().toCharArray();
 	StringBuffer buffer = new StringBuffer();
 	boolean gotBlankLine = false;
@@ -1002,37 +1002,46 @@ public class DbnGui extends Panel {
     }
 
 
-    public void reporterror(DbnException e)
-    {
-	if (e.lnum>=0) {
+    public void reporterror(DbnException e) {
+	if (e.line >= 0) {
             String s = ta.getText();
             int len = s.length();
-            int lnum = e.lnum;
-            int st=-1, end=-1;
+            int lnum = e.line;
+            int st = -1, end = -1;
             int lc = 0;
-            if (lnum ==0) st = 0;
-            for(int i=0;i<len;i++) {
-                if ((s.charAt(i) == '\n') || (s.charAt(i) == '\r')) {
+            if (lnum == 0) st = 0;
+            for (int i = 0; i < len; i++) {
+                //if ((s.charAt(i) == '\n') || (s.charAt(i) == '\r')) {
+		boolean newline = false;
+		if (s.charAt(i) == '\r') {
+		    if ((i != len-1) && (s.charAt(i+1) == '\n')) i++;
+		    lc++;
+		    newline = true;
+		} else if (s.charAt(i) == '\n') {
                     lc++;
-                    if (lc == lnum)
-                        st = i+1;
-                    else if (lc == lnum+1) {
-                        end = i;
-                        break;
-                    }
-                }
-
-            }
+		    newline = true;
+		}
+		if (newline) {
+		    if (lc == lnum)
+			st = i+1;
+		    else if (lc == lnum+1) {
+			end = i;
+			break;
+		    }
+		}
+	    }
             if (end == -1) end = len;
 	    // System.out.println("st/end: "+st+"/"+end);
-            ta.select(st,end);
+            ta.select(st, end);
             if (iexplorerp) {
 		ta.invalidate();
 		ta.repaint();
             }
 	}
 	dbcp.repaint(); // button should go back to 'play'
-	msg(e.getMessage());
+	//System.err.println(e.getMessage());
+	msg("Problem: " + e.getMessage());
+	//showStatus(e.getMessage());
     }
 
     public boolean getrunningp()

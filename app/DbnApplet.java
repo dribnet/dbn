@@ -5,7 +5,11 @@ import java.net.*;
 import java.util.*;
 
 // might cause problems for jdk 1.0
+// this is for the main() method, required for the jre version
 import java.awt.event.*;
+
+
+// TODO figure out why loading several applets is so slow.
 
 
 public class DbnApplet extends Applet
@@ -85,7 +89,7 @@ public class DbnApplet extends Applet
 
     public void init() {
 	String file, prog = null;
-	String []progs=null;
+	String progs[] = null;
 	String defprogram = new String("// enter program\n");
 
 	setLayout(new BorderLayout());
@@ -102,8 +106,8 @@ public class DbnApplet extends Applet
 		int i=0, cnt=0;
 		boolean donep = false;
 		while(!donep) {
-		    String f = "program"+i;
-		    if (getParameter(f)==null) break;
+		    String f = "program" + i;
+		    if (getParameter(f) == null) break;
 		    i++;
 		}
 		if (i==0) {
@@ -111,11 +115,11 @@ public class DbnApplet extends Applet
 		} else {
 		    cnt = i;
 		    progs = new String[cnt];
-		    for(i=0;i<cnt;i++) {
+		    for (i = 0; i < cnt; i++) {
 			String fname = getParameter("program"+i);
+			System.err.println("reading program #" + i);
 			progs[i] = readFile(fname);
-			//if (progs[i] == null) System.out.println("null program");
-			//progs[i] = "forever\n{\nline 0 0 <mouse 1> <mouse 2>\n}\n";
+			System.err.println("done reading");
 		    }
 		}
 	    } else {
@@ -131,13 +135,15 @@ public class DbnApplet extends Applet
 	    prog = prog.replace(';','\n');
 	    wasInline = true;
 	}
-	if (progs==null) {
+	if (progs == null) {
 	    progs = new String[1];
 	    progs[0] = prog;
 	}
+	System.err.println("creating gui");
 	add("Center", gui = new DbnGui(this, progs));
-
-	if (wasInline) gui.beautify(); // inline progs will look scary
+	System.err.println("done creating gui");
+	// otherwise inline progs will look scary
+	if (wasInline) gui.beautify();
     }
 
     public String getParameter(String name) {
@@ -301,6 +307,7 @@ public class DbnApplet extends Applet
 		System.out.print((char)output[i]);
 	    } else {
 		System.out.print("\\" + (int)output[i]);
+		if (output[i] == '\n') System.out.println();
             }
         }
 	System.out.println();

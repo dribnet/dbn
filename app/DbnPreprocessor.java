@@ -25,12 +25,19 @@ public class DbnPreprocessor {
     static int eolCount;
     static char eol[];
     static {
+	/*
 	String separator = System.getProperty("line.separator");
 	eolCount = separator.length();
 	eol = new char[eolCount];
 	for (int i = 0; i < eolCount; i++) {
 	    eol[i] = separator.charAt(i);
 	}
+	*/
+	
+	// modified for dbn-ng, because it uses only \n internally
+	eolCount = 1;
+	eol = new char[1];
+	eol[0] = '\n';
     }
 
     public DbnPreprocessor(DbnGui gui, DbnApplet applet) {
@@ -158,7 +165,25 @@ public class DbnPreprocessor {
 	    if ((data[i] & 64) > 0) {  // uppercase, make lowercase
 		if (data[i] <= 'Z') data[i] += 'a' - 'A';
 	    }
-	}	    
+	}
+
+	// convert \r and \r\n to \n
+	int offset = 0;
+	for (int i = 0; i < data.length; i++) {
+	    if (data[i] == '\r') {
+		if ((i != data.length-1) && (data[i+1] == '\n')) {
+		    // it's \r\n, windows style
+		    i += 1;
+		}
+		data[offset++] = '\n';
+
+	    } else {
+		data[offset++] = data[i];
+	    }
+	}
+	// make the remaining into spaces
+	for (int i = offset; i < data.length; i++) data[i] = ' ';
+
 	//if ((data[i] & 64) > 0) 
 	// minus 5 because at least 5 bytes are needed for the load,
 	// so don't bother parsing those guys, just finish them off
@@ -297,7 +322,7 @@ public class DbnPreprocessor {
     // first do language translation for the main code
     // then do load expansion for the main code
     // (do this recursively)
-    public String doit(String string) {
+    public String process(String string) {
 	//System.err.println("preproc: doit " + s);
 	char program[] = string.toCharArray();
 	
@@ -312,6 +337,8 @@ public class DbnPreprocessor {
 	// the newline is added by the preproc
 	program = loadExpand(program);
 	
+	//DbnApplet.debugString(new String(program));
+
 	return new String(program);
     }
 }

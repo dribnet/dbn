@@ -102,9 +102,10 @@ public class DbnRunner implements Runnable {
     }
 	
     public void stop() {
-	if (dp != null) dp.pleaseQuit();
+	//if (dp != null) dp.pleaseQuit();
+	if (dp != null) dp.stop();
 	//msg("Stopped.");
-	msg(""); // modified as per jm's wishes
+	msg(""); 
 	/*
 	  if (runner != null)
 	  {
@@ -120,13 +121,13 @@ public class DbnRunner implements Runnable {
     public void msg(String s)
     {
 	gui.msg(s);
-	sp(s);
+	//sp(s);
     }
     
-    public void sp(String s) 
-    {
-	System.out.println(s);
-    }
+    //public void sp(String s) 
+    //{
+    //System.out.println(s);
+    //}
     
 	
     public void run()
@@ -141,18 +142,22 @@ public class DbnRunner implements Runnable {
 	
 	try {
 	    // THIS IS WHERE THE 'dbnprocessor' should be doing it's thing
-	    dp = new DbnProcessorG3(gui, dbg, app);
-	    dp.process(prog);
+	    dp = new DbnProcessor(gui, dbg, app);
+	    dp.start(prog);
 	    dp = null;
 	    //Thread.sleep(1000);
-	    state=DBNRUN_FINISHED;
+	    state = DBNRUN_FINISHED;
 	    gui.success();
 	    //donep = true;
+
 	} catch (DbnException e) { 
 	    //sp("Caught dbn exception");
+	    //System.err.println("got exception");
 	    state = DBNRUN_ERROR;
-	    gui.reporterror(e);
 	    this.stop();
+	    // must go below so that error msg shows
+	    gui.reporterror(e);
+
 	} catch (Exception e) {
 	    e.printStackTrace();
 	    this.stop();
@@ -163,7 +168,7 @@ public class DbnRunner implements Runnable {
     public void render(Graphics g)
     {
 	if (dbg.im == null) {
-	    dbg.buildbuffers();
+	    dbg.buildBuffers();
 	}
 	// i think this was throwing an exception on close
 	if (g != null) {

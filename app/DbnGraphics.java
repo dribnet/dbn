@@ -1,35 +1,16 @@
 import java.awt.*;
-import java.applet.*;
 import java.util.*;
-import java.net.*;
-import java.io.*;
-import java.lang.*;
-import java.awt.image.*;
 
-/*
- * dbngraphics has no threads, etc. it needs a 
- * pointer to a parent panel, but that's all
- *
- * methods:
- * paper
- * field
- * pen
- * line
- * setDot
- * getDot
- * setAntiAlias(0 if off, 100 if on)
- */
- 
+
 public class DbnGraphics
 {
     public Image im;
     Graphics img;
     Color cols[] = new Color[101];
-    long lastpapert=0; // for use in autoslowdown
+    long lastpapert = 0; // for use in autoslowdown
     
-    //	IndexColorModel greyScale;
     byte[] pixels;
-    byte penColor=100;
+    byte penColor = 100;
     int pixelCount;
     boolean antialias = false;
     
@@ -41,7 +22,7 @@ public class DbnGraphics
     public int width, height;
     Panel dad;
     
-    Hashtable exthash;
+    Hashtable connectorTable;
     
     int FDOT = 10;
     int FPAPER = 100;
@@ -60,152 +41,157 @@ public class DbnGraphics
     boolean autoflushenablep = true;
     int repeatlevel = 0;
     
-    public void flushnormal()
-    {
+    int flushc = 0;
+
+
+    public void flushNormal() {
 	FDOT = 10;
 	FPAPER = 100;
 	FLINE = 10; 
 	FFIELD = 50;
 	FMAX = 100;
+    }    
+
+
+    public void flushReduced(int lev) {
+	FDOT=10/lev; 
+	FLINE=10/lev; 
+	FFIELD=50/lev; 
+	FPAPER=100;
     }
     
-    public void flushreduced(int lev)
-    {
-	FDOT=10/lev; FLINE=10/lev; FFIELD=50/lev; FPAPER=100;
-	//System.out.println("flush reduced: "+
-	//	   FDOT+"/"+FLINE+"/"+FFIELD+"/"+FPAPER);
-    }
-    
-    public void resetblockdetect() { 
+
+    public void resetBlockDetect() { 
 	insideforeverp = false; 
 	lastflushfire = flushfire = -1;
 	insiderepeatp = false;
 	autoflushenablep = true;
 	repeatlevel = 0;
-	flushnormal();
+	flushNormal();
     }
     
-    public void beginforever()
-    {
+
+    public void beginForever() {
 	// fired on a '{'
-	//	  System.out.println("begin");
+	//System.out.println("begin forever");
 	insideforeverp = true;
 	flushfire = -1;
 	autoflushenablep = false;
     }
     
-    public void endforever()
-    {
+
+    public void endForever() {
 	// fired on a '}'
-	//	  System.out.println("end->"+flushfire);
+	//System.out.println("end->"+flushfire);
 	if (flushfire == -1) {
 	    // did not flush during a forever
 	    // force it
-	    forceflush();
+	    forceFlush();
 	    autoflushenablep= true;
 	}
 	flushfire = -1;
     }
     
-    public void beginrepeat()
-    {
+
+    public void beginRepeat() {
 	// if within a forever, should be disabled anyways
-	// System.out.println("--****begrepeat");
+	//System.out.println("--****begrepeat");
 	insiderepeatp = true;
 	repeatlevel++;
-	//		 System.out.println("repeatlevel: "+repeatlevel+"/"+autoflushenablep);
+	//System.out.println("repeatlevel: "+repeatlevel+"/"+autoflushenablep);
 	if (insideforeverp) {
 	    // not much to do except for default
 	    if (repeatlevel == 1) { // special case
-		flushnormal();
+		flushNormal();
 	    } else if (repeatlevel>1) {
-		flushreduced(repeatlevel);
+		flushReduced(repeatlevel);
 	    }
 	} else  {
 	    // disable flush, count up how much flush activity gets
 	    if (repeatlevel == 1) { // special case
 		autoflushenablep = true;
-		flushnormal();
+		flushNormal();
 	    } else if (repeatlevel>1) {
 		autoflushenablep = false;
-		flushreduced(repeatlevel);
+		flushReduced(repeatlevel);
 	    }
 	}
 	
     }
     
-    public void endrepeat()
-    {
+
+    public void endRepeat() {
+	//System.out.println("--****endrepeat");
 	if (repeatlevel==1)
 	    insiderepeatp = false;
 	repeatlevel--;
-	flushnormal();
+	flushNormal();
 	if (!insideforeverp) {
 	    if (flushc>0 && flushfire==-1) {
-		forceflush();
+		forceFlush();
 	    }
 	}
     }
     
-    public void paperflush()
-    {	
+
+    public void paperFlush() {	
 	//	  System.out.println("paperflush request");
 	if (insideforeverp&&aiflushp) {
 	    if (flushfire==-1) {
 		flushfire = 0; // paper was first
-		forceflush();
+		forceFlush();
 	    } else {
 		if (lastflushfire == 0) {
 		    // could be consecutive paper -> legalize
-		    forceflush();
+		    forceFlush();
 		} else {
    		    // ignore flush
 		}
 	    }
 	} else {
-	    myflush(FPAPER);
+	    myFlush(FPAPER);
 	}
 	lastflushfire = flushfire;
     }
+
     
-    public void fieldflush()
-    {
+    public void fieldFlush() {
 	if (insideforeverp&&aiflushp) {
 	    if (flushfire==-1) {
 		flushfire = 1; // field was first
-		forceflush();
+		forceFlush();
 	    } else {
 		// ignore flush
 	    }
 	} else {
-	    myflush(FFIELD);
+	    myFlush(FFIELD);
 	}
 	lastflushfire = flushfire;
     }	
     
     /********** end ai double buffer *****/
+
     
-    public DbnGraphics(Panel parent, DbnRunner dbr, int w, int h)
-    {
-	int i;
-	String s;			
-	
+    public DbnGraphics(Panel parent, DbnRunner dbr, int w, int h) {
 	this.dbr = dbr;
 
 	// when dbngraphics comes up, query applet for parameters
 	// this is to maintain illusion of a perfect 
 	// automatic double buffer, of course elusive ...
+	String s;			
 	if ((s = dbr.app.getParameter("display_mode"))!=null) {
 	    if (s.equals("plain")) {
 
 	    } else if (s.equals("flush")) { // mainly flushes when ets paper
 		FLINE = 0;
 		FDOT = 0;
+
 	    } else if (s.equals("flush_more")) {
 		FLINE = 10;
 		FDOT = 10;
 		aiflushp = true; // 'ai is on'
 		//System.out.println("auto flush is on");
+
 	    } else if (s.equals("auto")) {
 		aiflushp = true; // 'ai is on'
 		//System.out.println("auto flush is on");
@@ -222,79 +208,79 @@ public class DbnGraphics
 	pixels = new byte[ pixelCount ];
 	
 	byte value = 0;
-	for(i = 0; i < pixelCount; ++ i ) {
-	    pixels[ i ] = value;
+	for(int i = 0; i < pixelCount; ++ i ) {
+	    pixels[i] = value;
 	}
 	penColor = 100;
 	
-	for(i=0;i<101;i++) {
+	for (int i = 0; i < 101; i++) {
 	    cols[i] = new Color(i*255/100,i*255/100,i*255/100);
 	}
 	
         // build the 'i' of io into it all
-        exthash = new Hashtable();
+        connectorTable = new Hashtable();
         
         // mouse, key, time are arrays of ints
-        exthash.put("mouse", new int[3]);
-        exthash.put("key", new int[26]);
-        exthash.put("time", new int[4]);
-        exthash.put("net", new Object()); // int values not useful here
+        connectorTable.put("mouse", new int[3]);
+        connectorTable.put("key", new int[26]);
+        connectorTable.put("time", new int[4]);
+        connectorTable.put("net", new Object()); // int values not useful here
+    }
+
+
+    public Hashtable getConnectorTable() {
+	return connectorTable; 
     }
 	
-    public Hashtable getexthash() { 
-	return exthash; 
-    }
-	
-    int flushc = 0;
-	
-    public void forceflush()
+    public void forceFlush()
     {
 	flushc=flushc%100; //im.flush(); 
 	flushc = 0;
 	dbr.render(); 
     }
     
-    public void myflush(int v)
-    {
+    public void myFlush(int v) {
 	flushc+=v;
 	if (autoflushenablep) {	
 	    if (flushc>99) { 
-		forceflush();
+		forceFlush();
 	    }
 	}
     }
     
-    public void buildbuffers()
-    {
+    public void buildBuffers() {
 	if (im == null) { 
 	    //some sync problem forces this sequence to be important
-	    im = dad.createImage(width,height);
+	    im = dad.createImage(width, height);
 	    img = im.getGraphics(); 
 	    reset();
 	}
     }
-	
-    public void reset()
-    {
+
+
+    public void reset() {
+	//System.out.println("reset");
 	penColor=100;
 	for(int i=0;i<pixelCount;i++) pixels[i] = 0;
 	flushc = 0;
 	img.setColor(cols[penColor]);
 	img.fillRect(0,0,cbw,cbh);
-	resetblockdetect();
+	resetBlockDetect();
 	//		im.flush();
     }
     
-    public int bound(int input, int upper) {
-	if(input > upper) return upper;
-	if(input < 0) return 0;
+
+    private int bound(int input, int upper) {
+	if (input > upper) return upper;
+	else if (input < 0) return 0;
 	else return input;
     }
-    
+
+
     public void paper(int val) {
 	byte bVal;
 	
-	paperflush();
+	paperFlush();
 	// voluntary slowdown
 	try {
 	    long curt = System.currentTimeMillis();
@@ -319,13 +305,14 @@ public class DbnGraphics
 	img.fillRect(0,0,cbw,cbh);
     }
 
+
     public void field(int x1, int y1, int x2, int y2, int val) {
 	x1 = bound(x1, cbw1);
 	y1 = bound(y1, cbh1);
 	x2 = bound(x2, cbw1);
 	y2 = bound(y2, cbh1);
 	val = bound(val, 100);
-	fieldflush();
+	fieldFlush();
 	
 	if (x2 < x1) { int dum = x1; x1 = x2; x2 = dum; }
 	if (y2 < y1) { int dum = y1; y1 = y2; y2 = dum; }
@@ -357,10 +344,10 @@ public class DbnGraphics
 	return penColor;
     }
 
-    public void setDot(int x, int y, int val) {
+    public void setPixel(int x, int y, int val) {
 	int checkX, checkY, checkVal;
 	
-        myflush(FDOT);
+        myFlush(FDOT);
         // NOTE::*******
 	// ideally for optimize step here, should draw 
 	// directly to screen without flushing
@@ -376,6 +363,15 @@ public class DbnGraphics
 	pixels[(cbh1-y)*cbw + x] = (byte)checkVal;
 	img.setColor(cols[100-checkVal]);
 	img.drawLine(x,cbh1-y,x,cbh1-y);
+    }
+
+    public int getPixel(int x, int y) {
+	return (int) pixels[(cbh1-((y<0)?0:((y>cbh1)?cbh1:y)))*cbw + 
+			   ((x<0)?0:((x>cbw1)?cbw1:x))];
+    }
+
+    public void setAntiAlias(int m) {
+	antialias = (m > 50);
     }
     
     void intensifyPixel(int x, int y, float dist) {
@@ -404,13 +400,13 @@ public class DbnGraphics
     // "Computer Graphics for Java Programmers"
 
     private int clipCode(float x, float y) {
-	return ((x < 0 ? 8 : 0) | (x > 100 ? 4 : 0) |
-		(y < 0 ? 2 : 0) | (y > 100 ? 1 : 0));
+	return ((x < 0 ? 8 : 0) | (x > cbw1 ? 4 : 0) |
+		(y < 0 ? 2 : 0) | (y > cbh1 ? 1 : 0));
     }
     
     public void line(int ox1, int oy1, int ox2, int oy2) {
 	/* check for line clipping, do it if necessary */
-	if ((ox1 < 0) || (oy1 < 0) || (ox2 > 100) || (oy2 > 100)) {
+	if ((ox1 < 0) || (oy1 < 0) || (ox2 > cbw1) || (oy2 > cbh1)) {
 	    // clipping, converts to floats for dy/dx fun
 	    // (otherwise there's just too much casting mess in here)
 	    float xP = (float)ox1, yP = (float)oy1;
@@ -426,22 +422,22 @@ public class DbnGraphics
 		    if ((cP & 8) == 8) { 
 			yP += (0-xP) * dy / dx; xP = 0; 
 		    } else if ((cP & 4) == 4) { 
-			yP += (100-xP) * dy / dx; xP = 100; 
+			yP += (cbw1-xP) * dy / dx; xP = cbw1; 
 		    } else if ((cP & 2) == 2) { 
 			xP += (0-yP) * dx / dy; yP = 0;
 		    } else if ((cP & 1) == 1) {
-			xP += (100-yP) * dx / dy; yP = 100;
+			xP += (cbh1-yP) * dx / dy; yP = cbh1;
 		    }  
 		    cP = clipCode(xP, yP);
 		} else if (cQ != 0) {
 		    if ((cQ & 8) == 8) { 
 			yQ += (0-xQ) * dy / dx; xQ = 0;
 		    } else if ((cQ & 4) == 4) {
-			yQ += (100-xQ) * dy / dx; xQ = 100;
+			yQ += (cbw1-xQ) * dy / dx; xQ = cbw1;
 		    } else if ((cQ & 2) == 2) { 
 			xQ += (0-yQ) * dx / dy; yQ = 0;
 		    } else if ((cQ & 1) == 1) { 
-			xQ += (100-yQ) * dx / dy; yQ = 100;
+			xQ += (cbh1-yQ) * dx / dy; yQ = cbh1;
 		    }  
 		    cQ = clipCode(xQ, yQ);
 		}
@@ -456,7 +452,7 @@ public class DbnGraphics
 	int x1, x2, y1, y2, incy=0, incx=0, which;
 	boolean backwards = false, slopeDown = false;
 	
-	myflush(FLINE);
+	myFlush(FLINE);
 	
 	if (!antialias) { 
 	    img.setColor(cols[100-penColor]);
@@ -590,6 +586,9 @@ public class DbnGraphics
 	}
     }
     
+
+    // this will go away soon
+
     public String gethexthumbnail(int n) 
     { 
 	return gethexthumbnail(n, 4); 
@@ -640,29 +639,5 @@ public class DbnGraphics
 	    }
 	}
 	return s;
-    }
-  
-    public void setAntiAlias(int m) 
-    {
-	antialias = (m>50);//false;
-    }
-
-    public int getDot(int x, int y) 
-    {
-	/* is this faster? with an inline? */
-	/*		int checkX, checkY;
-			if(x < 0) checkX = 0;
-			else if(x>cbw1) checkX = cbw1;
-			else checkX = x;
-			if(y < 0) checkY = 0;
-			else if(y>cbh1) checkY = cbh1;
-			else checkY = y;
-			return (int)pixels[(cbh1-checkY)*cbw + checkX];
-	*/	
-	/*	
-		added optimize, jm*/
-	
-	return (int) pixels[(cbh1-((y<0)?0:((y>cbh1)?cbh1:y)))*cbw + 
-			   ((x<0)?0:((x>cbw1)?cbw1:x))];
     }
 }
