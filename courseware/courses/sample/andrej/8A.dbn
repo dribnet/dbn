@@ -1,0 +1,1 @@
+// enter programrepeat A 55 45{   repeat B 10 20   {      set [A (B+35)] 100   }}

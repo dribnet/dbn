@@ -1,0 +1,107 @@
+<h1>Introduction
+<p1>Select an appropriate Paper.
+<m1>
+<p1>Select an appropriate Paper and Pen.
+<m1>
+<p1>Choose a Paper, Pen, and now draw a vertical Line.
+<m1>
+<p1>Draw a horizontal line.
+<m1>
+<p1>Draw a horizontal line together with a vertical line.
+<m1>
+<p1>Draw a triangle.
+<m1>
+<h2>A Few More Lines
+<p2>Draw a square.
+<m2>
+<p2>Draw a rectangle dear to your heart.
+<m2>
+<p2>Create a representational image using no more than 20 lines.
+<m2>
+<p2>Draw a filled rectangle.
+<m2>
+<h3>Enough Lines to last a Lifetime
+<p3>Create a general horizontal line.
+<m3>
+<p3>Create two jointed lines.
+<m3>
+<p3>Place the general line in Repeat.
+<m3>
+<p3>Create a gradated rectangle.
+<m3>
+<p3>Create two filled rectangles with two Repeats.
+<m3>
+<p3>Create two filled rectangles with one Repeat.
+<m3>
+<p3>Insert a Paper each cycle of the Repeat.
+<m3>
+<h4>The Dot Model
+<p4>Set the dot in the exact middle to black.
+<m4>
+<p4>Set the adjacent dot to some value of gray.
+<m4>
+<p4>Create a small 5 by 5 image using just dots.
+<m4>
+<p4>Set a dot in repeat.
+<m4>
+<p4>Use multiplication to modulate dot placement in a horizontal line.
+<m4>
+<p4>Create a dotted diagonal line by modulating the vertical as well.
+<m4>
+<p4>Add a new Paper to each cycle of dotted diagonal line of 4F.
+<m4>
+<h5>Things That Fly and Fade
+<p5>Create 2 flying dots that fly horizontally at the same speed.
+<m5>
+<p5>Make 1 dot fly faster than the other.
+<m5>
+<p5>Create 2 flying lines that fly vertically at different speeds.
+<m5>
+<p5>Create 2 flying lines that fly vertically in opposite directions.
+<m5>
+<p5>Draw 2 lines atop a fading background.
+<m5>
+<p5>Draw 2 fading lines atop a static background.
+<m5>
+<p5>Draw 5 fading lines with different fading characteristics.
+<m5>
+<h6>Painting to Reaction
+<p6>Place a dot corresponding to where the mouse is located, namely &lt mouse 1 &gt and &lt mouse 2 &gt. Do this Forever.
+<m6>
+<p6>Stop the pen from leaking by being aware of the mouse button &lt mouse 3 &gt.
+<m6>
+<p6>Fashion a more sophisticated paintbrush.
+<m6>
+<p6>Place a paper in each cycle of the Repeat to translate paint to reaction.
+<m6>
+<p6>Draw a triangle that moves in relation to the mouse.
+<m6>
+<p6>Create a reactive graphic where 4 lines emanating from the 4 corners connect to the mouse.
+<m6>
+<p6>Using &lt; mouse 3 &gt;, redesign the graphic of 6F to also react to the mouse by inverting the scheme of gray while the mouse is pressed.
+<m6>
+<h7>Time, Time, Time
+<p7>Using &lt;time 3&gt; and &lt;time 4&gt;, move dots and/or lines around the screen.
+<m7>
+<p7>Create a simple, functional clock.
+<m7>
+<p7>Create a dynamic compositition that will change throughout the day. Remember modulation and contrast.
+<m7>
+<h8>Nested Loops
+<p8>Use a nested loop to draw a 10 x 10 square using only the 'set' command.
+<m8>
+<p8>Use multiplication to spread your dots out and vary the dot intensities. Use temporary variables xl and xy for dot position.
+<m8>
+<p8>Add a second set of dots in your loop which use new variables x2 and y2.
+<m8>
+<p8>Connect your first and second set of dots with the line command.
+<m8>
+<p8>Bonus time!
+<m8>
+<h9>Everyone's talking about the &lt;net&gt
+<p9>I will publish the coordinates of the mouse on my machine at <net 1> and <net 2>. Represent these changing values inside a 'forever'.
+<m9>
+<p9>Create an applet that publishes values (such as your mouse coordinates) for others on the network. Display everyone's numbers in some fashion.
+<m9>
+<p9>With the rest of the group, create a small piece that interacts with others on the network in a more sophisticated fashion than the previous problem.
+<m9>

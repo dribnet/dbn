@@ -1,0 +1,1 @@
+// enter program// enter programrepeat a 0 100{paper 0pen aline 20 0 80 100pen (100-a)line 20 0 100 80}

@@ -1,0 +1,1 @@
+// enter programpaper 100forever{pen 0paper 100set ts <time 3>set tm <time 2>set s ((ts * 100) / 59)set m ((tm * 100) / 59)line 0 0 s sline m 0 0 0}

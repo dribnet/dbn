@@ -1,0 +1,1 @@
+// enter programpaper 0forever{   set mx <mouse 1>   set my <mouse 2>   set [mx my] <mouse 3>   set [(mx+1) (my+1)] <mouse 3>   set [(mx-1) (my-1)] <mouse 3>   set [(mx+2) (my+2)] <mouse 3>   set [(mx-2) (my-2)] <mouse 3>   set [(mx+3) (my+3)] <mouse 3>   set [(mx-3) (my-3)] <mouse 3>}

@@ -1,0 +1,1 @@
+// enter programpaper 25repeat a 0 100{set [ (a*5) 50 ] 100}

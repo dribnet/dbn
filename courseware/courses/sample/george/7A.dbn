@@ -1,0 +1,1 @@
+// enter programpaper 100pen 0forever{paper 100set ts <time 4>   set [(ts + 1) ts] 0}

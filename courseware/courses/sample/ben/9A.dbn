@@ -1,0 +1,1 @@
+forever{   set mx <mouse 1>   set my <mouse 2>   set <net 1> mx   set <net 2> my   line mx my mx my   same? <mouse 3> 100   {      paper 0   }}

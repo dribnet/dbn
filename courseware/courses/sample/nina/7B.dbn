@@ -1,0 +1,1 @@
+// enter programpaper 100pen 10forever{   set a <time 4>   line a a 90 50   set a <time 4>   line a 20 60 a   set a <time 4>   line 10 a a 80   set a <time 4>   line 0 a 20 a   paper 100}

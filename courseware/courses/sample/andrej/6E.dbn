@@ -1,0 +1,1 @@
+// enter program// enter programforever{   set mx <mouse 1>   set my <mouse 2>   paper 0   line mx my (mx+10) my   line mx my mx (my+10)   line (mx+10) my mx (my+10)}

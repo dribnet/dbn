@@ -1,0 +1,1 @@
+// enter programpaper 0set lastx <net 1>set lasty <net 2>forever{set x (lastx - lasty)paper xset nx <net 1>set ny <net 2>repeat a 0 20{line lastx (lasty+a) nx (ny+a)}set lastx nxset lasty nyrepeat a 0 20{line (nx+a) ny (nx+a) (ny+20)}}

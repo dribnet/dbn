@@ -1,0 +1,1 @@
+// enter programpaper 100pen 0forever{   paper 100   set a <time 3>   pen 0   line a 0 a 20   set b <time 2>   pen 20   line b 20 b 40   line (b+1) 20 (b+1) 40   set c <time 1>   pen 50   line c 40 c 60   line (c+1) 40 (c+1) 60   line (c+2) 40 (c+2) 60}

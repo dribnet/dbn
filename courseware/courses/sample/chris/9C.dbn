@@ -1,0 +1,1 @@
+// enter programforever{   set mx <mouse 1>   set my <mouse 2>   set <net 7> mx   set <net 8> my   pen 100   line <net 3> 20 <net 5> my   pen 50   line mx <net 1> 100 mx}

@@ -1,0 +1,1 @@
+// enter programpaper 100repeat a 0 100{set [(a*3) (a*7)] a}

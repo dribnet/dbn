@@ -1,0 +1,1 @@
+// enter programpaper 0pen 100repeat a 0 100{   paper 0   line  a 50 (a*3) 60   line 20 (a*4) 30 a}repeat a 100 0{   line  a 50 (a*4) 60   line 20 (a*3) 30 a}repeat a 0 100{   line  a 50 (a*3) 60   line 20 (a*4) 30 a}repeat a 100 0{   line  a 80 (a*4) 90   line 60 (a*3) 70 a}

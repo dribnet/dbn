@@ -1,0 +1,1 @@
+// enter programpaper 40repeat a 1 10{   repeat b 1 10   {      set [a b] 70   }}

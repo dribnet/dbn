@@ -1,0 +1,1 @@
+// enter programpaper 0forever{   set mx <mouse 1>   set my <mouse 2>   set [mx my] 100   set [(mx+1) my] 100   line (mx-2) my (mx+2) 100   line mx (my-2) mx (my+2)}

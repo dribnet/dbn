@@ -1,0 +1,1 @@
+paper 100repeat a 1 100{   paper 100   pen (2*a)   line 0 a 100 a   pen a   line 0 (100-a) 100 (100-a)}

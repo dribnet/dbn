@@ -1,0 +1,1 @@
+// enter programpaper 88repeat a 0 68{   pen (a * 2 - 50)   //pen a   line a 20 a 80}repeat a 20 90{   pen (a * 2 - 95)   //pen a   line a 13 a 35}

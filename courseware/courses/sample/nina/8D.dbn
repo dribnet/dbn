@@ -1,0 +1,1 @@
+// enter programpaper 50repeat a 0 40{   repeat b 0 50   {      set x1 (a+2)      set y1 (b/2)      set x2 (a*6+20)      set y2 (b*6-10)      pen (a-10)      line x1 y1 x2 y2   }}

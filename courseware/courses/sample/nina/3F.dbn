@@ -1,0 +1,1 @@
+// enter programpaper 100repeat A 10 90{   pen A   line A 10 A 90   pen 0   line A 30 A 70}repeat A 20 80{   pen 40   line A 20 A 50}

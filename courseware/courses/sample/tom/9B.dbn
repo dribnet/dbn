@@ -1,0 +1,1 @@
+// enter programpaper 0forever{   pen 50   set mx <mouse 1>   set my <mouse 2>   set <net 5> <mouse 1>   set <net 6> <mouse 2>   pen 80   line 0 0 <net 3> <net 4>   pen 20   line 20 80 <net 5> <net 6>   pen 50   line 90 10 <net 7> <net 8>}

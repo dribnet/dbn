@@ -1,0 +1,1 @@
+// enter programrepeat a 0 20{   repeat b 0 40   {      set x1 (20+a*2)      set y1 (b*2+10)      set [x1 y1] 100  }}

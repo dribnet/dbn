@@ -1,0 +1,1 @@
+// enter programrepeat a 100 0{   repeat b 20 10   {      set [a b] 50   }}repeat a 0 40{   repeat b 0 50   {      set [a b] 10   }}

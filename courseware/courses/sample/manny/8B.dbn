@@ -1,0 +1,1 @@
+// enter programpaper 90set a 50set x 0set y 0set space 4repeat x1 0 a{   repeat y1 0 a   {      set x2 (x1 + x)      set y2 (y1 + y)      set color (x2 + y2)      set x3 (x2 * space)      set y3 (y2 * space)      set [x3 y3] color   }}

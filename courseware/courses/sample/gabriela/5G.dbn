@@ -1,0 +1,1 @@
+// enter programrepeat a 10 100{paper 50pen aline 10 10 80 80pen (100-a)line 0 40 a 80pen (a*2)line 25 10 100 10pen (a*4)line 0 50 100 50pen (50-a)line 40 0 80 a}

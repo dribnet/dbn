@@ -1,0 +1,1 @@
+// enter programpaper 100repeat a 0 102{paper 100set [50 (a*2)] 0set [20 a] 0set [80 (a*4)] 0set [75 (a*7)] 0set [55 (a*6)] 0set [90 (a*9)] 0set [91 (a*9)] 0set [92 (a*9)] 0set [93 (a*9)] 0set [94 (a*9)] 0set [95 (a*9)] 0set [96 (a*9)] 0set [97 (a*9)] 0set [74 (a*5)] 0}

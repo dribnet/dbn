@@ -1,0 +1,1 @@
+// enter programrepeat a 65 85{   repeat b 60 80   {      set [a b] 100   }}

@@ -1,0 +1,1 @@
+// yo!antialias 100forever{   paper 40   set q 0   repeat a 1 10   {      repeat b 1 10      {         set x1 (50+b*3+a)         set y1 (50+a*2)         set x2 (a*4)         set y2 (b*4)         pen q         line x1 y1 x2 y2         set [x1 y1] 70         set [x2 y2] 70         set q (q+1)         refresh      }   }   pause 100}

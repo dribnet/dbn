@@ -1,0 +1,1 @@
+// 8Cpaper 40set q 0repeat a 1 10{   repeat b 1 10   {      set x1 (a*4)      set y1 (b*4)      set x2 (100 - (10+b*3+a))      set y2 (100 - (10+a*2))      set [x1 y1] q      set [x2 y2] q      set q (q+1)   }}

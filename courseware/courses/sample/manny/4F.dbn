@@ -1,0 +1,1 @@
+// enter programpaper 100repeat a 0 100{   set [(2*a) a] 50   set [a (3*a)] 20   set [(2*a) (3*a)] 20}

@@ -1,0 +1,1 @@
+// enter programrepeat a 30 60{   repeat b 0 30   {      set y1 ((b*3)+10)      set x1 (a+20)      set [x1 y1] 25   }}repeat a 60 30{   repeat b 30 0   {      set y1 ((b*3)+11)      set x1 (a-10)      set [x1 y1] 50   }}repeat a 30 90{   repeat b 0 30   {      set y1 ((b*3)+10)      set x1 (a-10)      set [x1 y1] 100   }}

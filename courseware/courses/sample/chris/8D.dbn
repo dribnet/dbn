@@ -1,0 +1,1 @@
+// enter programpaper 100set color 50repeat a 10 0{   repeat b 0 10   {      set color (8*(a+b))      set x1 (70+a*5)      set y1 (70+b*5)      set x2 (a*3)      set y2 (b*3)      pen color      line x1 y1 x2 y2      set [x1 y1] 50      set [x2 y2] 100    }}

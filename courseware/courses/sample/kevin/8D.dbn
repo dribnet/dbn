@@ -1,0 +1,1 @@
+// enter programpaper 100repeat a 30 70{   repeat b 10 50   {      set y1 ((b*5)+2)      set x1 (a+20)      set x2 (2*a+5)      set y2 (b*2-10)      set [x1 y1] 100      set [x2 y2] 0      //line x2 y1 0 0      //line 70 10 x2 y1      pen a      line x1 y1 x2 y2   }}

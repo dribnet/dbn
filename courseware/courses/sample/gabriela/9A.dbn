@@ -1,0 +1,1 @@
+// enter programpaper 50forever{   set nx <net 1>   set ny <net 2>   line nx ny ny nx      repeat a 5 15   {   line nx ny (ny+a*2) nx   }      //set a ny   //repeat a nx ny      //line 0 nx 80 ny   //line 80 nx 80 ny   //{   //   pen (a*50)   //  set paper a   //}}

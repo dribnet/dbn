@@ -1,0 +1,1 @@
+// enter programpaper 0repeat A 0 10{   repeat B 0 10   {      set x1 (A*10)      set y1 (B*10)      set [x1 y1] x1   }}

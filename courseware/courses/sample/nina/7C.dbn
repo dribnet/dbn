@@ -1,0 +1,1 @@
+// enter programpaper 100pen 0forever{   set [<time 4> 50] 50   same? <time 4> 59   {      line 20 20 80 20   }   set [<time 3> 50] 30   same? <time 3> 10   paper 100}
