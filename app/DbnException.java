@@ -10,8 +10,10 @@ class DbnException extends Exception {
 	this.line = line;
     }
 
+#ifndef PLAYER
     public DbnException(String message, DbnToken token) {
 	super(message + ", token: " + token.toString());
     }
+#endif
 }
 

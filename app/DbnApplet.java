@@ -8,27 +8,42 @@ import java.util.*;
 public class DbnApplet extends Applet
 {
     static DbnApplet applet;
-    static boolean application;
     static Properties properties;
+    boolean errorState;
 
+#ifndef PLAYER
     String encoding;
-
-    static final String DEFAULT_PROGRAM = "// enter program\n";
-
     DbnEnvironment environment;
-
+#endif
 
     public void init() {
 	applet = this;
-	encoding = get("encoding", null);
-	new DbnPreprocessor(this);
-
-	//String file, prog = null;
-	//String progs[] = null;
-	//setLayout(new BorderLayout());
 	//System.getProperties().list(System.out);
 	//System.out.println("home = " + System.getProperty("user.home"));
 	//System.out.println("prefix = " + System.getProperty("sys.prefix"));
+
+#ifdef PLAYER
+	// because it's the player version, cut out all the 
+	// other crap, so that this file is as small as possible
+
+	//} else if (mode.equals("player")) {
+	// could also do a class.forname for jdk11
+	//DbnPlayerProgram dpp = new DbnPlayerProgram(this);
+	try {
+	    String program = get("program");
+	    DbnPlayer player = 
+		((DbnPlayer) Class.forName(program).newInstance());
+	    add(player);
+	    //environment = player;
+	    player.init(this);
+	    player.start();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    errorState = true;
+	}
+#else
+	encoding = get("encoding");
+	new DbnPreprocessor(this);
 
 	String mode = get("mode", "editor");
 	if (mode.equals("editor")) {
@@ -36,9 +51,9 @@ public class DbnApplet extends Applet
 	    System.exit(0);
 	    /*
 	    boolean beautify = false; 
-	    String program = get("program", null); 
+	    String program = get("program"); 
 	    if (program == null) { 
-		program = get("inline_program", null); 
+		program = get("inline_program"); 
 	    } 
 	    if (program != null) { 
 		// don't convert ; to \n if scheme
@@ -48,8 +63,6 @@ public class DbnApplet extends Applet
 		    if (program.charAt(0) != '#') 
 			beautify = true; 
 		} 
-	    } else { 
-		program = DEFAULT_PROGRAM; 
 	    } 
 	    add(hostess = new DbnEditor(this, program));
 	    DbnEditor editor = new DbnEditor(this, program);
@@ -64,7 +77,7 @@ public class DbnApplet extends Applet
 	    // first count how many programs
 	    int counter = 0;
 	    while (true) {
-		if (get("program" + counter, null) == null)
+		if (get("program" + counter) == null)
 		    break;
 		counter++;
 	    }
@@ -73,89 +86,74 @@ public class DbnApplet extends Applet
 	    String filenames[] = new String[counter];
 	    String programs[] = new String[counter];
 	    for (int i = 0; i < counter; i++) {
-		String filename = get("program" + i, null);
+		String filename = get("program" + i);
 		programs[i] = readFile(filename);
 	    }
 	    DbnGrid grid = new DbnGrid(this, programs);
 	    add(grid);
 	    environment = grid;
 
-	} else if (mode.equals("player")) {
-	    // could also do a class.forname for jdk11
-	    DbnPlayerProgram dpp = new DbnPlayerProgram(this);
-	    add(dpp);
-	    environment = dpp;
-	    dpp.start();
-
 #ifdef CONVERTER
 	} else if (mode.equals("convert")) {
-	    try {
-		String program = readFile(get("program", null));
-		DbnParser parser = 
-		    new DbnParser(DbnPreprocessor.process(program));
-		String converted = parser.getRoot().convert();
-		FileOutputStream fos = 
-		    new FileOutputStream("DbnPlayerProgram.java");
-		PrintStream ps = new PrintStream(fos);
-		ps.print(converted);
-		ps.close();
-	    } catch (Exception e) {
-		e.printStackTrace();
-	    }
+	    convert(readFile(get("input_filename")), 
+		    get("output_class"), get("output_filename"));
 	    System.exit(0);
 #endif
-
-	} else if (mode.equals("exhibition")) {
-	    Hashtable names = new Hashtable();
-	    names.put("akilian", "Axel Kilian");
-	    names.put("carsonr", "Carson Reynolds");
-	    names.put("darkmoon", "Chris McEniry");
-	    names.put("golan", "Golan Levin");
-	    names.put("jared", "Jared Schiffman");
-	    names.put("shyam", "Shyam Krishnamoorthy");
-	    names.put("ben", "Ben Fry");
-	    names.put("casey", "Casey Reas");
-	    names.put("dc", "David Chiou");
-	    names.put("hannes", "Hannes Vilhjalmsson");
-	    names.put("kelly", "Kelly Heaton");
-	    names.put("tom", "Tom White");
-	    names.put("cameron", "Cameron Marlow");
-	    names.put("dana", "Dana Spiegel");
-	    names.put("elise", "Elise Co");
-	    names.put("james", "James Seo");
-	    names.put("ppk", "Pengkai Pan");
-
-	    int counter = 0; 
-	    while (true) {
-		if (get("program" + counter, null) == null)
-		    break;
-		counter++;
-	    }
-	    String filenames[] = new String[counter];
-	    String programs[] = new String[counter];
-	    String students[] = new String[counter];
-	    for (int i = 0; i < counter; i++) {
-		String filename = get("program" + i, null);
-		String userid = filename.substring(0, filename.lastIndexOf("/"));
-		userid = userid.substring(userid.lastIndexOf("/") + 1);
-		students[i] = (String) names.get(userid);
-		programs[i] = readFile(filename);
-	    }
-	    DbnExhibitionGrid grid = 
-		new DbnExhibitionGrid(this, programs, students);
-	    add(grid);
-	    environment = grid;
 	}
+#endif PLAYER
     }
 
 
+#ifndef PLAYER
     public void destroy() {
 	if (environment != null) {
 	    environment.terminate();
 	}
     }
+#endif
 
 
+    public void paint(Graphics g) {
+	if (errorState) {
+	    g.setColor(Color.red);
+	    Dimension d = size();
+	    g.fillRect(0, 0, d.width, d.height);
+	    //} else {
+	    //super(g);
+	}
+    }
+
+#ifdef CONVERTER
+    public void convert(String program, String classname, String filename) {
+	try {
+	    DbnParser parser = 
+		new DbnParser(DbnPreprocessor.process(program));
+	    String converted = parser.getRoot().convert(classname);
+	    FileOutputStream fos = 
+		new FileOutputStream(filename + ".java");
+	    PrintStream ps = new PrintStream(fos);
+	    ps.print(converted);
+	    ps.close();
+
+	    fos = new FileOutputStream(filename + ".html");
+	    ps = new PrintStream(fos);
+	    ps.println("<HTML> <BODY BGCOLOR=\"white\">");
+	    ps.println("<APPLET CODE=\"DbnApplet\" WIDTH=101 HEIGHT=101>");
+	    ps.print("<PARAM NAME=\"program\" VALUE=\"");
+	    ps.print(classname);
+	    ps.println("\">");
+	    ps.println("</APPLET>");
+	    ps.println("</BODY> </HTML>");
+	    ps.close();
+	    
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+    }
+#endif
+
+
+#ifndef PLAYER
     /* loading order:
      * 0. if application, a file on the disk
      * 1. a file relative to the .html file containing the applet
@@ -232,7 +230,7 @@ public class DbnApplet extends Applet
 #else
 	    // use old-style jdk 1.0 constructor
 	    return new String(program, 0);
-#endif
+#endif 
 
 	} catch (Exception e) {
 	    System.err.println("problem during download");
@@ -240,18 +238,23 @@ public class DbnApplet extends Applet
 	    return null;
 	}
     }
-
+#endif  // !PLAYER
 
     // all the information from DbnProperties
 
+    static public String get(String attribute) {
+	return get(attribute, null);
+    }
+
     static public String get(String attribute, String defaultValue) {
-	String value = application ?
+	String value = (properties != null) ?
 	    properties.getProperty(attribute) : applet.getParameter(attribute);
 
 	return (value == null) ? 
 	    defaultValue : value;
     }
 
+#ifndef PLAYER
     static public boolean getBoolean(String attribute, boolean defaultValue) {
 	String value = get(attribute, null);
 	return (value == null) ? defaultValue : 
@@ -278,11 +281,6 @@ public class DbnApplet extends Applet
 	return parsed;
     }
 
-    static public boolean isApplet() {
-	return (!application);
-	//return (applet != null);
-    }
-
     static public boolean isMacintosh() {
 	return System.getProperty("os.name").toLowerCase().indexOf("mac") != -1;
     }
@@ -292,6 +290,15 @@ public class DbnApplet extends Applet
 	//return false;
 	return !isApplet();
     }
+
+    static public Font getFont(String which) {
+	if (which.equals("editor")) {
+	    // 'Monospaced' and 'courier' also caused problems.. ;-/
+	    return new Font("monospaced", Font.PLAIN, 12);
+	}
+	return null;
+    }
+#endif  // PLAYER
 
     public String getNetServer() {
 	String host = get("net_server", null);
@@ -303,12 +310,8 @@ public class DbnApplet extends Applet
 	return "dbn.media.mit.edu";
     }
 
-    static public Font getFont(String which) {
-	if (which.equals("editor")) {
-	    // 'Monospaced' and 'courier' also caused problems.. ;-/
-	    return new Font("monospaced", Font.PLAIN, 12);
-	}
-	return null;
+    static public boolean isApplet() {
+	return (properties == null);
     }
 }
 

@@ -121,8 +121,6 @@ print `$compile_command`;
 
 # clean up
 print "cleaning...\n";
-#unlink $files;
-#rmdir $temp_dir;
 `rm -rf $temp_dir`;
 
 # finished

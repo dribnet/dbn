@@ -1,5 +1,55 @@
+#ifdef EXHIBITION
+
 import java.awt.*;
 import java.util.*;
+
+
+// stuff from DbnApplet
+
+//} else if (mode.equals("exhibition")) {
+	    /*
+	    Hashtable names = new Hashtable();
+	    names.put("akilian", "Axel Kilian");
+	    names.put("carsonr", "Carson Reynolds");
+	    names.put("darkmoon", "Chris McEniry");
+	    names.put("golan", "Golan Levin");
+	    names.put("jared", "Jared Schiffman");
+	    names.put("shyam", "Shyam Krishnamoorthy");
+	    names.put("ben", "Ben Fry");
+	    names.put("casey", "Casey Reas");
+	    names.put("dc", "David Chiou");
+	    names.put("hannes", "Hannes Vilhjalmsson");
+	    names.put("kelly", "Kelly Heaton");
+	    names.put("tom", "Tom White");
+	    names.put("cameron", "Cameron Marlow");
+	    names.put("dana", "Dana Spiegel");
+	    names.put("elise", "Elise Co");
+	    names.put("james", "James Seo");
+	    names.put("ppk", "Pengkai Pan");
+
+	    int counter = 0; 
+	    while (true) {
+		if (get("program" + counter) == null)
+		    break;
+		counter++;
+	    }
+	    String filenames[] = new String[counter];
+	    String programs[] = new String[counter];
+	    String students[] = new String[counter];
+	    for (int i = 0; i < counter; i++) {
+		String filename = get("program" + i);
+		String userid = filename.substring(0, filename.lastIndexOf("/"));
+		userid = userid.substring(userid.lastIndexOf("/") + 1);
+		students[i] = (String) names.get(userid);
+		programs[i] = readFile(filename);
+	    }
+	    DbnExhibitionGrid grid = 
+		new DbnExhibitionGrid(this, programs, students);
+	    add(grid);
+	    environment = grid;
+	    */
+    //}
+
 
 
 public class DbnExhibitionGrid extends Panel implements DbnEnvironment {
@@ -394,3 +444,6 @@ class DbnExhibitionMover implements Runnable {
     }
 }
 */
+
+
+#endif

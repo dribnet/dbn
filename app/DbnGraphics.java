@@ -5,10 +5,10 @@ import java.net.*;
 import java.util.*;
 
 
-// TODO add method for setting hostname
 // TODO don't create a new Date() on every idle() step
-// TODO write jdk11 code
-// TODO switch grays around the correct way, setup palette
+// TODO write memoryimagesource code (call it jdk11_plus)
+// DONE add method for setting hostname
+// DONE switch grays around the correct way, setup palette
 
 public class DbnGraphics extends Panel {
     // haha, don't want anybody fiddling with the grays
@@ -85,6 +85,7 @@ public class DbnGraphics extends Panel {
 	//dbr.render();
     }
 
+
     // uglyish hack for scheme/python, the fix is even uglier, though
     static DbnGraphics currentDbnGraphics;
 
@@ -98,10 +99,6 @@ public class DbnGraphics extends Panel {
 
     public void setCurrentDbnGraphics() {
 	currentDbnGraphics = this;
-    }
-
-    public Dimension preferredSize() {
-	return new Dimension(width, height);
     }
 
     /////////////////////////////////////////////////////////////
@@ -123,10 +120,9 @@ public class DbnGraphics extends Panel {
 
 
     public void paper(int val) {
-	byte bVal;
-	
 	paperFlush();
 	// voluntary slowdown
+	/*
 	try {
 	    long curt = System.currentTimeMillis();
 	    long sleept = curt-lastpapert;
@@ -139,10 +135,11 @@ public class DbnGraphics extends Panel {
 	    Thread.sleep(sleept);
 	    lastpapert = curt;
 	} catch (Exception e) { }
+	*/
 
-	bVal = (byte) bound(val, 100);
-	for (int i = 0; i < pixelCount; i++) pixels[i] = bVal;
-	g.setColor(grays[bVal]);
+	byte bval = (byte) bound(val, 100);
+	for (int i = 0; i < pixelCount; i++) pixels[i] = bval;
+	g.setColor(grays[bval]);
 	g.fillRect(0, 0, width, height);
     }
 
@@ -164,14 +161,14 @@ public class DbnGraphics extends Panel {
 	if (x2 < x1) { int dummy = x1; x1 = x2; x2 = dummy; }
 	if (y2 < y1) { int dummy = y1; y1 = y2; y2 = dummy; }
 	
-	byte bVal = (byte) val;
+	byte bval = (byte) val;
 	for (int j = y1; j <= y2; j++) {
 	    int pp = width*(height1-j);
 	    for (int i = x1; i <= x2; i++) {
-		pixels[pp+i] = bVal;
+		pixels[pp+i] = bval;
 	    }
 	}		
-	g.setColor(grays[bVal]);
+	g.setColor(grays[val]);
 
 	// don't look at this code too long, you'll hurt your head
 	y1 = height1 - y1;
@@ -837,6 +834,9 @@ public class DbnGraphics extends Panel {
 
     // panel methods, get connector input, etc.
 
+    public Dimension preferredSize() {
+	return new Dimension(width, height);
+    }
 
     public void update() {
 	paint(this.getGraphics());
@@ -872,9 +872,6 @@ public class DbnGraphics extends Panel {
     */
     //}
 
-    //public void terminate() {
-    //}
-
 
     public void idle(long currentTime) {
 	//Date d = new Date(); // wooaaah! garbage city!
@@ -883,6 +880,7 @@ public class DbnGraphics extends Panel {
 	//time[2] = d.getSeconds();
 	//time[3] = (int) (currentTime % 1000)/10;
 
+	System.out.println("graphics idling.. good");
 	// mac java doesn't always post key-up events, 
 	// so time out the characters after a second
 	for (int i = 0; i < 26; i++) {
@@ -946,7 +944,7 @@ public class DbnGraphics extends Panel {
     }
 
     public boolean updateMouse(int x, int y) {
-	System.out.println("updateMouse " + x + ", " + y);
+	//System.out.println("updateMouse " + x + ", " + y);
 	mouse[0] = x;
 	mouse[1] = height1 - y;
 	return true;

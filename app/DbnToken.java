@@ -233,23 +233,23 @@ public class DbnToken {
     static boolean shouldOutputFunctions;
     static boolean insideLoop;
 
-    public String convert() {
+    public String convert(String classname) {
 	//System.err.println(kind);
 	switch (kind) {
 
 	case ROOT:
 	    cbuffer = new StringBuffer();
-	    outputln("public class DbnPlayerProgram extends DbnPlayer");
+	    outputln("public class " + classname + " extends DbnPlayer");
 	    outputln("{");
 	    moreIndent();
 	    
-	    outputln("public DbnPlayerProgram(DbnApplet applet)");
-	    outputln("{");
-	    moreIndent();
-	    outputln("super(applet);");
-	    lessIndent();
-	    outputln("}");
-	    outputln();
+	    //outputln("public " + classname + "(DbnApplet applet)");
+	    //outputln("{");
+	    //moreIndent();
+	    //outputln("super(applet);");
+	    //lessIndent();
+	    //outputln("}");
+	    //outputln();
 
 	    shouldOutputFunctions = true;
 	    Enumeration e = functions.elements();
@@ -257,7 +257,7 @@ public class DbnToken {
 		Object object = e.nextElement();
 		if (object instanceof DbnToken) {
 		    DbnToken function = (DbnToken) object;
-		    function.convert();
+		    function.convert(null);
 		    outputln();
 		}
 	    }
@@ -559,12 +559,12 @@ public class DbnToken {
     }
 
     private void convertChild(int which) {
-	children[which].convert();
+	children[which].convert(null);
     }
 
     private void convertChildren() {
 	for (int i = 0; i < childCount; i++) {
-	    children[i].convert();
+	    children[i].convert(null);
 	}
     }
 

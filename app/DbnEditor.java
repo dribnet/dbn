@@ -8,6 +8,8 @@ import java.util.*;
 // height of button panel is 35
 
 public class DbnEditor implements DbnEnvironment {
+    static final String DEFAULT_PROGRAM = "// enter program\n";
+
     // set explicitly because different platforms use different colors
     static final Color panelBgColor = new Color(204, 204, 204);
 
@@ -69,6 +71,7 @@ public class DbnEditor implements DbnEnvironment {
 	statusPanel.add(status = new Label());
 	right.add("North", statusPanel);
 
+	if (program == null) program = DEFAULT_PROGRAM;
 	textarea = new TextArea(program, 20, 48);
 	textarea.setFont(DbnProperties.getFont("editor"));
 	right.add("Center", text);
