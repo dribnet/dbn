@@ -21,6 +21,10 @@ public class DbnGraphics extends Panel {
     }
   }
 
+  static final int QUICKTIME = 0;
+  static final int TIFF = 1;
+  static final int ILLUSTRATOR = 2;
+
   Graphics panelGraphics;
 
   Image baseImage; // all the background stuff
@@ -39,8 +43,8 @@ public class DbnGraphics extends Panel {
   //boolean antialias;
   int magnification = 1;
 
-  //Image lastImage;
-  //Graphics lastImageg;
+  Image lastImage;
+  Graphics lastImageg;
 
   Color bgColor;
   Frame frame;
@@ -613,6 +617,19 @@ public class DbnGraphics extends Panel {
   }
 
 
+  public void save(int format) {
+    switch (format) {
+#ifdef RECORDER
+    case QUICKTIME:
+      break;
+#endif
+    case TIFF:
+      break;
+    case ILLUSTRATOR:
+      break;
+    }
+  }
+
   ////////////////////////////////////////////////////////////
 
   // internal methods, or likely to be called by alternate 
@@ -635,38 +652,239 @@ public class DbnGraphics extends Panel {
     return grayMap[bound(gray, 100)];
   }
 
+  /*
   public byte[] getPixels() {
     // called by editor to save the pixel array to the 
     // courseware server
     //return pixels;
     return null;
   }
+  */
 
 
-  // awful way to do printing, but sometimes brute force is
-  // just the way. java printing across multiple platforms is
-  // outrageously inconsistent.
+  ////////////////////////////////////////////////////////////
 
-  public void print(Graphics g, int offsetX, int offsetY) {
-    //g.drawImage(image, offsetX, offsetY, null);
-	
-    int index = 0;
-    for (int y = 0; y < height; y++) {
-      for (int x = 0; x < width; x++) {
-	// hopefully little overhead in setting color
-	//g.setColor(grayMap[pixels[index++]]);
-	g.setColor(new Color(pixels[index++]));
-	g.drawLine(offsetX + x, offsetY + y,
-		   offsetX + x, offsetY + y);
+  // panel methods
+
+  public Dimension preferredSize() {
+    //System.out.println("setting new preferred size");
+    return new Dimension(width1*magnification + 30, 
+			 height1*magnification + 30);
+    //return new Dimension(width, height);
+  }
+
+
+  public void update() {
+    if (panelGraphics == null)
+      panelGraphics = this.getGraphics();
+    if (panelGraphics != null)
+      paint(panelGraphics);
+
+    flushCount = 0;
+    if (dbnSource != null) {
+      dbnSource.newPixels();
+    }
+
+#ifdef RECORDER
+    // maybe this should go inside DbnEditorGraphics, 
+    // but i'm not sure
+    //DbnRecorder.addFrame(pixels);
+    DbnRecorder.addFrame(dbnImage, pixels, mouse[0], 
+			 height1-mouse[1], (mouse[2] == 100));
+#endif
+  }
+
+  boolean updateBase = false;
+
+  public void update(Graphics g) {
+    //System.out.println("calling update, should fix background");
+    updateBase = true;
+    paint(g);
+  }
+
+
+  public void base() {
+    if (baseImage == null) updateBase = true;
+    //if ((baseImage == null) || (updateBase)) {
+    if (updateBase) {
+      //System.out.println("reallocating baseImage");
+      //Dimension dim = new Dimension(width + 100, height + 100);
+      Dimension dim = preferredSize();
+      baseImage = createImage(dim.width, dim.height);
+      baseGraphics = baseImage.getGraphics();
+
+      lastImage = createImage(width, height);
+      lastGraphics = lastImage.getGraphics();
+
+      gx = (dim.width - width*magnification) / 2;
+      gy = (dim.height - height*magnification) / 2;
+
+      // draw background
+      Graphics g = baseGraphics;
+      g.setColor(bgColor);
+      g.fillRect(0, 0, dim.width, dim.height);
+
+      // draw a dark frame around the runner
+      g.setColor(Color.black);
+      g.drawRect(gx-1, gy-1, width*magnification+1, height*magnification+1);
+    }
+  }
+
+
+  public void paint(Graphics g) {
+    base();
+
+    if (dbnImage != null) {
+      baseGraphics.drawImage(dbnImage, gx, gy, 
+			     width*magnification, height*magnification, null);
+      // copy into buffer for writing to a tiff or quicktime
+      lastGraphics.drawImage(dbnImage, 0, 0, null); 
+      
+      //} else {
+      //System.out.println("DBN IMAGE *WAS* NULL");
+    }
+    // avoid an exception during quit
+    if ((g != null) && (baseImage != null)) {
+      // blit to screen
+      g.drawImage(baseImage, 0, 0, null);
+      //screen.drawImage(image, gx, gy, 
+      //	  width*magnification, height*magnification, null);
+    }
+    updateBase = false;
+  }
+
+
+  public void paint() {
+  // blit only changed portion
+    g.drawImage(dbnImage, gx, gy, 
+		width*magnification, height*magnification, null);
+  }
+
+
+  static byte tiffHeader[] = {
+    77, 77, 0, 42, 0, 0, 0, 8, 0, 9, 0, -2, 0, 4, 0, 0, 0, 1, 0, 0,
+    0, 0, 1, 0, 0, 3, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 3, 0, 0, 0, 1, 
+    0, 0, 0, 0, 1, 2, 0, 3, 0, 0, 0, 3, 0, 0, 0, 122, 1, 6, 0, 3, 0, 
+    0, 0, 1, 0, 2, 0, 0, 1, 17, 0, 4, 0, 0, 0, 1, 0, 0, 3, 0, 1, 21, 
+    0, 3, 0, 0, 0, 1, 0, 3, 0, 0, 1, 22, 0, 3, 0, 0, 0, 1, 0, 0, 0, 0, 
+    1, 23, 0, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 8, 0, 8
+  };
+
+  static byte[] makeTiffData(int pixels[], int width, int height) {
+    byte tiff[] = new byte[768 + width*height*3];
+    System.arraycopy(tiffHeader, 0, tiff, 0, tiffHeader.length);
+    tiff[30] = (byte) ((width >> 8) & 0xff);
+    tiff[31] = (byte) ((width) & 0xff);
+    tiff[42] = tiff[102] = (byte) ((height >> 8) & 0xff);
+    tiff[43] = tiff[103] = (byte) ((height) & 0xff);
+    int count = width*height*3;
+    tiff[114] = (byte) ((count >> 24) & 0xff);
+    tiff[115] = (byte) ((count >> 16) & 0xff);
+    tiff[116] = (byte) ((count >> 8) & 0xff);
+    tiff[117] = (byte) ((count) & 0xff);
+    int index = 768;
+    for (int i = 0; i < pixels.length; i++) {
+      tiff[index++] = (pixels[i] >> 16) & 0xff;
+      tiff[index++] = (pixels[i] >> 8) & 0xff;
+      tiff[index++] = pixels[i] & 0xff;
+    }
+    return tiff;
+  }
+
+  public byte[] makeTiffData() {
+    return makeTiffData(pixels, width, height);
+  }
+
+
+  ////////////////////////////////////////////////////////////
+
+  // event handling
+
+
+  public void idle(long currentTime) {
+    //System.out.println("graphics idling.. good");
+    // mac java doesn't always post key-up events, 
+    // so time out the characters after a second
+    for (int i = 0; i < 26; i++) {
+      if ((key[i] == 100) && (currentTime-keyTime[i] > 1000)) {
+	keyTime[i] = -1;
+	key[i] = 0;
       }
     }
   }
-    
 
+
+  private final int letterKey(int n) {
+    if ((n >= 'a') && (n <= 'z')) return n - 'a';
+    if ((n >= 'A') && (n <= 'Z')) return n - 'A';
+    return -1;
+  }
+
+  public boolean keyDown(Event ev, int n) {
+    //if (n == 27) app.gui.terminate();  // ooh.. ugly
+    //System.out.println("got key " + n);
+    int which = letterKey(n);
+    if (which == -1) return false;
+    keyTime[which] = System.currentTimeMillis();
+    key[which] = 100;
+    //return true;
+    return false;
+  }
+
+  public boolean keyUp(Event ev, int n) {
+    int which = letterKey(n);
+    if (which == -1) return false;
+    keyTime[which] = -1;
+    key[which] = 0;
+    return false;
+  }
+
+
+  public boolean mouseDown(Event e, int x, int y) {
+    mouse[2] = 100;
+    return updateMouse(e, x, y);
+  }
+
+  public boolean mouseUp(Event e, int x, int y) {
+    mouse[2] = 0;
+    return updateMouse(e, x, y);
+  }
+
+  public boolean mouseMove(Event e, int x, int y) {
+    return updateMouse(e, x, y);
+  }
+ 
+  public boolean mouseDrag(Event e, int x, int y) {
+    return updateMouse(e, x, y);
+  }
+
+  public boolean mouseEnter(Event e, int x, int y) {    
+    setCursor(cursor); 
+    return true;
+  }
+
+  public boolean mouseExit(Event e, int x, int y) {
+    return updateMouse(e, x, y);
+  }
+
+
+  public boolean updateMouse(Event e, int x, int y) {
+    x -= gx;
+    y -= gy;
+    x /= magnification;
+    y /= magnification;
+    mouse[0] = x;
+    mouse[1] = height1 - y;
+    return true;
+  }
+
+
+  ////////////////////////////////////////////////////////////
+
+  // connector-related items
 
 
   public final int getMouse(int slot) { // throws DbnException {
-    //System.out.println("get");
     return mouse[slot-1];
   }
 
@@ -765,11 +983,6 @@ public class DbnGraphics extends Panel {
     }
   }
 
-
-
-  ////////////////////////////////////////////////////////////
-
-  // other connector-related items
 
   public boolean isConnector(String name) {
     return (name.equals("net") || name.equals("key") || 
@@ -909,7 +1122,6 @@ public class DbnGraphics extends Panel {
     }
   }
 
-
   public void flushNormal() {
     FDOT = 10;
     FPAPER = 100;
@@ -918,14 +1130,12 @@ public class DbnGraphics extends Panel {
     FMAX = 100;
   }    
 
-
   public void flushReduced(int lev) {
     FDOT=10/lev; 
     FLINE=10/lev; 
     FFIELD=50/lev; 
     FPAPER=100;
   }
-
 
   public void resetBlockDetect() { 
     insideforeverp = false; 
@@ -936,37 +1146,24 @@ public class DbnGraphics extends Panel {
     flushNormal();
   }
 
-
   public void beginForever() {
-    // fired on a '{'
-    //System.out.println("begin forever");
     insideforeverp = true;
     flushfire = -1;
     autoflushenablep = false;
   }
 
-
   public void endForever() {
-    // fired on a '}'
-    //System.out.println("end->"+flushfire);
     if (flushfire == -1) {
-      // did not flush during a forever
-      // force it
       if (aiRefresh) update();
       autoflushenablep= true;
     }
     flushfire = -1;
   }
 
-
   public void beginRepeat() {
-    // if within a forever, should be disabled anyways
-    //System.out.println("--****begrepeat");
     insiderepeatp = true;
     repeatlevel++;
-    //System.out.println("repeatlevel: "+repeatlevel+"/"+autoflushenablep);
     if (insideforeverp) {
-      // not much to do except for default
       if (repeatlevel == 1) { // special case
 	flushNormal();
       } else if (repeatlevel>1) {
@@ -982,12 +1179,9 @@ public class DbnGraphics extends Panel {
 	flushReduced(repeatlevel);
       }
     }
-	
   }
     
-
   public void endRepeat() {
-    //System.out.println("--****endrepeat");
     if (repeatlevel==1)
       insiderepeatp = false;
     repeatlevel--;
@@ -998,7 +1192,7 @@ public class DbnGraphics extends Panel {
       }
     }
   }
-    
+
   public void paperFlush() {	
     //	  System.out.println("paperflush request");
     if (insideforeverp && aiRefresh) {
@@ -1019,7 +1213,6 @@ public class DbnGraphics extends Panel {
     lastflushfire = flushfire;
   }
 
-
   public void fieldFlush() {
     if (insideforeverp && aiRefresh) {
       if (flushfire==-1) {
@@ -1033,250 +1226,4 @@ public class DbnGraphics extends Panel {
     }
     lastflushfire = flushfire;
   }	
-
-
-  ////////////////////////////////////////////////////////////
-
-  // panel methods, get connector input, etc.
-
-  public Dimension preferredSize() {
-    //System.out.println("setting new preferred size");
-    return new Dimension(width1*magnification + 30, 
-			 height1*magnification + 30);
-    //return new Dimension(width, height);
-  }
-
-
-  public void update() {
-    if (panelGraphics == null)
-      panelGraphics = this.getGraphics();
-    if (panelGraphics != null)
-      paint(panelGraphics);
-
-    flushCount = 0;
-    if (dbnSource != null) {
-      dbnSource.newPixels();
-    }
-
-#ifdef RECORDER
-    // maybe this should go inside DbnEditorGraphics, 
-    // but i'm not sure
-    //DbnRecorder.addFrame(pixels);
-    DbnRecorder.addFrame(dbnImage, pixels, mouse[0], 
-			 height1-mouse[1], (mouse[2] == 100));
-#endif
-    /*
-    if ((lastImage == null) && (image != null)) {
-      lastImage = createImage(width, height);
-      if (lastImage != null) {
-	lastImageg = lastImage.getGraphics();
-      }
-    }
-    if (lastImageg != null) {
-      lastImageg.drawImage(image, 0, 0, null);
-    }
-    */
-  }
-
-  boolean updateBase = false;
-
-  public void update(Graphics g) {
-    System.out.println("calling update, should fix background");
-    updateBase = true;
-    paint(g);
-  }
-
-
-  public void base() {
-    if (baseImage == null) updateBase = true;
-    //if ((baseImage == null) || (updateBase)) {
-    if (updateBase) {
-      System.out.println("reallocating baseImage");
-      //Dimension dim = new Dimension(width + 100, height + 100);
-      Dimension dim = preferredSize();
-      baseImage = createImage(dim.width, dim.height);
-      baseGraphics = baseImage.getGraphics();
-      gx = (dim.width - width*magnification) / 2;
-      gy = (dim.height - height*magnification) / 2;
-
-      // draw background
-      Graphics g = baseGraphics;
-      g.setColor(bgColor);
-      g.fillRect(0, 0, dim.width, dim.height);
-
-      // draw a dark frame around the runner
-      g.setColor(Color.black);
-      g.drawRect(gx-1, gy-1, width*magnification+1, height*magnification+1);
-    }
-  }
-
-  public void paint(Graphics g) {
-    base();
-
-    if (dbnImage != null) {
-      baseGraphics.drawImage(dbnImage, gx, gy, 
-			     width*magnification, height*magnification, null);
-    } else {
-      System.out.println("DBN IMAGE *WAS* NULL");
-    }
-    // avoid an exception during quit
-    if ((g != null) && (baseImage != null)) {
-      // blit to screen
-      g.drawImage(baseImage, 0, 0, null);
-      //screen.drawImage(image, gx, gy, 
-      //	  width*magnification, height*magnification, null);
-    }
-    updateBase = false;
-  }
-
-  public void paint() {
-    // blit only changed portion
-    g.drawImage(dbnImage, gx, gy, 
-		width*magnification, height*magnification, null);
-  }
-
-  /*
-  public void paint(Graphics screen) {
-    //System.out.println("painting");
-    if (image == null) {
-      //System.out.println("creating new image");
-      image = createImage(width, height);
-      if (image == null) return;
-      g = image.getGraphics();
-      g.setColor(Color.white);
-      g.fillRect(0, 0, width, height);
-    }
-    // screen goes null on quit, throws an exception
-    if (screen != null) {
-      screen.drawImage(image, 0, 0, null); //this);
-    }
-  }
-  */
-
-
-  //public void initiate() {
-  /*
-    for (int i = 0; i < 3; i++)
-    mouse[i] = 0;
-    for (int i = 0; i < 26; i++) 
-    key[i] = 0;
-    for (int i = 0; i < 1000; i++)
-    array[i] = 0;
-  */
-  //}
-
-
-  public void idle(long currentTime) {
-    //Date d = new Date(); // wooaaah! garbage city!
-    //time[0] = d.getHours();
-    //time[1] = d.getMinutes();
-    //time[2] = d.getSeconds();
-    //time[3] = (int) (currentTime % 1000)/10;
-
-    //System.out.println("graphics idling.. good");
-    // mac java doesn't always post key-up events, 
-    // so time out the characters after a second
-    for (int i = 0; i < 26; i++) {
-      if ((key[i] == 100) && (currentTime-keyTime[i] > 1000)) {
-	keyTime[i] = -1;
-	key[i] = 0;
-      }
-    }
-  }
-
-
-  private final int letterKey(int n) {
-    if ((n >= 'a') && (n <= 'z')) return n - 'a';
-    if ((n >= 'A') && (n <= 'Z')) return n - 'A';
-    return -1;
-  }
-
-  public boolean keyDown(Event ev, int n) {
-    //if (n == 27) app.gui.terminate();  // ooh.. ugly
-    //System.out.println("got key " + n);
-    int which = letterKey(n);
-    if (which == -1) return false;
-    keyTime[which] = System.currentTimeMillis();
-    key[which] = 100;
-    //return true;
-    return false;
-  }
-
-  public boolean keyUp(Event ev, int n) {
-    int which = letterKey(n);
-    if (which == -1) return false;
-    keyTime[which] = -1;
-    key[which] = 0;
-    //return true;
-    return false;
-  }
-
-
-  public boolean mouseDown(Event e, int x, int y) {
-    //System.out.println("mouse down in graphics");
-    mouse[2] = 100;
-    return updateMouse(e, x, y);
-  }
-
-  public boolean mouseUp(Event e, int x, int y) {
-    mouse[2] = 0;
-    return updateMouse(e, x, y);
-  }
-
-  public boolean mouseMove(Event e, int x, int y) {
-    return updateMouse(e, x, y);
-  }
- 
-  public boolean mouseDrag(Event e, int x, int y) {
-    return updateMouse(e, x, y);
-  }
-
-  public boolean mouseEnter(Event e, int x, int y) {    
-    //System.out.println("entering");
-    /*
-    if (frame == null) {
-      // shhh! don't tell anyone!
-      frame = (Frame) getParent().getParent().getParent().getParent();
-      // that is the nastiest piece of code in the codebase
-    }
-    frame.setCursor(Frame.CROSSHAIR_CURSOR);
-    */
-    /*
-    if (frame != null) {
-      frame.setCursor(Frame.CROSSHAIR_CURSOR);
-    }
-    */
-    setCursor(cursor); 
-    //return super.mouseEnter(e, x, y);
-    return true;
-  }
-
-  //public boolean mouseEnter(Event e, int x, int y) {
-  //return updateMouse(e, x, y);
-  //}
-
-  public boolean mouseExit(Event e, int x, int y) {
-    return updateMouse(e, x, y);
-  }
-
-
-  public boolean updateMouse(Event e, int x, int y) {
-    x -= gx;
-    y -= gy;
-    x /= magnification;
-    y /= magnification;
-    mouse[0] = x;
-    mouse[1] = height1 - y;
-    return true;
-  }
-
-  /*
-  public boolean updateMouse(Event e, int x, int y) {
-    //System.out.println("DbnGraphics.updateMouse " + x + ", " + y);
-    mouse[0] = x;
-    mouse[1] = height1 - y;
-    //return true;
-    return false;
-  }
-  */
 }

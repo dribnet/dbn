@@ -6,17 +6,16 @@ import java.util.*;
 
 public class DbnEngine {
   DbnToken root;
-  //DbnRunner parent;
   DbnGraphics graphics;
   boolean stopFlag;
-  
+
   int stackSize = 100;
   Hashtable stack[];
   int stackIndex = 0;
-  
+
   static final boolean watchCurrent = true;
-  
-  
+
+
   DbnEngine() { }  // so it can be subclassed for scheme and python
   
   DbnEngine(DbnToken root, DbnGraphics graphics /*, DbnRunner parent*/) {
@@ -116,6 +115,7 @@ public class DbnEngine {
     case DbnToken.PAUSE: execPause(current); break;
     case DbnToken.REFRESH: execRefresh(current); break;
     case DbnToken.SIZE: execSize(current); break;
+    case DbnToken.SAVE: execSave(current); break;
       
       // deprecated stuff
     case DbnToken.NOREFRESH: execNoRefresh(current); break;
@@ -324,6 +324,12 @@ public class DbnEngine {
   void execNoRefresh(DbnToken current) throws DbnException {
     if (watchCurrent) setCurrent(current);
     graphics.norefresh();
+  }
+
+
+  void execSave(DbnToken current) throws DbnException {
+    if (watchCurrent) setCurrent(current);
+    graphics.save(getValue(current.children[0]));
   }
 
 

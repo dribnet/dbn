@@ -28,9 +28,6 @@ public class DbnEditor extends Panel implements DbnEnvironment {
   String lastFile;
 
   boolean playing;
-  //#ifdef RECORDER
-  //boolean shiftDown;
-  //#endif
 
 
   public DbnEditor(DbnApplet app, String program) {
@@ -125,12 +122,6 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     runner.setProgram(textarea.getText());
     runner.start();
 
-#ifdef RECORDER
-    //if (shiftDown) {
-    //DbnRecorder.start(graphics.width, graphics.height);
-    //}
-#endif
-
     // required so that key events go to the panel and <key> works
     graphics.requestFocus();
   }
@@ -139,7 +130,6 @@ public class DbnEditor extends Panel implements DbnEnvironment {
   public void doRecord() {
     doStop();
     DbnRecorder.start(this, graphics.width, graphics.height);
-    //while (Dbn
     doPlay();
   }
 #endif
@@ -190,14 +180,10 @@ public class DbnEditor extends Panel implements DbnEnvironment {
       // once read all the bytes, convert it to the proper
       // local encoding for this system.
       //textarea.setText(app.languageEncode(data));
-#ifdef JDK11
       if (app.encoding == null)
 	textarea.setText(new String(data));
       else 
 	textarea.setText(new String(data, app.encoding));
-#else
-      textarea.setText(new String(data, 0));
-#endif
 
     } catch (FileNotFoundException e1) {
       e1.printStackTrace();
@@ -260,11 +246,12 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     //dbcp.msg("Sending your file to the server...");
     message("Sending your file to the server...");
 
-    String programStr = textarea.getText();
-    //byte imageData[] = dbrp.runners[dbrp.current].dbg.getPixels();
-    byte imageData[] = graphics.getPixels();
-
     try {
+      String programStr = textarea.getText();
+      //byte imageData[] = dbrp.runners[dbrp.current].dbg.getPixels();
+      //byte imageData[] = graphics.getPixels();
+      String imageStr = new String(graphics.makeTiffData());
+
       URL appletUrl = app.getDocumentBase();
       String document = appletUrl.getFile();
       document = document.substring(0, document.lastIndexOf("?"));
@@ -276,19 +263,12 @@ public class DbnEditor extends Panel implements DbnEnvironment {
       conn.setUseCaches(false);
       conn.setRequestProperty("Content-Type", 
 			      "application/x-www-form-urlencoded");
-	    
+
       DataOutputStream printout = 
 	new DataOutputStream(conn.getOutputStream());
 
-      String saveAs = DbnApplet.get("save_as");
-      String imageStr = 
-#ifdef JDK11
-	new String(makePgmData(imageData, 101, 101));
-#else
-      new String(makePgmData(imageData, 101, 101), 0);
-#endif
       String content = 
-	"save_as=" + URLEncoder.encode(saveAs) + 
+	"save_as=" + URLEncoder.encode(DbnApplet.get("save_as")) + 
 	"&save_image=" + URLEncoder.encode(imageStr) +
 	"&save_program=" + URLEncoder.encode(programStr);
 
@@ -314,23 +294,45 @@ public class DbnEditor extends Panel implements DbnEnvironment {
   }
 
 
+  /*
+  static void writeTiffHeader(OutputStream os, int width, int height) 
+    throws IOException {
+    byte header[] = new byte[768];
+    System.arraycopy(tiffHeader, 0, header, 0, tiffHeader.length);
+    header[30] = (byte) ((width >> 8) & 0xff);
+    header[31] = (byte) ((width) & 0xff);
+    header[42] = header[102] = (byte) ((height >> 8) & 0xff);
+    header[43] = header[103] = (byte) ((height) & 0xff);
+    int count = width*height*3;
+    header[114] = (byte) ((count >> 24) & 0xff);
+    header[115] = (byte) ((count >> 16) & 0xff);
+    header[116] = (byte) ((count >> 8) & 0xff);
+    header[117] = (byte) ((count) & 0xff);
+    os.write(header);
+  }
+
+  static void writeTiff(OutputStream os, int width, int height, int pixels[]) {
+    writeTiffHeader(os, width, height);
+    for (int i = 0; i < pixels.length; i++) {
+      write((pixels[i] >> 16) & 0xff);
+      write((pixels[i] >> 8) & 0xff);
+      write(pixels[i] & 0xff);
+    }
+    os.flush();
+  } 
+  */
+
+  /*
   static public byte[] makePgmData(byte inData[], int width, int height) {
-    //String headerStr = "P6 " + width + " " + height + " 255\n"; 
     String headerStr = "P5 " + width + " " + height + " 255\n";
-#ifdef JDK11
     byte header[] = headerStr.getBytes();
-#else
-    byte header[] = new byte[headerStr.length()];
-    headerStr.getBytes(0, header.length, header, 0);
-#endif
-    //int count = width * height * 3;
     int count = width * height;
     byte outData[] = new byte[header.length + count];
     System.arraycopy(header, 0, outData, 0, header.length);
     System.arraycopy(inData, 0, outData, header.length, count);
     return outData;
   }
-
+  */
 
   public void doPrint() {
 #ifdef JDK11
@@ -343,12 +345,19 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     PrintJob pj = getToolkit().getPrintJob(frame, "DBN", props);
     if (pj != null) {
       Graphics g = pj.getGraphics();
-      // jdk 1.1 is a piece of crap, the following 
-      // line works only half the time.
-      //g.drawImage(dbrp.runners[dbrp.current].dbg.image, 100, 100, null);
-      // so instead, brute force
-      graphics.print(g, 100, 100);
-
+      // awful way to do printing, but sometimes brute force is
+      // just the way. java printing across multiple platforms is
+      // outrageously inconsistent.
+      int offsetX = 100;
+      int offsetY = 100;
+      int index = 0;
+      for (int y = 0; y < graphics.height; y++) {
+	for (int x = 0; x < graphics.width; x++) {
+	  g.setColor(new Color(graphics.pixels[index++]));
+	  g.drawLine(offsetX + x, offsetY + y,
+		     offsetX + x, offsetY + y);
+	}
+      }
       g.dispose();
       g = null;
       pj.end();

@@ -31,7 +31,6 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
   Image lastImage;
   int lastX, lastY;
   boolean lastButton;
-  //boolean firstFrame;
 
   int tempFrameCount;
   File tempFile;
@@ -52,8 +51,6 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
   QTHandle imageHandle;
   CSequence sequence;
   ImageDescription description;
-  //boolean started;
-  //static boolean finishing;
 
   boolean cursorVisible;
   Color cursorUpColor;
@@ -64,7 +61,6 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
     grays = new int[101];
     for (int i = 0; i < 101; i++) {
       int gray = ((100-i)*255/100);
-      //grays[i] = new Color(gray, gray, gray);
       grays[i] = 0xff000000 | (gray << 16) | (gray << 8) | gray;
     }
   }
@@ -74,8 +70,6 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
 
   public DbnRecorder(DbnEnvironment environment, 
 		     int width, int height) throws Exception {
-    // CreateMovie.<init>
-    //per("DbnRecorder");
     this.environment = environment;
     this.width = width;
     this.height = height;
@@ -90,8 +84,6 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
     if (fd.getFile() == null) {
       throw new Exception("user cancelled movie creation");
     }
-
-    //System.out.println("creating recorder");
     try {
       QTSession.open();
 
@@ -110,27 +102,8 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
 
       frame.pack();
       frame.setLocation(100, 550);
-      //frame.show();
 
       movieFile = new QTFile(fd.getDirectory() + fd.getFile());
-      /*
-      String movieName = "outfile.mov";
-      File file = new File(movieName);
-      try {
-      
-	if (!file.exists()) {
-	  // create the file if it doesn't exist
-	  //System.err.println("making file");
-	  FileOutputStream fos = new FileOutputStream(file);
-	  fos.close();
-	} else {
-	  //System.err.println("file exists");
-	}
-      } catch (IOException e) {
-	e.printStackTrace();
-      }
-      movieFile = new QTFile(QTFactory.findAbsolutePath(movieName));
-      */
 
       movie = Movie.createMovieFile(movieFile, kMoviePlayer, 
 				    createMovieFileDeleteCurFile | 

@@ -148,6 +148,8 @@ public class DbnParser {
       else if (word.equals("refresh")) return parseRefresh(current);
       break;
     case 's':
+      if (word.equals("save"))
+	return parseSave(current);
       if (word.equals("set")) 
 	return parseSet(current);
       if (word.equals("same?")) 
@@ -546,11 +548,13 @@ public class DbnParser {
       die("incomplete size statement");
     }
     DbnToken current = parent.addChild(DbnToken.SIZE, line);
-    if (!(parseValue(current) && parseValue(current))) {
-      die("size must be followed by two values");
+    //if (!(parseValue(current) && parseValue(current))) {
+    if (!(parseNumber(current) && parseNumber(current))) {
+      die("size must be followed by two numbers");
     }
     DbnToken current2 = (DbnToken) current.clone();
-    if (parseValue(current2)) {  // user wants size with magnify
+    //if (parseValue(current2)) {  // user wants size with magnify
+    if (parseNumber(current2)) {  // user wants size with magnify
       current.childCount = current2.childCount;
       current.children = current2.children;
     }
@@ -664,6 +668,18 @@ public class DbnParser {
 
   boolean parseNoRefresh(DbnToken parent) throws DbnException {
     DbnToken current = parent.addChild(DbnToken.NOREFRESH, line);
+    return true;
+  }
+
+
+  boolean parseSave(DbnToken parent) throws DbnException {
+    if (!consumeSpaces()) {
+      die("incomplete save statement");
+    }
+    DbnToken current = parent.addChild(DbnToken.SAVE, line);
+    if (!parseValue(current)) {
+      die("save must be followed by 'quicktime', 'tiff', or 'illustrator'");
+    }
     return true;
   }
 
