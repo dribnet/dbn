@@ -62,6 +62,7 @@ public class DbnProcessor {
 	connectorTable = graphics.getConnectorTable(); 
 	graphics.paper(0);
 	graphics.pen(100);
+	graphics.setAntiAlias(0);
 
 	// do all the processing here
 	// all exceptions are handled by the (calling) DbnRunner

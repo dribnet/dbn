@@ -1,3 +1,7 @@
+- turns off anti-alias between program executions,
+  before it wasn't paying attention and leaving
+  anti-alias turned on for the rest of the dbn session
+
 Version 1.2: Changes and fixes since version 1.01
 
 - (major) new parser and execution engine
