@@ -8,7 +8,9 @@ rm -f classes/*.class
 set ME=experimental
 set CLASSPATH2=%CLASSPATH%
 set CLASSPATH=%ME%\lib\jpython.jar;%ME%\lib\QTJava.zip;%CLASSPATH%;%ME%\lib\gl4java.jar;%ME%\lib\png.jar
-set OPTIONS=-dJDK11 -dPLAYER_CLASS -dEDITOR -dPYTHON -dSCHEME -dCONVERTER -dOPENGL
+set OPTIONS=-dJDK11 -dPLAYER_CLASS -dEDITOR -dPYTHON -dSCHEME -dCONVERTER 
+
+rem -dOPENGL
 
 rem -dGRAPHICS2 -dJAVAC -dFANCY -dRECORDER 
 rem GRAPHICS2 has been removed
