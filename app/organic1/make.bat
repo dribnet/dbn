@@ -14,7 +14,7 @@ rm -f classes\*.class
 rm -f classes\dbn.jar
 
 cd ..
-buzz.pl "jikes +D -nowarn -d organic1\classes" -dJDK11 -dSCHEME *.java scheme\*.java
+buzz.pl "jikes +D -nowarn -d organic1\classes" -dEDITOR -dJDK11 -dSCHEME *.java scheme\*.java
 cd organic1
 
 cd classes

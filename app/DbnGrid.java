@@ -49,7 +49,9 @@ public class DbnGrid extends Panel implements DbnEnvironment {
     gy = new int[gcount];
 	
     gcurrent = -1;
-    setBackground(Color.orange);    
+    //setBackground(Color.orange);
+    //setBackground(new Color(230, 230, 230));
+    setBackground(Color.white);
   }
 
 
@@ -104,6 +106,10 @@ public class DbnGrid extends Panel implements DbnEnvironment {
     //paintAll(screen);
 
     // draw rectangles around each of the little guys
+    screen.setColor(Color.black);
+    for (int i = 0; i < gcount; i++) {
+      screen.drawRect(gx[i]-1, gy[i]-1, gwidth+1, gheight+1);
+    }
   }
 
 

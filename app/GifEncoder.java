@@ -1,3 +1,6 @@
+#ifdef RECORDER
+
+
 import java.util.*;
 import java.io.*;
 import java.awt.Image;
@@ -618,3 +621,6 @@ public class GifEncoder
     }
 
   }
+
+
+#endif

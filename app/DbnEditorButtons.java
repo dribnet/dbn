@@ -10,7 +10,7 @@ public class DbnEditorButtons extends Panel {
   static final int BUTTON_HEIGHT = 24;
 
   static final String title[] = {
-    "Play", "Stop", "Open", "Save", "Snapshot", "Print", "Beautify"
+    "Play", "Stop", "Open", "Save", "Save on Server", "Print", "Beautify"
     //"play", "stop", "open", "save", "snapshot", "print", "beautify"
   };
 

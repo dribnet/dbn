@@ -116,7 +116,9 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     runner.setProgram(textarea.getText());
     runner.start();
 
+#ifdef RECORDER
     DbnRecorder.start(graphics.width, graphics.height);
+#endif
 
     // required so that key events go to the panel and <key> works
     graphics.requestFocus();
@@ -127,7 +129,9 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     terminate();
     buttons.clear();
 
+#ifdef RECORDER
     DbnRecorder.stop();
+#endif
     /*
     try {
       DbnRecorder.writeFiles();

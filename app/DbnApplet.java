@@ -49,10 +49,11 @@ public class DbnApplet extends Applet
     new DbnPreprocessor(this);
 
     String mode = get("mode", "editor");
+    //System.err.println("mode is " + mode);
     if (mode.equals("editor")) {
 #ifdef EDITOR
-
       //System.err.println("editor not yet complete");
+      //System.err.println("editor dammit");
       //System.exit(0);
       boolean beautify = false; 
       String program = get("program"); 
@@ -97,7 +98,8 @@ public class DbnApplet extends Applet
 	programs[i] = readFile(filename);
       }
       DbnGrid grid = new DbnGrid(this, programs);
-      add(grid);
+      setLayout(new BorderLayout());
+      add("Center", grid);
       environment = grid;
 
 #ifdef CONVERTER
