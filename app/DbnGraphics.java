@@ -510,6 +510,24 @@ public class DbnGraphics extends Panel {
 	return 0;
     }
 
+    public final int getArray(int slot) throws DbnException {
+	try {
+	    return array[slot-1];
+	} catch (Exception e) {
+	    throw new DbnException("could not read slot " + slot + 
+				   " from array");
+	}
+    }
+
+    public final void setArray(int slot, int what) throws DbnException {
+	try {
+	    array[slot-1] = what;
+	} catch (Exception e) {
+	    throw new DbnException("could not set slot " + slot + 
+				   " of array");
+	}
+    }
+
     public int getConnector(String name, int slot) throws DbnException {
 	try {
 	    if (name.equals("mouse")) {

@@ -654,6 +654,10 @@ public class DbnParser {
 	    die("connector must have a valid name");
 	}
 	DbnToken current = null;
+	// param count is only 1, because if it's an input connector
+	// (something that's being 'set') this will be the first
+	// child of the set command (not unlike a variable), 
+	// and the second child will be the actual value being set
 	int paramCount = 1; //input ? 1 : 2;
 	if (!input && !name.equals("net") && !name.equals("array")) {
 	    die(name + " cannot be set");

@@ -446,10 +446,12 @@ public class DbnToken {
 		//output("graphics.setConnector(\"");
 		//output(variable.children[0].name);
 		//output("\", ");
-		convertChild(1);
-		//output(", ");
+		//convertChild(1);
+		variable.children[0].convertChild(0);
+		output(", ");
 		//System.out.println(cbuffer.toString());
-		//convertChild(2);
+		//variable.children[1].
+		convertChild(1); // what it should be set to
 		outputln(");");
 	    } else {
 		System.err.println("not handled " + children[0].kind);
@@ -470,8 +472,7 @@ public class DbnToken {
 	    break;
 
 	case LINE: 
-	case FIELD:
-	    output((kind == LINE) ? "graphics.line(" : "graphics.field(");
+	    output("graphics.line(");
 	    convertChild(0);
 	    output(", ");
 	    convertChild(1);
@@ -479,6 +480,20 @@ public class DbnToken {
 	    convertChild(2);
 	    output(", ");
 	    convertChild(3);
+	    outputln(");");
+	    break;
+
+	case FIELD:
+	    output("graphics.field(");
+	    convertChild(0);
+	    output(", ");
+	    convertChild(1);
+	    output(", ");
+	    convertChild(2);
+	    output(", ");
+	    convertChild(3);
+	    output(", ");
+	    convertChild(4);
 	    outputln(");");
 	    break;
 

@@ -91,7 +91,8 @@ public class DbnExhibitionGrid extends Panel implements DbnEnvironment {
     Thread mover;
     */
 
-    public DbnExhibitionGrid(DbnApplet app, String programs[], String people[]) {
+    public DbnExhibitionGrid(DbnApplet app, String programs[], 
+			     String people[]) {
 	this.app = app;
 	this.programs = programs;
 	this.people = people;
