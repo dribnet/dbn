@@ -25,6 +25,7 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
   int width, height;
   long lastTime;
   Image lastImage;
+  boolean firstFrame;
 
   QTCanvas canvas;
   QTImageDrawer qid;
@@ -57,13 +58,13 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
     //fd.show();
     //if (fd.getFile() == null) System.exit(0);
 
-    System.out.println("creating recorder");
+    //System.out.println("creating recorder");
     try {
       QTSession.open();
 
       // NumberPainter.<init>, because setClient will call paint()
       updateRects = new Rectangle[1];
-      updateRects[0] = new Rectangle(40, 20, width, height);
+      updateRects[0] = new Rectangle(0, 0, width, height);
 
       Frame frame = new Frame("DbnRecorder");
       //frame.show();
@@ -80,12 +81,29 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
 
       frame.pack();
       frame.setLocation(100, 550);
-      frame.show();
+      //frame.show();
 
       //throw new QTIOException (userCanceledErr, "");
 
       //movieFile = new QTFile(fd.getDirectory() + fd.getFile());
-      movieFile = new QTFile(QTFactory.findAbsolutePath("outfile.mov"));
+
+      String movieName = "outfile.mov";
+      File file = new File(movieName);
+      try {
+      
+	if (!file.exists()) {
+	  // create the file if it doesn't exist
+	  //System.err.println("making file");
+	  FileOutputStream fos = new FileOutputStream(file);
+	  fos.close();
+	} else {
+	  //System.err.println("file exists");
+	}
+      } catch (IOException e) {
+	e.printStackTrace();
+      }
+      movieFile = new QTFile(QTFactory.findAbsolutePath(movieName));
+      //movieFile = new QTFile(file);
       movie = Movie.createMovieFile(movieFile, kMoviePlayer, 
 				    createMovieFileDeleteCurFile | 
 				    createMovieFileDontCreateResFile);
@@ -141,10 +159,16 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
     long currentTime = System.currentTimeMillis();
     if (currentTime - lastTime < 1000/30) return; // limit to 30 fps
     if (lastTime == 0) {
+      //lastImage = image;
+      //lastTime = currentTime;
+      lastTime = -1;
+      return;
+    } else if (lastTime == -1) {
       lastImage = image;
       lastTime = currentTime;
       return;
     }
+	       
     int frameDuration = (int) (currentTime - lastTime);
     if (frameDuration == 0) return;
 
@@ -152,7 +176,7 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
 
     try {
       // not sure if these lines go in 'start' or down here
-      qid.redraw(null);
+      //qid.redraw(null);
 
       qid.setGWorld(gw);
       qid.setDisplayBounds(rect);
@@ -195,7 +219,7 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
 
   static public void stop() {
     if ((recorder == null) || finishing) return;
-    System.out.println("stopping recorder");
+    //System.out.println("stopping recorder");
 
     finishing = true;
     recorder.finish();
@@ -210,7 +234,7 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
       // the end of CreateMovie.addVideoTrack()
       videoMedia.endEdits();
       // trackstart, mediatime, duration, mediarate
-      System.out.println("duration = " + videoMedia.getDuration());
+      //System.out.println("duration = " + videoMedia.getDuration());
       videoTrack.insertMedia(0, 0, videoMedia.getDuration(), 1);
 
       OpenMovieFile outStream = OpenMovieFile.asWrite(movieFile); 
@@ -236,13 +260,13 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
   }
 
   public Rectangle[] paint(Graphics g) {
-    System.out.println("painting");
+    //System.out.println("painting");
     //g.setColor(Color.white);
     //g.fillRect(0, 0, width, height);
-    g.setColor(Color.red);
-    g.fillRect(0, 0, 40, 90);
-    //if (lastImage != null)
-    //g.drawImage(lastImage, 0, 0, null);
+    //g.setColor(Color.red);
+    //g.fillRect(0, 0, 20, 20);
+    if (lastImage != null)
+      g.drawImage(lastImage, 0, 0, null);
     return updateRects;
   }
 }
