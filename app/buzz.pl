@@ -172,7 +172,7 @@ foreach $file (@file_list) {
     }
 }
 
-print "compiling..\n";
+print "compiling...\n";
 $files = join(' ', @new_file_list);
 $compile_command = "$command -classpath $classpath $files";
 #print "$compile_command\n";
@@ -182,7 +182,7 @@ print `$compile_command`;
 print "cleaning...\n";
 #unlink $files;
 #rmdir $temp_dir;
-#`rm -rf $temp_dir`;
+`rm -rf $temp_dir`;
 
 # finished
 print "done.\n";
