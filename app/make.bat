@@ -3,10 +3,10 @@ sj -nowarn -classpath %classpath%;classes -d classes *.java engine\DbnProcessorG
 
 rem -- use this to compile to a jar file
 rem -- only use the 'zip' or 'jar' line, not both
-rem cd classes
-rem zip -r0q ..\classes.zip *
+cd classes
+zip -rq ..\classes.zip *
 rem jar cvf ..\dbn.jar *
-rem cd ..
+cd ..
 
 
 

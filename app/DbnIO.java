@@ -7,17 +7,13 @@ public class DbnIO
 {
     DbnApplet app;
 
-    
-    public DbnIO(DbnApplet app)
-    {
-	//super();
+    public DbnIO(DbnApplet app) {
 	this.app = app;
-    }	
+    }
 
-
-    public String doLocalRead()
-    {
-	FileDialog fd = new FileDialog(new Frame(), "Open a DBN program...", 
+    public String doLocalRead() {
+	FileDialog fd = new FileDialog(new Frame(), 
+				       "Open a DBN program...", 
 				       FileDialog.LOAD);
 	fd.show();
 	
@@ -49,9 +45,9 @@ public class DbnIO
     }
 	
 
-    public boolean doLocalWrite(String s)
-    {
-	FileDialog fd = new FileDialog(new Frame(), "Save DBN program as...", 
+    public boolean doLocalWrite(String s) {
+	FileDialog fd = new FileDialog(new Frame(), 
+				       "Save DBN program as...", 
 				       FileDialog.SAVE);
 	fd.show();
 	
@@ -67,10 +63,40 @@ public class DbnIO
 		writer.close();
 	    } else {
 		FileOutputStream output = new FileOutputStream(file);
-		// no I18N, just blat out the low bytes
+		// no I18N, just blat out the low byte of each char
 		byte data[] = new byte[s.length()];
 		s.getBytes(0, s.length()-1, data, 0);
+		output.write(data);
+		output.flush();
+		// NOT TESTED
 	    }
+	} catch (IOException e) {
+	    e.printStackTrace();
+	    return false;
+	}
+	return true; // succesful
+    }
+
+
+    public boolean doLocalWritePgm(byte grayData[], int width, int height) {
+	FileDialog fd = new FileDialog(new Frame(), 
+				       "Save DBN program as...", 
+				       FileDialog.SAVE);
+	fd.show();	
+	String directory = fd.getDirectory();
+	if (directory == null) return false; // user cancelled
+	File file = new File(directory, fd.getFile());
+
+	byte imageData[] = new byte[grayData.length * 3];
+	int index = 0;
+	for (int i = 0; i < grayData.length; i++) {
+	    imageData[index++] = grayData[i];
+	}
+
+	try {
+	    FileOutputStream output = new FileOutputStream(file);
+	    output.write(imageData);
+
 	} catch (IOException e) {
 	    e.printStackTrace();
 	    return false;
@@ -79,11 +105,67 @@ public class DbnIO
     }
     
     
+    // width and height for imageData are always 101x101
+    public boolean fancySnapshot(String program, byte imageData[]) {
+	// adopted from a javaworld article, java tip #34
+	try {
+	    String saveUrl = app.getParameter("save_url");
+	    if (saveUrl == null) {
+		System.err.println("no save_url set");
+		return false;
+	    }
+	    URL url = new URL(saveUrl);
+
+	    URLConnection conn = url.openConnection();
+	    conn.setDoInput(true);
+	    conn.setDoOutput(true);
+	    conn.setUseCaches(false);
+	    conn.setRequestProperty("Content-Type", 
+				    "application/x-www-form-urlencoded");
+	    
+	    DataOutputStream printout = 
+		new DataOutputStream(conn.getOutputStream());
+	    
+	    String user = app.getParameter("user");
+	    if (user == null) {
+		System.err.println("no user name set");
+		return false;
+	    }
+
+	    String pgmStr = new String(makePgmData(imageData, 101, 101));
+	    String content = 
+		"user=" + URLEncoder.encode(user) +
+		"&image=" + URLEncoder.encode(pgmStr) +
+		"&program=" + URLEncoder.encode(program);
+
+	    System.err.println("here da content:");
+	    System.err.println(content);
+
+	    printout.writeBytes(content);
+	    printout.flush();
+	    printout.close();
+	    
+	    // what did they say back?
+	    DataInputStream input = 
+		new DataInputStream(conn.getInputStream());
+	    String str = null;
+	    while ((str = input.readLine()) != null) {
+		System.out.println(str);
+	    }
+	    input.close();	    
+	    return true; // successful
+
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    return false;
+	}
+    }
+
+
     // dim is size of image (dim X dim) square
     // hexthumbnail is string of ascii encoded HEX (1 byte per pixel)
     // progtext is program
-    public boolean doSnapshot(String progtext, String hexthumbnail, int dim)
-    {
+    public boolean doSnapshot(String progtext, String hexthumbnail, int dim) {
 	// adopted from a javaworld article, java tip #34
 	try {
 	    URL url = new URL("http://" +
@@ -136,5 +218,59 @@ public class DbnIO
 	    e.printStackTrace();
 	    return false;
 	}
+    }
+
+
+    static public byte[] makePgmData(byte inData[], int width, int height) {
+	//String headerStr = "P6 " + width + " " + height + " 255\n"; 
+	String headerStr = "P5 " + width + " " + height + " 255\n";
+	byte header[] = headerStr.getBytes();
+	//int count = width * height * 3;
+	int count = width * height;
+	byte outData = new byte[header.length + count];
+	System.arrayCopy(header, 0, outData, 0, header.length);
+	System.arrayCopy(inData, 0, outData, header.length, count);
+	return outData;
+    }
+
+
+    // apparently, instead of a space, things can be separated
+    // by newlines. also, a # should be read as a comment char
+    // also, this ignores the last param, which i'm always setting to 255
+
+    static public byte[] parsePgmData(byte inData[], int dim[]) {
+	//if (inData[0] != 'P' || inData[1] != '6')
+	if (inData[0] != 'P' || inData[1] != '5')
+	    return null;
+	
+	int index = 3;
+	int value = 0;
+	// should be isSpaceChar for 1.1
+	while (!Character.isSpace(inData[index])) {
+	    value = (value*10) + (inData[index] - '0');
+	    index++;
+	}
+	dim[0] = value;
+	while (Character.isSpace(inData[index++])) { } 
+	
+	value = 0;
+	while (!Character.isSpace(inData[index])) {
+	    value = (value*10) + (inData[index] - '0');
+	    index++;
+	}
+	dim[1] = value;
+	while (Character.isSpace(inData[index++])) { }
+	
+	value = 0;
+	while (!Character.isSpace(inData[index++])) { 
+	    value = (value*10) + (inData[index] - '0');
+	    index++;
+	}
+	
+	//int count = dim[0] * dim[1] * 3;
+	int count = dim[0] * dim[1];
+	byte outData[] = new byte[count];
+	System.arrayCopy(inData, index, outData, 0, count);
+	return outData;
     }
 }
