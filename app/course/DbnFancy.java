@@ -12,7 +12,9 @@ import java.awt.event.*;
 public class DbnFancy extends DbnApplication implements ItemListener {    
   //DbnApplet applet;
   //Frame frame;
-  TextArea description;
+  //TextArea description;
+
+  //MultiLineLabel description;
 
   String location;
   String currentProblem;
@@ -27,15 +29,35 @@ public class DbnFancy extends DbnApplication implements ItemListener {
   Menu peopleMenu;
 
 
+  static MultiLineLabel description;
+
+  static public Component makeDescription() {
+    description = 
+      new MultiLineLabel("", new Font("SansSerif", Font.PLAIN, 12),
+			 475, 10, 15, MultiLineLabel.LEFT);
+    description.setBackground(new Color(0xCC, 0xCC, 0xCC));
+    description.setForeground(new Color(0x33, 0x33, 0x33));
+    return description;
+  }
+
   /*TextArea description, DbnApplet applet*/
   public DbnFancy() throws IOException {
+    //frame.hide();
+
     //this.frame = frame;
     //this.description = description;
     //this.applet = applet;
 
-    description = new TextArea("", 5, 40);
-    frame.add("South", description);
-    frame.pack();
+    //description = new TextArea("", 5, 40);
+    /*
+    description = 
+      new MultiLineLabel("", new Font("SansSerif", Font.PLAIN, 12),
+			 650, 30, 30, MultiLineLabel.LEFT);
+    description.setBackground(new Color(0xCC, 0xCC, 0xCC));
+    description.setForeground(new Color(0x33, 0x33, 0x33));
+    */
+    //frame.add("South", description);
+    //frame.pack();
 
     //try {
     //new DbnFancy(frame, textarea, app);
@@ -47,7 +69,7 @@ public class DbnFancy extends DbnApplication implements ItemListener {
     MenuBar mb = new MenuBar();
     
     location = get("courseware.location");
-    System.out.println("location is " + location);
+    //System.out.println("location is " + location);
     if (location == null) {
       System.err.println("must set courseware.location in dbn.properties");
       System.exit(0);
@@ -118,7 +140,7 @@ public class DbnFancy extends DbnApplication implements ItemListener {
 
   public void itemStateChanged(ItemEvent event) {
     String cmd = event.getItem().toString();
-    System.out.println(cmd);
+    //System.out.println(cmd);
     if (Character.isDigit(cmd.charAt(0))) {
       currentProblem = cmd;
       reselect(problemMenu, cmd);
@@ -126,7 +148,8 @@ public class DbnFancy extends DbnApplication implements ItemListener {
       int problemCount = descriptions.size();
       for (int i = 0; i < problemCount; i++) {
 	if (((String)designations.elementAt(i)).equals(currentProblem)) {
-	  description.setText((String)(descriptions.elementAt(i)));
+	  description.setLabel((String)(descriptions.elementAt(i)));
+	  frame.pack();
 	  break;
 	}
       }
@@ -145,7 +168,8 @@ public class DbnFancy extends DbnApplication implements ItemListener {
       frame.setTitle(currentProblem + " - " + currentPerson + " - DBN");
     } else {
       theText = "";
-      System.out.println(filename + " not found.");
+      environment.message(currentProblem + " for " + 
+			  currentPerson + " not found.");
       frame.setTitle("DBN");
       // put up an error message inside the editor
     }
@@ -163,7 +187,8 @@ public class DbnFancy extends DbnApplication implements ItemListener {
 
   static public void main(String args[]) {
     try {
-      new DbnFancy();
+      new DbnFancy().frame.show();
+      
     } catch (IOException e) {
       e.printStackTrace();
       System.exit(1);

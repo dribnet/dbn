@@ -1,2 +1,2 @@
 @echo off
-jview /d:python.home=. /cp:p lib\dbn.jar;lib\python.jar DbnApplication
+jview /d:python.home=. /cp:p .\lib;lib\dbn.jar;lib\jpython.jar;lib\qtjava.zip Experimental

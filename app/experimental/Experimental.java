@@ -11,7 +11,9 @@ public class Experimental extends DbnApplication implements ActionListener {
     "Make QuickTime movie...",
     null,
     "Convert editing area to Java applet...",
-    "Convert .dbn file to Java applet..."
+    "Convert .dbn file to Java applet...",
+    null,
+    "Run benchmark"
   };
 
   static public void main(String args[]) {
@@ -58,12 +60,27 @@ public class Experimental extends DbnApplication implements ActionListener {
 	    e.printStackTrace();
 	  }
 	  break;
+
+	case 5:
+	  benchmark();
+	  break;
 	}
 	return;
       }
     }
   }
 
+  public void benchmark() {
+    long t1 = System.currentTimeMillis();
+    DbnEditor editor = (DbnEditor) environment;
+    String oldText = editor.textarea.getText();
+    editor.textarea.setText(readFile("lib\\benchmark.dbn"));
+    editor.doPlay();
+    while (editor.playing) { /*System.out.print(".");*/ }
+    long t2 = System.currentTimeMillis();
+    System.out.println("time was " + (t2-t1));
+    editor.textarea.setText(oldText);
+  }
 
 #ifdef RECORDER
   static String lastGrabDirectory;
