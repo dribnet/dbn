@@ -1,20 +1,25 @@
 import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.*;
 import java.io.*;
 import java.util.*;
 
 
+// _ hit a key to go to favorites
+// _   or make markings for 'nice' stuff
 // _ mouse/scrolling spring
-// _ clean up boogery text stuff
+// _ when something doesn't run, make sure lastImage still updated
 
-// _ save new image after changes while running
-// X make image update based on what's left behind
+// make this a publicly accessible adaptive space, where people
+// can vote on which pieces they like the most, composition 
+// rearranges based on preferences
 
-// hiding might be the fix for the courseware as well
-
-// use axel's parameter space stuff
-
-// viewing the code as the same kind of map
-// better solution for text in general
+// _ launching into editor to make fixes and updates
+// _ indicator for error conditions
+// _ hiding might be the fix for the courseware as well
+// _ use axel's parameter space stuff
+// _ viewing the code as the same kind of map
+// _ make the pop-up text less ugly
 
 // X have a single graphics
 // X hide the graphics when not in use
@@ -22,7 +27,11 @@ import java.util.*;
 // X double click will start the applet
 // X click outside stops applet
 // X paint on startup
-
+// X clean up boogery text stuff
+// X make image update based on what's left behind
+// X better solution for text in general
+// X second double-click will stop applet
+// X save new image after changes while running
 
 public class PockyVision extends Window implements DbnEnvironment {
   static final int HCOUNT = 46;
@@ -34,6 +43,7 @@ public class PockyVision extends Window implements DbnEnvironment {
 
   static final int IMAGE_WIDTH = HCOUNT * WIDE;
   static final int IMAGE_HEIGHT = VCOUNT * HIGH;
+  static final int IMAGE_COUNT = IMAGE_WIDTH * IMAGE_HEIGHT;
 
   int width, height;
   int offsetX, offsetY;
@@ -71,9 +81,28 @@ public class PockyVision extends Window implements DbnEnvironment {
     new PockyVision();
   }
 
+  public boolean gotFocus(Event e, Object o) {
+    //System.out.println("got it");
+    //getToolkit().beep();
+    graphics.setCurrentDbnGraphics();
+    return false;
+  }
+
+  public boolean lostFocus(Event e, Object o) {
+    DbnEditor editor = (DbnEditor)app.environment;
+    editor.graphics.setCurrentDbnGraphics();
+    return false;
+  }
+
   public PockyVision() {
     super(new Frame());
     app = new DbnApplication();
+    app.frame.removeWindowListener(app.windowListener);
+    app.frame.addWindowListener(new WindowAdapter() {
+      public void windowClosing(WindowEvent e) {
+	e.getWindow().hide();
+      }
+    });
 
     graphics = new DbnGraphics(WIDE, HIGH);
     add(graphics);
@@ -116,7 +145,62 @@ public class PockyVision extends Window implements DbnEnvironment {
     toFront();
   }
 
+  public void saveImage() {
+    try {
+      FileOutputStream fos = new FileOutputStream("pocky.update.raw");
+      /*
+      int pixels[] = new int[IMAGE_WIDTH];
+      byte bytes[] = new byte[IMAGE_WIDTH];
+
+      for (int j = 0; j < IMAGE_HEIGHT; j++) {
+	PixelGrabber pg = 
+	  new PixelGrabber(image, 0, j*IMAGE_WIDTH, IMAGE_WIDTH, 1, 
+			   pixels, 0, IMAGE_WIDTH);
+	try {
+	  pg.grabPixels();
+	} catch (InterruptedException e) {
+	}
+	for (int i = 0; i < IMAGE_WIDTH; i++) {
+	  bytes[i] = (byte) (pixels[i] & 0xff);
+	}
+	fos.write(bytes);
+      }
+      */
+      int pixels[] = new int[IMAGE_COUNT];
+      byte bytes[] = new byte[IMAGE_COUNT];
+
+      System.out.println("grabbing pixels..");
+      PixelGrabber pg = 
+	new PixelGrabber(image, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT,
+			 pixels, 0, IMAGE_WIDTH);
+      try {
+	pg.grabPixels();
+      } catch (InterruptedException e) {
+      }
+      System.out.println("done grabbing");
+
+      int lastPercent = 0;
+      for (int i = 0; i < IMAGE_COUNT; i++) {
+	fos.write((byte) (pixels[i] & 0xff));
+	if ((i % IMAGE_WIDTH) == 0) 
+	  System.out.println(((int) (100 * (float)i / (float)IMAGE_COUNT)) + "%");
+      }
+      //for (int i = 0; i < IMAGE_COUNT; i++) {
+      //bytes[i] = (byte) (pixels[i] & 0xff);
+      //}
+      //fos.write(bytes);
+
+      fos.flush();
+      fos.close();
+      System.out.println("Wrote new image, size is " + 
+			 IMAGE_WIDTH + " x " + IMAGE_HEIGHT);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
   public boolean keyDown(Event e, int k) {
+    if (k == 's') saveImage();
     if (k == 27) System.exit(0);
     return false;
   }
@@ -149,10 +233,34 @@ public class PockyVision extends Window implements DbnEnvironment {
   }
 
 
+  public void setProgramFile(String programFile) {
+    DbnEditor editor = (DbnEditor)app.environment;
+    app.frame.setTitle(programFile);
+    editor.textarea.setText(app.readFile(programFile));
+    File lastFileObject = new File(programFile);
+    editor.lastDirectory = lastFileObject.getParent();
+    editor.lastFile = lastFileObject.getName();
+    //System.out.println(editor.lastDirectory + " " + editor.lastFile);
+    app.frame.show();
+    app.frame.toFront();
+  }
+
+  //protected void releaseDbnGraphics() {
+  //}
+
   synchronized public boolean mouseDown(Event e, int x, int y) {
     int selX = (-offsetX + x) / WIDE;
     int selY = (-offsetY + y) / HIGH;
     int sel = selY * HCOUNT + selX;
+
+    if (e.controlDown()) {
+      //String args[] = new String[1];
+      //args[0] = filenames[sel];
+      //DbnApplication.main(args);
+      setProgramFile(filenames[sel]);
+      mouseMode = IGNORING;
+      return false;
+    }
 
     if (e.shiftDown()) {
       nameSelection(x, y, selX, selY, sel);
@@ -170,8 +278,12 @@ public class PockyVision extends Window implements DbnEnvironment {
       //ignoreDrag = false;
       mouseMode = MOVING;
     }
+    if ((e.clickCount == 2) && (sel == runningIndex)) {
+      // just stop what's running
+      exterminate();
+      return false;
+    }
     exterminate();
-
     if (e.clickCount == 2) {
       //if (e.controlDown()) {
       //System.out.println("gonna start " + filenames[sel]);
@@ -179,13 +291,22 @@ public class PockyVision extends Window implements DbnEnvironment {
       if (programs[sel] == null) {
 	programs[sel] = app.readFile(filenames[sel]);
       }
+      gx = (selX * WIDE) + offsetX;
+      gy = (selY * HIGH) + offsetY;
+      if (programs[sel] == null) {
+	System.out.println(filenames[sel] + " not found");
+	g.setColor(Color.orange);
+	g.fillRect(gx, gy, WIDE, HIGH);
+	long t = System.currentTimeMillis();
+	while (System.currentTimeMillis() - t < 2000) { }
+	update();
+	return false;
+      }
       runner = new DbnRunner(programs[sel], graphics, this);
       runner.start();
       graphics.setVisible(true);
       runners.addElement(runner);
 
-      gx = (selX * WIDE) + offsetX;
-      gy = (selY * HIGH) + offsetY;
       graphics.setBounds(gx, gy, WIDE, HIGH);
       graphics.reset();
       //if (g != null) {
