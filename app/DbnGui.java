@@ -597,7 +597,9 @@ class DbnRunPanel extends Panel {
 	    }
 	    if (fgcol == null) {
 		// make it ugly so that people know something didn't work
-		fgcol = Color.gray;
+		//fgcol = Color.gray;
+		// changed my mind, want to have less applet params
+		fgcol = new Color(0, 51, 102);
 	    }
 	    if ((colorStr = app.getParameter("bg_color_stipple")) != null) {
 		// power user action
