@@ -88,6 +88,7 @@ public class DbnEditorListener extends KeyAdapter implements FocusListener {
 
     case 10:  // auto-indent
       if (autoIndent) {
+	//System.err.println("auto indenting");
 	char contents[] = tc.getText().toCharArray();
 	// back up until \r \r\n or \n.. @#($* cross platform
 	//index = contents.length-1;
