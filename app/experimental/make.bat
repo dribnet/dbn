@@ -14,7 +14,7 @@ rem -dGRAPHICS2 -dJAVAC
 
 cd ..
 
-buzz.pl "jikes +D -nowarn -d %ME%\classes" %OPTIONS% *.java python\*.java javac\*.java %ME%\*.java
+buzz.pl "jikes +D -nowarn -d %ME%\classes" %OPTIONS% *.java python\*.java %ME%\*.java
 
 cd %ME%
 
