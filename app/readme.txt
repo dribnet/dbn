@@ -1,5 +1,5 @@
 DESIGN BY NUMBERS RELEASE NOTES
-Version 2.0.1, Released January 14, 2000
+Version 2.X, Released XX XX XX
 http://dbn.media.mit.edu 
 dbn-feedback@media.mit.edu
 
@@ -103,6 +103,11 @@ SUCH DAMAGES.
 
 
 CHANGES (technical section that you're welcome to ignore)
+
+Version 2.X: Changes since 2.0.1
+
+- made fixes so that the new DBN works with the courseware
+
 
 Version 2.0.1: Changes since 2.0
 
