@@ -3,6 +3,9 @@ import java.io.*;
 import java.util.*;
 
 
+// _ mouse/scrolling spring
+// _ clean up boogery text stuff
+
 // _ save new image after changes while running
 // X make image update based on what's left behind
 
@@ -10,7 +13,8 @@ import java.util.*;
 
 // use axel's parameter space stuff
 
-// clean up boogery text stuff
+// viewing the code as the same kind of map
+// better solution for text in general
 
 // X have a single graphics
 // X hide the graphics when not in use
