@@ -84,7 +84,7 @@ public class DbnGraphics extends Panel {
 #ifdef CRICKET
     openSensor();
 #endif
-    //currentDbnGraphics = this;
+    currentDbnGraphics = this; // for python/scheme
     //dbr.render();
   }
 

@@ -135,6 +135,7 @@ public class DbnGrid extends Panel implements DbnEnvironment {
 	runner = new DbnRunner(programs[i], graphics[gcurrent], this);
 	runner.start();
 	graphics[gcurrent].enable();
+	graphics[gcurrent].setCurrentDbnGraphics();
 	runners.addElement(runner);
       }
     }

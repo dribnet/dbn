@@ -118,6 +118,17 @@ public class DbnApplet extends Applet
   }
 #endif
 
+  /*
+#ifdef EDITOR
+  // this is used by DbnFancy, but could be useful in other
+  // contexts as well, i would imagine
+  public void setProgram(String p) {
+    if (environment instanceof DbnEditor) {
+      ((DbnEditor)environment).setProgram(p);
+    }
+  }
+#endif
+  */
 
   public void paint(Graphics g) {
     if (errorState) {

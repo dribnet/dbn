@@ -115,6 +115,7 @@ public class DbnEditor extends Panel implements DbnEnvironment {
   public void doPlay() {
     runner.setProgram(textarea.getText());
     runner.start();
+    // required so that key events go to the panel and <key> works
     graphics.requestFocus();
   }
 
