@@ -8,7 +8,7 @@ rm -f classes\*.class
 set ME=organic3
 set CLASSPATH2=%CLASSPATH%
 set CLASSPATH=%ME%\lib\jpython.jar;%CLASSPATH%
-set OPTIONS=-dJDK11 -dPYTHON -dJAVAC -dPLAYER_CLASS -dFANCY -dEDITOR -dRECORDER
+set OPTIONS=-dJDK11 -dJAVAC -dPLAYER_CLASS -dFANCY -dEDITOR -dRECORDER
 
 cd ..
 

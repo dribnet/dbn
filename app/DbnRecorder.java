@@ -20,6 +20,7 @@ public class DbnRecorder {
   // while, so it'd be nice to have 1000 or so frames ready
   // to be used beforehand.
 
+  // DONE
   // should also set a 'maximum' framerate, if things aren't
   // really keeping up. although that could also be a good 
   // post-processing step.
@@ -94,8 +95,9 @@ public class DbnRecorder {
   }
 
   static public void stop() {
-    recorder.removeDuplicates();
-    recorder.calcDurations();
+    System.out.println("stopped recorder");
+    //recorder.removeDuplicates();
+    //recorder.calcDurations();
     try {
       writeFiles(recorder);
     } catch (IOException e) {
