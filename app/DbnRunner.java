@@ -76,6 +76,7 @@ public class DbnRunner implements Runnable {
       } else {
 	DbnParser parser = 
 	  new DbnParser(DbnPreprocessor.process(program));
+	parser.root.print();
 	engine = new DbnEngine(parser.getRoot(), graphics);
 	engine.start();
       }
