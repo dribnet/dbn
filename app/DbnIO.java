@@ -227,9 +227,9 @@ public class DbnIO
 	byte header[] = headerStr.getBytes();
 	//int count = width * height * 3;
 	int count = width * height;
-	byte outData = new byte[header.length + count];
-	System.arrayCopy(header, 0, outData, 0, header.length);
-	System.arrayCopy(inData, 0, outData, header.length, count);
+	byte outData[] = new byte[header.length + count];
+	System.arraycopy(header, 0, outData, 0, header.length);
+	System.arraycopy(inData, 0, outData, header.length, count);
 	return outData;
     }
 
@@ -246,23 +246,23 @@ public class DbnIO
 	int index = 3;
 	int value = 0;
 	// should be isSpaceChar for 1.1
-	while (!Character.isSpace(inData[index])) {
+	while (!Character.isSpace((char)inData[index])) {
 	    value = (value*10) + (inData[index] - '0');
 	    index++;
 	}
 	dim[0] = value;
-	while (Character.isSpace(inData[index++])) { } 
+	while (Character.isSpace((char)inData[index++])) { } 
 	
 	value = 0;
-	while (!Character.isSpace(inData[index])) {
+	while (!Character.isSpace((char)inData[index])) {
 	    value = (value*10) + (inData[index] - '0');
 	    index++;
 	}
 	dim[1] = value;
-	while (Character.isSpace(inData[index++])) { }
+	while (Character.isSpace((char)inData[index++])) { }
 	
 	value = 0;
-	while (!Character.isSpace(inData[index++])) { 
+	while (!Character.isSpace((char)inData[index++])) { 
 	    value = (value*10) + (inData[index] - '0');
 	    index++;
 	}
@@ -270,7 +270,7 @@ public class DbnIO
 	//int count = dim[0] * dim[1] * 3;
 	int count = dim[0] * dim[1];
 	byte outData[] = new byte[count];
-	System.arrayCopy(inData, index, outData, 0, count);
+	System.arraycopy(inData, index, outData, 0, count);
 	return outData;
     }
 }
