@@ -96,7 +96,7 @@ public class DbnApplet extends Applet
 	prog = getParameter("inline_program");
 	if (prog == null) {
 	    file = getParameter("program");
-	    if (file==null) {
+	    if (file == null) {
 		// check if sequence of files exist
 		// prog0, prog1, etc.
 		int i=0, cnt=0;
@@ -114,6 +114,8 @@ public class DbnApplet extends Applet
 		    for(i=0;i<cnt;i++) {
 			String fname = getParameter("program"+i);
 			progs[i] = readFile(fname);
+			//if (progs[i] == null) System.out.println("null program");
+			//progs[i] = "forever\n{\nline 0 0 <mouse 1> <mouse 2>\n}\n";
 		    }
 		}
 	    } else {

@@ -84,10 +84,12 @@ public class DbnRunner implements Runnable {
     }
 	
     // called just before starts
+    Graphics cachedg=null;
     public void allsettogo()
     {
 	state=DBNRUN_STARTED;
 	dbg.reset();
+	cachedg=null;
     }
     
     // called just when done
@@ -171,6 +173,7 @@ public class DbnRunner implements Runnable {
     
     public void render()
     {
-	render(parent.getGraphics());
+	if (cachedg == null) cachedg = parent.getGraphics();
+	render(cachedg);
     }
 }

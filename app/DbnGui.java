@@ -449,6 +449,7 @@ class DbnRunPanel extends Panel {
     public void terminate()
     {
 	dbr.stop();
+	//	System.out.println("terminated");
     }
 	
     public void setProgram(String s)
@@ -482,6 +483,9 @@ class DbnRunPanel extends Panel {
 			initiate();
 		    }
 		}
+	    } else {
+		// didn't hit anything, terminate 
+		terminate();
 	    }
 	}
 	
@@ -511,6 +515,7 @@ class DbnRunPanel extends Panel {
     public boolean mouseExit(Event ev, int x, int y)
     {
 	updatemouse(x,y);
+	terminate();
 	/*if (app.gui.run_mode!=null) 
 	    if (app.gui.run_mode.equals("mouse_inside")) {
 		terminate();
@@ -575,6 +580,7 @@ class DbnRunPanel extends Panel {
 	Rectangle r = bounds();
 	int i, j;
 
+	terminate();
 
 	if (fgcol == null) {
 	    String colorStr = null;
@@ -655,16 +661,20 @@ class DbnRunPanel extends Panel {
 	    g.setColor(bgcol);
 	    g.drawRect(0,0,r.width-1,r.height-1);
 	    yoff += 16;
-	}
+	} else yoff+=16;
 	
 	if (app.gui.titlestr!=null) {
 	    int lead =12,lc=0;
-	    int x=dbr.dispx, y=dbr.dispy+dbr.disph+lead+yoff;
+	    DbnRunner db = (DbnRunner)dbrv.elementAt(dbrv.size()-1);
+	    int x=r.width/2, y=db.dispy+db.disph+lead+yoff;
 	    StringTokenizer st = new StringTokenizer(app.gui.titlestr,";");
 
 	    g.setColor(app.gui.textcol);
 	    while(st.hasMoreTokens()) {
 		String s = st.nextToken();
+		if (lc==0) {
+		    x-=g.getFontMetrics().stringWidth(s)/2;
+		}
 		g.setFont(lc==0?fb:f);
 		g.drawString(s,x,y);
 		y+=lead;lc++;
@@ -675,6 +685,7 @@ class DbnRunPanel extends Panel {
 	// mode then tell dbngui that 
 	// it's okay to go ahead and do its thing
 	app.gui.runpanelrefreshed();
+	//	System.out.println("ha!");
     }
     
     /*
@@ -891,7 +902,7 @@ public class DbnGui extends Panel {
 	    if (run_mode.equals("immediate")) {
 		if (!getrunningp()) // kick it to start running
 		    {
-			dbrp.initiate();
+			//			dbrp.initiate();
 		    }
 	    }
     }
