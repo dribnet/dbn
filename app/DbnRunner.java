@@ -1,5 +1,5 @@
-import java.awt.*;
-import java.applet.Applet;
+//import java.awt.*;
+//import java.applet.Applet;
 
 
 public class DbnRunner implements Runnable {
@@ -88,7 +88,9 @@ public class DbnRunner implements Runnable {
       env.error(e);
 
     } catch (Exception e) {
+#ifndef KVM
       e.printStackTrace();
+#endif
       this.stop();
     }	
     //render();

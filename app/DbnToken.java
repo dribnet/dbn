@@ -148,7 +148,7 @@ public class DbnToken {
     return (parent != null) ? parent.findFunction(name) : null;
   }
 
-    
+#ifndef KVM
   public void print() {
     System.out.println(toString());
   }
@@ -658,7 +658,6 @@ public class DbnToken {
   }    
 
   static StringBuffer cbuffer;
-
     
   private void outputln() {
     cbuffer.append(System.getProperty("line.separator"));
@@ -677,5 +676,6 @@ public class DbnToken {
     output(str);
     outputln();
   }
-#endif
+#endif // ndef CONVERTER
+#endif // KVM
 }

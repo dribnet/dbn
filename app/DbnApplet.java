@@ -1,3 +1,6 @@
+#ifndef KVM
+
+
 import java.awt.*;
 import java.applet.Applet;
 import java.io.*;
@@ -47,6 +50,7 @@ public class DbnApplet extends Applet
 
     String mode = get("mode", "editor");
     if (mode.equals("editor")) {
+#ifdef EDITOR
       //System.err.println("editor not yet complete");
       //System.exit(0);
       boolean beautify = false; 
@@ -71,6 +75,7 @@ public class DbnApplet extends Applet
       setLayout(new BorderLayout());
       add("Center", editor);
       environment = editor;
+#endif
 
     } else if (mode.equals("grid")) {
       // read 1 or more programs to be laid out in grid mode
@@ -251,7 +256,7 @@ public class DbnApplet extends Applet
     }
   }
 
-
+#ifdef EDITOR
   static public Image readImage(String name) {
     Image image = null;
     if (isApplet()) {
@@ -267,7 +272,8 @@ public class DbnApplet extends Applet
     } catch (InterruptedException e) { }      
     return image;
   }
-  
+#endif  // EDITOR
+
 #endif  // !PLAYER
 
   // all the information from DbnProperties
@@ -346,23 +352,29 @@ public class DbnApplet extends Applet
 }
 
 
-/*
-  String separator = System.getProperty("line.separator");
-  eolCount = separator.length();
-  eol = new char[eolCount];
-  for (int i = 0; i < eolCount; i++) {
-  eol[i] = separator.charAt(i);
+#else  // if it is the KVM
+
+
+public class DbnApplet {
+  public DbnApplet() { 
   }
-*/
+
+  String get(String something) {
+    return get(something, null);
+  }
+
+  String get(String something, String otherwise) {
+    return null;
+  }
+
+  String readFile(String name) {
+    // grab something out of the database
+    return null;
+  }
+}
 
 
-/* not so useful
-   public boolean isLocal() {
-   if (!isApplet()) return true;
-   String codebase = getCodeBase().toString();
-   return (codebase.indexOf("file") == 0);
-   }
-*/
+#endif
 
 
 /* temporary, a little something for the kids */

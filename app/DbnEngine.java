@@ -73,6 +73,7 @@ public class DbnEngine {
     //long t = System.currentTimeMillis();
     //if (t - lastNight > 1000) {
     // don't let the ui starve
+#ifndef KVM
     lastNight++;
     if ((lastNight % 40) == 0) {
       try {
@@ -80,6 +81,7 @@ public class DbnEngine {
       } catch (InterruptedException e) { }
       lastNight = 0;
     }
+#endif
 
     DbnToken current = statement.children[0];
     switch (current.kind) {

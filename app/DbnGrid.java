@@ -1,3 +1,7 @@
+#ifndef KVM
+#ifndef PLAYER
+
+
 import java.awt.*;
 import java.util.*;
 
@@ -176,3 +180,7 @@ public class DbnGrid extends Panel implements DbnEnvironment {
     System.out.println(msg);
   }
 }
+
+
+#endif
+#endif

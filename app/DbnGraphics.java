@@ -1,5 +1,10 @@
+#ifndef KVM
 import java.awt.*;
 import java.awt.image.*;
+#else
+//import com.sun.kjava.Graphics;
+#endif
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -21,9 +26,6 @@ public class DbnGraphics extends Panel {
     }
   }
 
-#ifdef JDK11
-  MemoryImageSource source;
-#endif
   Image image;
   Graphics g;
   Graphics panelg;
@@ -74,10 +76,6 @@ public class DbnGraphics extends Panel {
     pixelCount = width * height;
     pixels = new byte[pixelCount];  // all set to zero
     penColor = 100;
-
-#ifdef JDK11
-    //source = new MemoryImageSource();
-#endif
 
 #ifdef CRICKET
     openSensor();
@@ -332,7 +330,11 @@ public class DbnGraphics extends Panel {
     }
     if(which==1 || which==4) {
       twoV = 0;
+#ifdef KVM
+      invDenom = 1.0f / (2.0f * (float)KvmLacunae.sqrt(dx*dx + dy*dy));
+#else
       invDenom = 1.0f / (2.0f * (float)Math.sqrt(dx*dx + dy*dy));
+#endif
       twoDX = 2 * sdx * invDenom;
       x = x1;
       y = y1;
@@ -367,7 +369,11 @@ public class DbnGraphics extends Panel {
     }
     else {
       twoV = 0;
+#ifdef KVM
+      invDenom = 1.0f / (2.0f * (float)KvmLacunae.sqrt(dx*dx + dy*dy));
+#else
       invDenom = 1.0f / (2.0f * (float)Math.sqrt(dx*dx + dy*dy));
+#endif
       twoDX = 2 * sdy * invDenom;
       x = x1;
       y = y1;
@@ -502,7 +508,11 @@ public class DbnGraphics extends Panel {
 
   public final int getTime(int slot) { // throws Exception {
     // wooaaah! garbage city!
+#ifdef KVM
+    KvmLacunae d = KvmLacunae.buddy;
+#else
     Date d = new Date(); 
+#endif
     switch (slot) {
     case 1: return d.getHours();
     case 2: return d.getMinutes();
@@ -540,8 +550,10 @@ public class DbnGraphics extends Panel {
 	return getTime(slot);
       } else if (name.equals("array")) {
 	return array[slot-1];
+#ifndef KVM
       } else if (name.equals("net")) {
 	return getNet(slot);
+#endif
 #ifdef CRICKET
       } else if (name.equals("sensor")) {
 	return getSensor(slot);
@@ -560,17 +572,21 @@ public class DbnGraphics extends Panel {
   public void setConnector(String name, int slot, int value) 
     throws DbnException {
     try {
-      if (name.equals("net")) {
-	setNet(slot, value); 
+      if (name.equals("array")) {
+	array[slot-1] = value;
 	return;
+
 #ifdef CRICKET
       } else if (name.equals("sensor")) {
 	setSensor(slot, value);
 	return;
 #endif
-      } else if (name.equals("array")) {
-	array[slot-1] = value;
+
+#ifndef KVM
+      } else if (name.equals("net")) {
+	setNet(slot, value); 
 	return;
+#endif
       }
       //throw new DbnException("unknown external data " + name);
 
@@ -593,14 +609,14 @@ public class DbnGraphics extends Panel {
 	    name.equals("array") || name.equals("sensor"));
   }	
 
-
+#ifndef KVM
   // networking support
   static final int NET_PORT = 8000;
   static final int NET_ERROR_MESSAGE = -1;
   static final int NET_OK_MESSAGE = 0;
   static final int NET_GET_MESSAGE = 1;
   static final int NET_SET_MESSAGE = 2;
-    
+  
   DataInputStream netInputStream;
   DataOutputStream netOutputStream;
   boolean secondAttempt; 
@@ -691,6 +707,7 @@ public class DbnGraphics extends Panel {
       }
     }
   }
+#endif
 
 
 #ifdef CRICKET
@@ -892,7 +909,7 @@ public class DbnGraphics extends Panel {
     }
     // screen goes null on quit, throws an exception
     if (screen != null) {  
-      screen.drawImage(image, 0, 0, this);
+      screen.drawImage(image, 0, 0, null); //this);
     }
   }
 
@@ -916,7 +933,7 @@ public class DbnGraphics extends Panel {
     //time[2] = d.getSeconds();
     //time[3] = (int) (currentTime % 1000)/10;
 
-    System.out.println("graphics idling.. good");
+    //System.out.println("graphics idling.. good");
     // mac java doesn't always post key-up events, 
     // so time out the characters after a second
     for (int i = 0; i < 26; i++) {
