@@ -1,5 +1,5 @@
 DESIGN BY NUMBERS RELEASE NOTES
-Version 2.2, Released August 10, 2001
+Version 3.0, Released August 10, 2001
 http://dbn.media.mit.edu 
 dbn-feedback@media.mit.edu
 
@@ -10,8 +10,8 @@ troubleshooting notes.
 
 
 * FINAL VERSION OF DBN
-Version 2.2 will likely be the final version of the 
-Design By Numbers system. While there may be upgrades 
+We intend for version 3.0 to be the final release of 
+the Design By Numbers system. While there may be upgrades 
 for important bug fixes, this is the last version that
 will include new features.
 
@@ -73,7 +73,7 @@ or what version of MacOS, version of MRJ if Mac, etc.
 Send this mail to dbn-feedback@media.mit.edu
 
 
-PEOPLE
+* PEOPLE
 DBN is the product of many people. Ben Fry is the chief 
 architect of releases since 1.1. A previous release,
 DBN 1.0.1 was created by Tom White. The original version 
@@ -149,13 +149,14 @@ SUCH DAMAGES.
 
 CHANGES (technical section that you're welcome to ignore)
 
-Version 2.2: Changes since 2.0.1
-
+Version 3.0: Changes since 2.0.1
+- removed the need for 'norefresh'
+- disabled antialias feature (it was poorly implemented)
 - added automatic-slowdown feature
 - ability to save tiff files
-- added notes about hidden features
 - support for color commands: pen, paper, get/set [ ]
 - changing of dbn drawing area using the 'size' command
+- ability to magnify drawing area
 
 - dbnletters was broken.. it used functions called typeA,
   typeB, typeC; but the book used letterA, letterB, letterC
