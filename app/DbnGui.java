@@ -786,6 +786,8 @@ public class DbnGui extends Panel {
     Color textcol; // color to draw it in (incl grid)
     Color panelBgColor;
 
+    DbnIO io;  // object to take care of input/output
+
     // uglyish hack for scheme, the fix is even uglier, though
     static DbnGui currentDbnGui;
     static public DbnGui getCurrentDbnGui() {
@@ -834,6 +836,7 @@ public class DbnGui extends Panel {
 	    buildeditgui(progs);
 	}
 	currentDbnGui = this;
+	io = new DbnIO(app);
     }
 
 
@@ -884,8 +887,11 @@ public class DbnGui extends Panel {
 	Panel p1 = new Panel();
 	p1.setLayout(new GridLayout(1,2));
 	p1.add(dbrp = new DbnRunPanel(app, this, progs));
-	p1.add(ta = new TextArea(progs[0], 20, 40));	
-	ta.addKeyListener(new ParenBalancer());
+	p1.add(ta = new TextArea(progs[0], 20, 40));
+
+	ParenBalancer pb = new ParenBalancer();
+	ta.addKeyListener(pb);
+	ta.addFocusListener(pb);
 
 	// has to be capitalized. argh. (nope, that's not it either)
 	//ta.setFont(new Font("Monospaced", Font.PLAIN, 12));
@@ -940,7 +946,7 @@ public class DbnGui extends Panel {
 
 	    } else if (cmds.getSelectedItem().equals(SNAPSHOT_ITEM)) {
 		msg("Saving file...");
-		DbnIO io = new DbnIO(app);
+		//DbnIO io = new DbnIO(app);
 		//int dim = 20;
 		if (!io.doSnapshot(ta.getText(), dbrp.dbr.dbg.getPixels())) {
 		    msg("Could not save file.");
@@ -949,13 +955,13 @@ public class DbnGui extends Panel {
 		}
 
 	    } else if (cmds.getSelectedItem().equals(SAVE_ITEM)) {
-		DbnIO io = new DbnIO(app);
+		//DbnIO io = new DbnIO(app);
 		if (!io.doLocalWrite(ta.getText())) {
 		    // error
 		}
 
 	    } else if (cmds.getSelectedItem().equals(OPEN_ITEM)) {
-		DbnIO io = new DbnIO(app);
+		//DbnIO io = new DbnIO(app);
 		String s = io.doLocalRead();
 		if (s!=null) {
 		    ta.setText(s);
@@ -1122,22 +1128,17 @@ public class DbnGui extends Panel {
 }
 
 
-class ParenBalancer extends KeyAdapter {
+class ParenBalancer extends KeyAdapter implements FocusListener {
     boolean balancing = false;
+    TextArea tc;
     int selectionStart, selectionEnd;
     int position;
     
     public void keyPressed(KeyEvent event) {
 	// only works with TextArea, because it needs 'insert'
 	//TextComponent tc = (TextComponent) event.getSource();
-	TextArea tc = (TextArea) event.getSource();
-	if (balancing) {
-	    // bounce back, otherwise will write over!
-	    if ((selectionStart == tc.getSelectionStart()) &&
-		(selectionEnd == tc.getSelectionEnd()))
-		tc.setCaretPosition(position);
-	    balancing = false;
-	}
+	tc = (TextArea) event.getSource();
+	deselect();
 	char c = event.getKeyChar();
 	if (c == ')') {
 	    position = tc.getCaretPosition() + 1;
@@ -1174,6 +1175,21 @@ class ParenBalancer extends KeyAdapter {
 		balancing = true;
 	    }
 	}
+    }
+
+    protected void deselect() {
+	if (!balancing || (tc == null)) return;	
+	// bounce back, otherwise will write over stuff
+	if ((selectionStart == tc.getSelectionStart()) &&
+	    (selectionEnd == tc.getSelectionEnd()))
+	    tc.setCaretPosition(position);
+	balancing = false;
+    }
+
+    public void focusGained(FocusEvent event) { }
+
+    public void focusLost(FocusEvent event) {
+	deselect();
     }
 }
 

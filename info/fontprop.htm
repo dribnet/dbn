@@ -1,0 +1,581 @@
+<html>
+
+<head>
+
+<title>Adding Fonts to the Java Runtime</title>
+
+</head>
+
+<body bgcolor="#FFFFFF">
+
+<h1>Adding Fonts to the Java Runtime</h1>
+
+<p>
+
+This document explains how to add Asian and other language fonts to the Java 
+Runtime JDK 1.1. More specifically, this document covers the JDK 1.1 special 
+feature for adding these fonts to the Java Runtime. It is very likely that this 
+feature will change in future JDK releases.
+
+<p>At this time, this document describes how to install Japanese, Korean, 
+Chinese, and Traditional Chinese fonts to your system.
+
+<p>If the core Java Runtime includes support only for Latin-1 fonts, then the 
+Runtime requires only one <code>font.properties</code> file. All other 
+<code>font.properties</code> files can be in the optional I18n package. 
+
+<p>The JDK 1.1 release for Win32 platforms supports TrueType fonts. JDK 1.1 
+for Solaris supports outline fonts that can be handled by an X11 server, such as 
+F3, Type1, and TrueType.
+
+<p>
+
+<h2>
+
+		Using the font.properties File</h2>
+
+<p>
+
+You must work with the <code>font.properties</code> file to add fonts 
+to the Java Runtime. The <code>font.properties</code> file is platform-
+specific. It indicates the fonts that a particular platform uses for its Java virtual 
+fonts. Fonts are grouped by types or classes. Currently, the Java Runtime 
+supports the following classes of fonts:
+
+<ul>
+
+	<li>Serif</li>
+
+	<li>Sans-serif</li>
+
+	<li>Monospaced</li>
+
+	<li>Dialog</li>
+
+	<li>DialogInput</li>
+
+</ul><p>
+
+There are several <code>font.properties</code> files that come bundled 
+with the JDK 1.1. You can find these files in the directory 
+<code>../lib</code> that is beneath the directory where Java is installed. 
+These files contain standard font environment information. 
+
+The explanations that follow assume that the readers of this document are 
+working in an English environment. In an English environment, you use the 
+<code>font.properties</code> file with no suffix on its file name, as 
+follows:
+
+<blockquote>
+
+<pre>
+font.properties
+</pre>
+
+</blockquote>
+
+However, if your environment is Japanese, Korean, Chinese, or Traditional 
+Chinese, then you must use the <code>font.properties</code> file that 
+corresponds to your particular environment. These files can be identified by 
+the country or locale suffix that is appended to the file name, as follows:
+
+<blockquote>
+
+<pre>
+font.properties.&lt;locale&gt;
+</pre>
+
+</blockquote>
+
+where <code>locale</code> is one of:
+
+<blockquote>
+
+<pre>
+ja
+
+ko
+
+zh
+
+zh_TW
+
+...
+</pre>
+
+</blockquote>
+
+Select the file with the suffix for the particular font that you are interested in. 
+Thus, for Traditional Chinese, you would access the file 
+<code>font.properties.zh_TW</code>.
+
+		<h2>Adding Asian Fonts to the Java Runtime</h2>
+
+<p>
+
+There are two steps you must take to use Asian fonts, such as the Japanese 
+font, on an English environment platform. 
+
+		<h3>Step 1: Install the Font</h3>
+
+<p>
+
+First, you must install the Japanese, Korean, Chinese, or Traditional Chinese 
+font to your system. 
+
+For Windows platform users, Microsoft delivers these Asian fonts free with the 
+NT4.0 installation CD. Or, you can download these fonts from the Microsoft 
+World Wide Web home page.
+
+Solaris users must contact SunSoft to request the Asian outline fonts for Solaris 
+environments.
+
+		<h3>Step 2: Copy the Font</h3>
+
+<p>
+
+Once you have installed the fonts on your system, copy the font description 
+that you are interested in to <code>font.properties</code>. The easiest 
+way to add one Asian font is to rename the 
+</code>font.properties.&lt;locale&gt;</code> file to be the new 
+<code>font.properties</code> file. The locale symbol represents the font 
+name that you are interested in. 
+
+No editing is required when you replace <code>font.properties</code> 
+with </code>font.properties.&lt;locale&gt;</code> because 
+</code>font.properties.&lt;locale&gt;</code> is a superset of 
+<code>font.properties</code>. 
+
+These are the locale symbols that specify the different font properties files:
+
+<h3>Locale Symbols for Fonts</h3>
+
+<table border=1>
+
+<tr><td>Font Name <td><code>font.properties</code> 
+Symbol</td></tr>
+
+<tr><td>Japanese <td><code>ja</code></td></tr>
+
+<tr><td>Korean <td><code>ko</code></td></tr>
+
+<tr><td>Chinese <td><code>zh</code></td></tr>
+
+<tr><td>Traditional Chinese <td><code>zh_TW</code></td></tr>
+
+</table>
+<p>
+Thus, to use the the Korean font, you copy or rename 
+<code>font.properties.ko</code> to 
+<code>font.properties</code>.
+
+		<h2>Using Multiple Fonts in the Runtime</h2>
+
+<p>
+
+It is possible to use more than one Asian font in your runtime. To do this, you 
+must edit the <code>font.properties</code> file. This section describes 
+the edits you need to make to the file to use multiple Asian fonts.
+
+The <code>font.properties</code> file defines certain information about 
+the fonts for your platform. This includes aliases, such as:
+
+<blockquote>
+
+<pre>
+alias.timesroman=serif
+
+alias.helvetica=sansserif
+</pre>
+
+</blockquote>
+
+It also includes descriptions for the fonts. The descriptions differ between the 
+Win32 and Solaris platforms. Our examples use serif fonts to illustrate how 
+fonts are specified and converted, if necessary. However, the same entries 
+apply to other types of fonts.
+
+In general, there are entries in the font properties file that specify the fonts you 
+want to use. These entries have the following format:
+
+
+<pre>
+   &lt;virtual font name&gt;.&lt;index number&gt; = &lt;platform font name&gt;, attributes
+</pre>
+
+
+The virtual font name is the name of the font as recognized by the Java 
+Runtime. The platform font name is the actual name of the font on your 
+platform. For example, Dialog and Serif are Java font names, while Times and 
+Helvetica are the native font names on a Win32 or Solaris platform. The index 
+number specifies the order of searching for matching font glyphs, with zero the 
+highest priority. 
+
+		<h3>Specifying Fonts on Win32 Platform</h3>
+
+<p>
+
+There are three default serif fonts available on an English language Win32 
+platform. These fonts are:
+
+<ul>
+
+	<li>Times New Roman</li>
+
+	<li>WingDings</li>
+
+	<li>Symbol</li>
+
+</ul>
+
+<p>
+
+In addition, the descriptions for these serif fonts in the 
+<code>font.properties</code> file are as follows:
+
+<blockquote>
+
+<pre>
+
+serif.0=Times New Roman,ANSI_CHARSET
+
+serif.1=WingDings,SYMBOL_CHARSET,NEED_CONVERTED
+
+serif.2=Symbol,SYMBOL_CHARSET,NEED_CONVERTED
+
+</pre>
+
+</blockquote>
+
+These three lines together indicate the indexes for the three serif fonts that are 
+available on this platform. Each line indicates one serif font, followed by up to 
+three arguments for that font. 
+
+<p>The numbers (0, 1, and 2) that appear after the word 
+<code>serif</code>, such as <code>serif.0</code>, indicate the order 
+in which the font glyphs are searched for a corresponding match with the 
+Unicode, or Java string encoding, codepoint. Thus, if <code>serif.0</code> 
+and <code>serif.1</code> both have the glyph that corresponds to the 
+same Unicode codepoint, then the glyph for <code>serif.0</code> will be 
+used.
+
+<p>The first argument is the face name of the Win32 native font. Each line 
+names a particular font. For example, the line for <code>serif.0</code> 
+names the font Times New Roman, while the line for <code>serif.2</code> 
+names the font Symbol.
+
+<p>The second argument takes the form <code>*_CHARSET</code>. In our 
+example, it is either <code>ANSI_CHARSET</code> or 
+<code>SYMBOL_CHARSET</code>. This argument indicates the charset entry 
+of the corresponding font in Win32. (See the Win32 API document for more 
+details.)
+
+<p>The third argument, if present, is <code>NEED_CONVERTED</code>. This 
+argument indicates that the corresponding platform font cannot be accessed 
+with Unicode. When this argument is present, the Java Runtime needs to 
+convert the Unicode string to this font index before attempting to use the glyph 
+for the font. Fonts that have this <code>NEED_CONVERTED</code> argument 
+must have a corresponding fontcharset entry, which indicates the charset 
+converter to use to convert the Unicode string. 
+
+<p>In our example, both serif.1 and serif.2 have the 
+<code>NEED_CONVERTED</code> argument. Both have fontcharset entries 
+in the font.properties file, as follows:
+
+<blockquote>
+
+<pre>
+
+fontcharset.serif.1=sun.awt.windows.CharToByteWingDings
+
+fontcharset.serif.2=sun.awt.CharToByteSymbol
+
+</pre>
+
+</blockquote>
+
+The fontcharset entry for <code>serif.1</code> indicates that, to draw 
+the WingDings glyph, the Unicode string should be converted using the 
+<code>sun.awt.windows.CharToByteWingDings</code> converter. 
+(Recall that the font.properties file has already established the font for 
+<code>serif.1</code> as WingDings.) 
+
+<p>The specification for the charset converter is described later in the 
+section The Charset Converter.
+
+		<h3>Win32 Font Files</h3>
+
+<p>
+
+The current Win32 JDK build provides the following font properties files:
+
+<blockquote>
+
+<pre>
+
+./lib/font.properties
+
+./lib/font.properties.ja
+
+./lib/font.properties.ko
+
+./lib/font.properties.zh
+
+./lib/font.properties.zh_TW
+
+</pre>
+
+</blockquote>
+
+If you need a different font from what is provided, then you must create your 
+own font properties file.
+
+		<h3>Specifying Fonts on Solaris Platform</h3>
+
+<p>
+
+The Solaris <code>font.properties</code> file uses a different format for 
+specifying fonts than the Win32 version. The Solaris version uses fixed-width, 
+rather than proportional, platform fonts. For example, the serif font on an 
+English Solaris platform consists of the following fixed-width fonts:
+
+<pre>
+
+serif.plain.0=-linotype-times-medium-r-normal--*-%d-*-*-p-*-iso8859-1
+
+serif.1=-urw-itc zapfdingbats-medium-r-normal--*-%d-*-*-p-*-sun-fontspecific
+
+serif.2=--symbol-medium-r-normal--*-%d-*-*-p-*-sun-fontspecific
+
+serif.italic.0=-linotype-times-medium-i-normal--*-%d-*-*-p-*-iso8859-1
+
+serif.bold.0=-linotype-times-bold-r-normal--*-%d-*-*-p-*-iso8859-1
+
+serif.bolditalic.0=-linotype-times-bold-i-normal--*-%d-*-*-p-*-iso8859-1
+
+</pre>
+
+
+These lines from the Solaris <code>font.properties</code> file indicate 
+the indexes for serif fonts with different styles. For example, the font whose 
+face name is serif and whose style is plain consists of 
+<code>serif.plain.0</code>, <code>serif.1</code>, and 
+<code>serif.2</code>. In addition, these lines indicate that the serif font 
+with the style italic consists of <code>serif.italic.0</code>, 
+<code>serif.1</code>, and <code>serif.2</code>.
+
+<p>Currently, the index of Solaris (X11) font is not a Unicode index. Because it 
+is not Unicode, the font always needs to be converted. Each entry must have a 
+corresponding fontcharset entry to indicate how it should be converted, as 
+follows: 
+
+<blockquote>
+
+<pre>
+
+fontcharset.serif.0=sun.io.CharToByteISO8859_1 
+
+fontcharset.serif.1=sun.awt.motif.CharToByteX11Dingbats
+
+fontcharset.serif.2=sun.awt.CharToByteSymbol
+
+</pre>
+
+</blockquote>
+
+For example, the line:
+
+<blockquote>
+
+<pre>
+
+fontcharset.serif.0=sun.io.CharToByteISO8859_1 
+
+</pre>
+
+</blockquote>
+
+indicates that all <code>serif.0</code> fonts, regardless of whether the 
+type is plain (<code>serif.plain.0</code>), bold 
+(<code>serif.bold.0</code>), italics 
+(<code>serif.italic.0</code>), or bold and italics 
+(<code>serif.bolditalic.0</code>), will be converted using the 
+<code>sun.io.CharToByteISO8859_1</code> converter.
+
+		<h3>Solaris Font Files</h3>
+
+<p>
+
+The current Solaris JDK build provides the following font properties files:
+
+<blockquote>
+
+<pre>
+
+./lib/font.properties
+
+./lib/font.properties.ja
+
+./lib/font.properties.ko
+
+./lib/font.properties.zh
+
+./lib/font.properties.zh_TW
+
+./lib/font.properties.cs
+
+./lib/font.properties.el
+
+./lib/font.properties.hu
+
+./lib/font.properties.lt
+
+./lib/font.properties.lv
+
+./lib/font.properties.pl
+
+./lib/font.properties.ru
+
+./lib/font.properties.tr
+
+./lib/psfont.properties.ja
+
+</pre>
+
+</blockquote>
+
+If you need a different font from what is provided, then you must create your 
+own font properties file.
+
+		<h2>The Charset Converter</h2>
+
+<p>
+
+The <code>charset</code> converter converts Unicode, or Java string 
+encoding, to the index of the font. For font drawing, the JDK 1.1 Runtime uses 
+the <code>charset</code> converter that is the subclass of 
+<code>sun.io.CharToByteConverter</code>. 
+
+<p>To add your own font to your JDK 1.1 Runtime, you need to create a 
+<code>charset</code> converter and specify it in the 
+<code>font.properties file</code>.
+
+<p>The following example illustrates how to add your own platform font to 
+the Java serif font. In this example, your font contains 256 glyphs, which are 
+indexed 0 - 0xff. Your font's glyphs correspond to Unicode 0xe000 - 0xe0ff. This 
+example is divided into two steps. First, you create your 
+<code>fontcharset</code> converter class. Second, you specify your font 
+name and converter class name in the <code>font.properties file</code> 
+file.
+
+		<h3>Step 1. Create fontcharset Converter</h3>
+
+<p>
+
+This is the Java code for creating the <code>fontcharset</code> converter. 
+
+<blockquote>
+
+<pre>
+package mypkg.converter;
+
+import sun.io.CharToByteISO8859_1;
+import sun.io.CharToByteConverter;
+import sun.io.ConversionBufferFullException;
+
+public class CharToByteMyFont extends sun.io.CharToByteISO8859_1 { 
+
+   /*
+    * This method indicates the range this font covers.
+    */
+   public boolean canConvert(char ch) {
+      if (ch >= 0xe000 && ch <= 0xe0ff) {
+         return true;
+      }
+      return false;
+   }
+
+   /*
+    * This method converts the unicode to this font index.
+    */
+   public int convert(char[] input, int inStart, int inEnd, 
+                      byte[] output, int outStart, int outEnd) 
+                      throws ConversionBufferFullException {
+      int outIndex = outStart; 
+      for (int i = inStart; i < inEnd; i++) {
+         char ch = input[i];
+         if (ch >= 0xe000 && ch <= 0xe0ff) {
+            if (outIndex >= outEnd) 
+            throw new ConversionBufferFullException();
+            output[outIndex++] = (byte)(ch - 0xe000);
+         }
+      }
+      return outIndex - outStart;
+   }
+
+   /*
+    * This method indicates the charset name for this font.
+    */
+   public String toString() {
+      return "MyFont";
+   }
+}
+</pre>
+
+</blockquote>
+
+		<h3>Step 2. Add Font and Converter to Properties File</h3>
+
+<p>
+
+You must first set the font name in the <code>font.properties</code> 
+file. Do this by adding an index entry for the font. For example, for a serif font, 
+add a line that designates the serif font followed by the next sequential index 
+number in the file. The Java Runtime requires that the index numbers for any 
+one font be continuous.
+
+<p>Thus, to add a serif font to our previous example font.properties file, you 
+would insert the following line:
+
+<blockquote>
+
+<pre>
+serif.3=&lt;your own font name&gt;
+</pre>
+
+</blockquote>
+
+The index number must be the next highest index number in the properties 
+file. In our example file, we have already used <code>serif.0</code>, 
+<code>serif.1</code>, and <code>serif.2</code>. Therefore, the new 
+serif font must be <code>serif.3</code>. Had we used a number that was 
+discontinuous, such as <code>serif.5</code>, the Java Runtime would not 
+use that entry.
+
+<p>Next, you must define the converter for this font. This requires a 
+<code>fontcharset</code> entry for the new font, in this case, 
+<code>serif.3</code>. The following line is the 
+<code>fontcharset</code> entry that uses the converter created in the Java 
+code example:
+
+<blockquote>
+
+<pre>
+fontcharset.serif.3=mypkg.converter.CharToByteMyfont
+</pre>
+
+</blockquote>
+
+You must also ensure that your new converter is visible to the Java Runtime. To 
+ensure that the Java Runtime can see your converter, your java application 
+<code>classpath</code> must include the class path to the converter. In our 
+example, we must be sure that the class 
+<code>mypkg.converter.CharToByteMyfont</code> is visible to the Java 
+Runtime. The simplest way to do this is to put this class under your 
+<code>$JDK_HOME/classes/myown/package</code> directory.
+
+<p>
+
+</body>
+</html>
+

@@ -6,6 +6,8 @@ import java.net.*;
 public class DbnIO
 {
     DbnApplet app;
+    String lastDirectory;
+    String lastFile;
 
     public DbnIO(DbnApplet app) {
 	this.app = app;
@@ -15,11 +17,14 @@ public class DbnIO
 	FileDialog fd = new FileDialog(new Frame(), 
 				       "Open a DBN program...", 
 				       FileDialog.LOAD);
+	fd.setDirectory(lastDirectory);
+	fd.setFile(lastFile);
 	fd.show();
 	
 	String directory = fd.getDirectory();
-	if (directory == null) return null; // user cancelled
-	File file = new File(directory, fd.getFile());
+	String filename = fd.getFile();
+	if (filename == null) return null; // user cancelled
+	File file = new File(directory, filename);
 
 	try {
 	    FileInputStream input = new FileInputStream(file);
@@ -30,6 +35,11 @@ public class DbnIO
 	    while (count != length) {
 		data[count++] = (byte) input.read();
 	    }
+	    // set the last dir and file, so that they're
+	    // the defaults when you try to save again
+	    lastDirectory = directory;
+	    lastFile = filename;
+	
 	    // once read all the bytes, convert it to the proper
 	    // local encoding for this system.
 	    return app.languageEncode(data);
@@ -49,11 +59,14 @@ public class DbnIO
 	FileDialog fd = new FileDialog(new Frame(), 
 				       "Save DBN program as...", 
 				       FileDialog.SAVE);
+	fd.setDirectory(lastDirectory);
+	fd.setFile(lastFile);
 	fd.show();
 	
 	String directory = fd.getDirectory();
-	if (directory == null) return false; // user cancelled
-	File file = new File(directory, fd.getFile());
+	String filename = fd.getFile();
+	if (filename == null) return false; // user cancelled
+	File file = new File(directory, filename);
 
 	try {
 	    if (app.I18N) {
@@ -62,14 +75,19 @@ public class DbnIO
 		writer.flush();
 		writer.close();
 	    } else {
-		FileOutputStream output = new FileOutputStream(file);
+		throw new RuntimeException("untested code in doLocalWrite");
+		/*
+		FileOutputStream output = new FileOutputStream(file); 
 		// no I18N, just blat out the low byte of each char
-		byte data[] = new byte[s.length()];
-		s.getBytes(0, s.length()-1, data, 0);
-		output.write(data);
-		output.flush();
+		byte data[] = new byte[s.length()]; 
+		s.getBytes(0, s.length()-1, data, 0); 
+		output.write(data); 
+		output.flush(); 
 		// NOT TESTED
+		*/
 	    }
+	    lastDirectory = directory;
+	    lastFile = filename;
 	} catch (IOException e) {
 	    e.printStackTrace();
 	    return false;

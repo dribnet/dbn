@@ -26,7 +26,7 @@ public class DbnApplet extends Applet
 	"mouse", "keyboard", "net", "time",
 	"same?", "notsame?", "smaller?", "notsmaller?"
     }, {
-	"ja", "\u304B\u307F", "\u30DA\u30F3", "\u305B\u3093",
+	"jp", "\u304B\u307F", "\u30DA\u30F3", "\u305B\u3093",
 	"\u304F\u308A\u304B\u3048\u3057", "\u305A\u3063\u3068",
 
 	"\u304A\u304F", "\u30B3\u30DE\u30F3\u30C9", 
@@ -220,7 +220,7 @@ public class DbnApplet extends Applet
 	    try {
 		if (languageEncoding == null)
 		    return new String(program);
-		System.err.println("using encoding " + languageEncoding);
+		//System.err.println("using encoding " + languageEncoding);
 		return new String(program, languageEncoding);
 	    } catch (UnsupportedEncodingException e) {
 		e.printStackTrace();
@@ -290,28 +290,17 @@ public class DbnApplet extends Applet
 	int keywordCount = getKeywordCount();
 	for (int i = 0; i < languageCount; i++) {
 	    String languageName = keywords[i][0];
-	    System.out.println("adding " + languageName + ".");
 	    char characters[][] = new char[keywordCount][];
 	    for (int j = 0; j < keywordCount; j++) {
 		characters[j] = keywords[i][j+1].toCharArray();
 	    }
 	    languageHash.put(languageName, characters);
 	}
+	languageEncoding = getParameter("encoding");
+	String lang = getParameter("language"); 
+	languageTable = (lang == null) ? null :
+	    languageTable = (char[][])languageHash.get(lang);
 
-	String parameter = getParameter("encoding");
-	//if (parameter == null) languageEncoding = null;
-	languageEncoding = parameter;
-
-	parameter = getParameter("language"); 
-	if (parameter == null) {
-	    // this means no conversion
-	    languageTable = null;
-	} else {
-	    //System.out.println(language + " " + languageHash);
-	    System.out.println("param = " + parameter);
-	    languageTable = (char[][])languageHash.get(parameter);
-	    System.out.println("lang table = " + languageTable);
-	}
 	/*
 	for (int j = 0; j < languageHash.size()-1; j++) {
 	    for (int i = 0; i < keywordCount; i++) {

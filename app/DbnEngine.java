@@ -313,7 +313,10 @@ public class DbnEngine {
 		if (operations[i] == DbnToken.MULTIPLY) {
 		    values[i] *= values[i+1];
 		} else {
-		    values[i] /= values[i+1];
+		    //values[i] /= values[i+1];
+		    // division by zero evaluates to zero
+		    values[i] = (values[i+1] == 0) ? 0 :
+			values[i] / values[i+1];
 		}
 		// put result in i, scoot everything down
 		for (int j = i+1; j < valueCount-1; j++) {
