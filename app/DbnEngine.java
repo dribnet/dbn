@@ -85,8 +85,9 @@ public class DbnEngine {
     lastNight++;
     if ((lastNight % 100) == 0) {
       try {
-	//System.out.println("gonna sleep " + Thread.currentThread());
+	//System.out.println("sleeping " + Thread.currentThread());
 	Thread.sleep(5);
+	//System.out.println("awake");
 	//System.out.println("rested");
       } catch (InterruptedException e) { }
       lastNight = 0;
@@ -117,6 +118,7 @@ public class DbnEngine {
     case DbnToken.REFRESH: execRefresh(current); break;
     case DbnToken.SIZE: execSize(current); break;
     case DbnToken.SAVE: execSave(current); break;
+    case DbnToken.FAST: execFast(current); break;
       
       // deprecated stuff
     case DbnToken.NOREFRESH: execNoRefresh(current); break;
@@ -326,6 +328,12 @@ public class DbnEngine {
   void execNoRefresh(DbnToken current) throws DbnException {
     if (watchCurrent) setCurrent(current);
     graphics.norefresh();
+  }
+
+
+  void execFast(DbnToken current) throws DbnException {
+    if (watchCurrent) setCurrent(current);
+    graphics.fast();
   }
 
 

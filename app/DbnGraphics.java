@@ -72,6 +72,7 @@ public class DbnGraphics extends Panel {
   int flushCount = 0;
 
   boolean slowdown;
+  boolean slowdownParam;
   
 
   public DbnGraphics(int width, int height, Color bgColor) {
@@ -169,6 +170,7 @@ public class DbnGraphics extends Panel {
     }
     penColor = 0xff000000;
     aiRefresh = true;
+    slowdown = slowdownParam;
 
     flushCount = 0;
     resetBlockDetect();
@@ -540,6 +542,11 @@ public class DbnGraphics extends Panel {
   public void refresh() {
     aiRefresh = false;
     update();
+  }
+
+
+  public void fast() {
+    slowdown = false;
   }
 
 
@@ -1055,9 +1062,10 @@ public class DbnGraphics extends Panel {
 
   private final void slowdown() {
     if (!slowInited) {
-      slowdown = DbnApplet.getBoolean("slowdown", true);
+      slowdownParam = DbnApplet.getBoolean("slowdown", true);
       SLOW_COUNT = DbnApplet.getInteger("slowdown.count", 2);
       SLOW_MILLIS = DbnApplet.getInteger("slowdown.millis", 100);
+      slowdown = slowdownParam;
       slowInited = true;
     }
 

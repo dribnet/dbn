@@ -141,6 +141,7 @@ public class DbnParser {
 	return parseNoRefresh(current);
       break;
     case 'f':
+      if (word.equals("fast")) return parseFast(current);
       if (word.equals("field")) return parseField(current);
       if (word.equals("forever")) return parseForever(current); 
       break;
@@ -677,6 +678,12 @@ public class DbnParser {
 
   boolean parseNoRefresh(DbnToken parent) throws DbnException {
     DbnToken current = parent.addChild(DbnToken.NOREFRESH, line);
+    return true;
+  }
+
+
+  boolean parseFast(DbnToken parent) throws DbnException {
+    DbnToken current = parent.addChild(DbnToken.FAST, line);
     return true;
   }
 

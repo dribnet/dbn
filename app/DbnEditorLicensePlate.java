@@ -155,15 +155,19 @@ public class DbnEditorLicensePlate extends Panel implements Runnable {
     } catch(Exception e) {
     }
   }
-	
+
   public void paint(Graphics gv) {
     Rectangle r = bounds();
-	
-    if (r.width>1) {
+
+    // this was pretty bad news, it was creating a new 
+    // image on every paint, which sometimes happened a lot..
+    //if (r.width>1) {
+    //if ((r.width > 1) || (cbw != r.width) || (cbh != r.height)) {
+    if ((cbw != r.width) || (cbh != r.height)) {
+      //System.out.println(r);
       cbw = r.width; cbh = r.height;
       im = createImage(r.width,r.height);
       img = im.getGraphics();
-
     }
     Graphics g = img;
 		

@@ -46,6 +46,7 @@ public class DbnRunner implements Runnable {
   public void run() {
     //boolean donep = false;
     state = RUNNER_STARTED;
+    //System.out.println("should restart graphics");
     graphics.reset();
     //cachedg = null;
 	

@@ -1,12 +1,6 @@
 DESIGN BY NUMBERS RELEASE NOTES
-Version 3.0, Released August 10, 2001
-http://dbn.media.mit.edu 
-dbn-feedback@media.mit.edu
-
-
-Welcome to the latest release of downloadable DBN.
-This file contains useful updates, information, and
-troubleshooting notes.
+Version 3.0, Released August 14, 2001
+http://dbn.media.mit.edu * dbn-feedback@media.mit.edu
 
 
 * FINAL VERSION OF DBN
@@ -26,7 +20,7 @@ the beginning of your program to include their functions.
 
 * MACINTOSH PEOPLE READ THIS!
 The Macintosh version requires Macintosh Runtime for 
-Java (MRJ), 2.1.2 (or newer). This can be downloaded 
+Java (MRJ), 2.2.x (or newer). This can be downloaded 
 from Apple at http://www.apple.com/java. Previous 
 versions of MRJ were incompatible, slow and buggy, so 
 you should definitely be using the most recent version. 
@@ -44,12 +38,19 @@ under this condition.
 The Windows version of the DBN download includes JRE,
 the Java Runtime Environment. This means that you won't
 have to download anything to get DBN up and running. To
-start DBN, just double-click the file titled 'run.bat'.
+start DBN, just double-click the file titled 'dbn.bat'.
 
 If you are using Windows 95, 98 (or perhaps even ME), 
 you may have trouble with using the run file. If the
 window opens and then closes quickly, instead move
-dbn to your C drive, and try the run95.bat file.
+dbn to your C drive, and try the dbn95.bat file.
+
+
+* HIDDEN FEATURES INSIDE DBN
+There are several hidden features inside DBN that may be
+of interest to advanced users. Visit the 'hidden features'
+section of the web site for more information:
+http://dbn.media.mit.edu/info/hidden.html
 
 
 * KNOWN ISSUES
@@ -74,56 +75,14 @@ Send this mail to dbn-feedback@media.mit.edu
 
 
 * PEOPLE
-DBN is the product of many people. Ben Fry is the chief 
-architect of releases since 1.1. A previous release,
-DBN 1.0.1 was created by Tom White. The original version 
-was created by John Maeda.
-
-Concurrently we have several DBN-related developments. 
-A DBN courseware system architected by Casey Reas, 
-a user site by Lauren Dubick, and a cast of DBN workshop 
-material that has been administered in Seoul, Tokyo, LA, 
-New York, and Cambridge. Other people that have contributed 
-to DBN development are Peter Cho, Elise Co, Golan Levin, 
-Jocelyn Lin, and Josh Nimoy. 
-
-
-* HIDDEN FEATURES INSIDE DBN
-For more information, visit the DBN web site.
-- holding down the 'control' key and clicking in the 
-  image area will save the current image to a .tiff
-  file, that can be opened by photoshop or other
-  applications. 
-- holding down the shift key while clicking pixels 
-  inside the graphics area will highlight the line of
-  code that (most recently) drew that pixel.
-- color is included in this version. instead of just
-  'pen 45' or 'paper 30' to set a 45 or 30% gray, 
-  use 'pen 10 30 50' for red, green, and blue values
-  of 10, 30, and 50 (on a scale of 0 to 100)
-  same goes for paper, i.e. 'paper 20 70 40'. because
-  rgb works differently than gray, note that to get
-  a 0% gray (paper 0) using rgb color, the command
-  would be 'paper 100 100 100'.
-- get/set are a little stranger, however. the command
-  'set [50 50] 30' will set location 50, 50 to 30% gray;
-  because color requires three entries, you have to 
-  specify which one you'd like. so 'set [40 40 red] 30'
-  will set the amount of red at location 40, 40 to 30%.
-  similarly, 'set blah [40 40 red]' will set the variable
-  'blah' to the red value at location 40, 40.
-- the drawing area can be resized, using the 'size' command.
-  'size 200 200' in your code will cause the drawing
-  window to grow to 200 by 200 pixels (instead of the 
-  usual 101 by 101).
-- it is also possible to use a magnification on the drawing
-  area. add the amount to magnify by to the end of 
-  the size command. for instance, a 4x magnification and
-  a 200x200 drawing area would be: 'size 200 200 4'
-- this version is speed-controlled. to disable speed control
-  so that your applets run as fast as possible, add 
-  'slowdown=false' to the 'dbn.properties' file 
-  that's inside the 'lib' folder.
+DBN is the product of many people. Benjamin Fry is the 
+chief architect of the most current release. DBN 1.0.1 
+was created by Tom White. The original version DBN 1.0 
+was created by John Maeda. The courseware system was 
+developed by Casey Reas, and translated to Japanese by
+Kazuo Ohno. Other people that have contributed to DBN 
+development are Peter Cho, Elise Co, Lauren Dubick, 
+Golan Levin, Jocelyn Lin, and Josh Nimoy.
 
 
 LICENSE
@@ -149,15 +108,18 @@ SUCH DAMAGES.
 
 CHANGES (technical section that you're welcome to ignore)
 
+
 Version 3.0: Changes since 2.0.1
+- changed .bat file to be called 'dbn'
+- added dbn95.bat for common win95 error
 - removed the need for 'norefresh'
 - disabled antialias feature (it was poorly implemented)
 - added automatic-slowdown feature
+- added ability to disable slowdown feature
 - ability to save tiff files
 - support for color commands: pen, paper, get/set [ ]
 - changing of dbn drawing area using the 'size' command
 - ability to magnify drawing area
-
 - dbnletters was broken.. it used functions called typeA,
   typeB, typeC; but the book used letterA, letterB, letterC
   the new dbnletters is based on the book examples

@@ -71,6 +71,7 @@ public class DbnToken {
 
   static final int ANTIALIAS   = 80;  // the deprecated list
   static final int NOREFRESH   = 81;
+  static final int FAST        = 82;
 
   static final int SMALLER     = 60;
   static final int NOT_SMALLER = 61;
@@ -253,6 +254,7 @@ public class DbnToken {
     case FIELD: buffer.append("FIELD"); break;
     case PAUSE: buffer.append("PAUSE"); break;
     case REFRESH: buffer.append("REFRESH"); break;
+    case FAST: buffer.append("FAST"); break;
     case SIZE: buffer.append("SIZE"); break;
     case SAVE: buffer.append("SAVE"); break;
 
@@ -270,7 +272,7 @@ public class DbnToken {
     case ROOT: buffer.append("ROOT"); break;
 
     default: 
-      System.err.println("not handled: " + kind);
+      System.err.println("not handled1: " + kind);
       System.exit(1);
     }
 
@@ -542,7 +544,7 @@ public class DbnToken {
 	convertChild(1); // what it should be set to
 	outputln(");");
       } else {
-	System.err.println("not handled " + children[0].kind);
+	System.err.println("not handled2 " + children[0].kind);
 	System.exit(1);
       }
       break;
@@ -626,7 +628,7 @@ public class DbnToken {
       break;
 
     default: 
-      System.err.println("not handled: " + kind);
+      System.err.println("not handled3: " + kind);
       System.exit(1);
     }
     return null;
