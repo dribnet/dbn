@@ -112,10 +112,14 @@ public class DbnIO
 	    //String saveUrl = app.getParameter("save_url");
 	    //URL url = new URL(saveUrl);
 	    //URL url = app.getDocumentBase();
-	    String document = app.getDocumentBase().toString();
+	    //String document = app.getDocumentBase().toString();
+	    //document = document.substring(0, document.lastIndexOf("?"));
+	    //System.out.println("'" + document + "'");
+	    URL appletUrl = app.getDocumentBase();
+	    String document = appletUrl.getFile();
 	    document = document.substring(0, document.lastIndexOf("?"));
-	    URL url = new URL(document);
-	    System.err.println("url is " + url);
+	    URL url = new URL("http", appletUrl.getHost(), document);
+	    //System.err.println("url is " + url);
 
 	    URLConnection conn = url.openConnection();
 	    conn.setDoInput(true);
