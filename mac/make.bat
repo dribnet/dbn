@@ -1,2 +1,2 @@
 @echo off
-jikes +D *.java
+jikes -classpath %CLASSPATH%;shared.jar +D *.java

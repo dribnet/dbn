@@ -9,7 +9,7 @@ cp -r ../app/organic2/classes ./$VFS
 zip -r0q dbn-classes.zip $VFS
 rm -rf $VFS
 
-java -nojit Appendage dbn-template.bin dbn-classes.zip dbn.bin
+jre -cp shared.jar -nojit Appendage dbn-template.bin dbn-classes.zip dbn.bin
 
 rm -f dbn-classes.zip
 
