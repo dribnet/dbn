@@ -314,16 +314,13 @@ public class DbnGraphics
 	val = bound(val, 100);
 	fieldFlush();
 	
-	if (x2 < x1) { int dum = x1; x1 = x2; x2 = dum; }
-	if (y2 < y1) { int dum = y1; y1 = y2; y2 = dum; }
+	if (x2 < x1) { int dummy = x1; x1 = x2; x2 = dummy; }
+	if (y2 < y1) { int dummy = y1; y1 = y2; y2 = dummy; }
 	
-	// System.out.println(x1+"/"+x2+"/"+y1+"/"+y2);
-	int i=0,j=0,pp=0;
 	byte bVal = (byte) val;
-	for(j=y1; j<=y2; j++) {
-	    pp = cbw*j;// + x1;
-	    for(i=x2; i<=x2; i++) {
-		//System.out.println(pp+i);
+	for (int j = y1; j <= y2; j++) {
+	    int pp = cbw*j;
+	    for (int i = x1; i <= x2; i++) {
 		pixels[pp+i] = bVal;
 	    }
 	}		

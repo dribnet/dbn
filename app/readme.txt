@@ -84,6 +84,17 @@ SUCH DAMAGES.
 
 CHANGES (technical section, can be ignored)
 
+IN PROGRESS: Version 1.X: Changes since 1.2.1
+
+- fixed a bug where field was not properly setting the 
+  values of the screen's [x y] image array
+
+- fixed a bug where recursion was not working properly
+
+- turns off anti-alias between program executions,
+  before it wasn't paying attention and leaving
+  anti-alias turned on for the rest of the dbn session
+
 Version 1.2.1: Minor changes since 1.2
 
 - this version will only be updated on the website,
