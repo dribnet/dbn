@@ -10,11 +10,6 @@ import java.net.*;
 import java.util.*;
 
 
-// TODO write memoryimagesource code (call it jdk11_plus)
-// DONE add method for setting hostname
-// DONE switch grays around the correct way, setup palette
-// DONE don't create a new Date() on every idle() step
-
 public class DbnGraphics extends Panel {
   static int grayMap[] = new int[101];
   static int colorMap[] = new int[101];
@@ -27,9 +22,10 @@ public class DbnGraphics extends Panel {
   }
 
   MemoryImageSource source;
-  Graphics panelg;
 
+  Graphics panelg;
   Image screenImage;
+  Image screenImageg;
   Image image;
 
   Graphics g;
@@ -99,25 +95,26 @@ public class DbnGraphics extends Panel {
   // make sense to change the screen's size at that time, 
   // but that seems needlessly complex. 
 
-  public void size(int width, int height) {
-    System.out.println("size " + width + " " + height);
+  public void size(int wide, int high) {
+    System.out.println("setting size to " + wide + " " + high);
 
-    int oldWidth = this.width;
-    int oldHeight = this.height;
+    int oldWidth = width;
+    int oldHeight = height;
 
     // make sure the jokers don't ask for something ridiculous
-    if ((width < 1) || (height < 1)) {
+    if ((wide < 1) || (high < 1)) {
       if ((oldWidth == 0) && (oldHeight == 0)) {
 	size(101, 101);
+      } else {
+	System.out.println("would punt, but old is " + oldWidth + ", " + oldHeight);
       }
       return;  // otherwise just ignore
     }
 
-    this.width = width;
-    this.height = height;
+    width = wide;
+    height = high;
     width1 = width - 1;
     height1 = height - 1;
-    this.bgColor = bgColor;
 
     pixelCount = width * height;
     pixels = new int[pixelCount];
@@ -139,7 +136,7 @@ public class DbnGraphics extends Panel {
 
     screenImage = null; // so that it gets reshaped
 
-    if (oldWidth != width || oldHeight != height) 
+    if (oldWidth != width || oldHeight != height)
       repack();
 
     update();
@@ -175,7 +172,9 @@ public class DbnGraphics extends Panel {
   */
 
   protected void repack() {
+    System.out.println("attempting repack");
     if (getParent() != null) {
+      System.out.println("  repacking");
       getParent().getParent().getParent().doLayout();
       frame = (Frame) getParent().getParent().getParent().getParent();
       frame.pack();
@@ -591,7 +590,7 @@ public class DbnGraphics extends Panel {
 
   ////////////////////////////////////////////////////////////
 
-  // related methods, or likely to be called by alternate 
+  // internal methods, or likely to be called by alternate 
   // implementations like scheme and python
 
   public final int bound(int input, int upper) {
@@ -1016,6 +1015,7 @@ public class DbnGraphics extends Panel {
   // panel methods, get connector input, etc.
 
   public Dimension preferredSize() {
+    System.out.println("setting new preferred size");
     return new Dimension(width1*magnification + 30, 
 			 height1*magnification + 30);
     //return new Dimension(width, height);
@@ -1059,10 +1059,11 @@ public class DbnGraphics extends Panel {
 
   public void paint(Graphics screen) {
     if (screenImage == null) {
+      System.out.println("reallocating screenImage");
       //Dimension dim = new Dimension(width + 100, height + 100);
       Dimension dim = preferredSize();
       screenImage = createImage(dim.width, dim.height);
-      Graphics g = screenImage.getGraphics();
+      g = screenImage.getGraphics();
       gx = (dim.width - width*magnification) / 2;
       gy = (dim.height - height*magnification) / 2;
 
@@ -1076,7 +1077,7 @@ public class DbnGraphics extends Panel {
     }
 
     if (image != null) {
-      Graphics g = screenImage.getGraphics();
+      //Graphics g = screenImage.getGraphics();
       g.drawImage(image, gx, gy, 
 		  width*magnification, height*magnification, null);
     }
@@ -1085,6 +1086,8 @@ public class DbnGraphics extends Panel {
     if ((screen != null) && (screenImage != null)) {
       // blit to screen
       screen.drawImage(screenImage, 0, 0, null);
+      //screen.drawImage(image, gx, gy, 
+      //	  width*magnification, height*magnification, null);
     }
   }
 

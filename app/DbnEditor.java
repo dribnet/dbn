@@ -65,6 +65,8 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     buttons.setBackground(buttonBgColor);
     left.add("North", buttons);
 
+    graphics = new DbnGraphics(gwidth, gheight, bgColor);
+    /*
     if (DbnApplet.getBoolean("enhanced_graphics", false)) {
 #ifdef GRAPHICS2
       graphics = new DbnGraphics2(gwidth, gheight, bgColor);
@@ -73,6 +75,7 @@ public class DbnEditor extends Panel implements DbnEnvironment {
       graphics = new DbnEditorGraphics(gwidth, gheight, tickColor,
 				       bgColor, bgStippleColor, this);
     }
+    */
     left.add("Center", graphics);
 
     left.setBackground(gutterBgColor);
