@@ -1,5 +1,5 @@
 DESIGN BY NUMBERS RELEASE NOTES
-Version 1.2, Released 9.9.99
+Version 1.2.1, Released 9.12.99
 http://dbn.media.mit.edu 
 dbn-feedback@media.mit.edu
 
@@ -83,6 +83,15 @@ SUCH DAMAGES.
 
 
 CHANGES (technical section, can be ignored)
+
+Version 1.2.1: Minor changes since 1.2
+
+- this version will only be updated on the website,
+  since the bug fix doesn't affect the downloadable version
+
+- moved the application code out of DbnApplet so that it
+  works with Netscape Navigator
+
 
 Version 1.2: Changes and fixes since version 1.01
 
