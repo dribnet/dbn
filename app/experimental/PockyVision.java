@@ -33,7 +33,7 @@ import java.util.*;
 // X second double-click will stop applet
 // X save new image after changes while running
 
-public class PockyVision extends Window implements DbnEnvironment {
+public class PockyVision extends Window implements DbnEnvironment, Runnable {
   static final int HCOUNT = 46;
   static final int VCOUNT = 46;
   static final int COUNT = HCOUNT * VCOUNT;
@@ -61,7 +61,6 @@ public class PockyVision extends Window implements DbnEnvironment {
   DbnRunner runner;
   Vector runners = new Vector();
   DbnApplication app;
-  //boolean ignoreDrag; // set if mouseDown inside the Graphics
 
   FontMetrics metrics;
   int ascent, descent;
@@ -76,22 +75,16 @@ public class PockyVision extends Window implements DbnEnvironment {
   static final int IGNORING = 3;
   int mouseMode;
 
+  Thread thread;
+  float fx, fy;
+  float vx, vy;
+  float px, py;
+  int maxOffsetX;
+  int maxOffsetY;
+
 
   static public void main(String args[]) {
     new PockyVision();
-  }
-
-  public boolean gotFocus(Event e, Object o) {
-    //System.out.println("got it");
-    //getToolkit().beep();
-    graphics.setCurrentDbnGraphics();
-    return false;
-  }
-
-  public boolean lostFocus(Event e, Object o) {
-    DbnEditor editor = (DbnEditor)app.environment;
-    editor.graphics.setCurrentDbnGraphics();
-    return false;
   }
 
   public PockyVision() {
@@ -112,6 +105,8 @@ public class PockyVision extends Window implements DbnEnvironment {
     Toolkit tk = getToolkit();
     screen = tk.getScreenSize();
     setBounds(0, 0, screen.width, screen.height);
+    maxOffsetX = IMAGE_WIDTH - screen.width;
+    maxOffsetY = IMAGE_HEIGHT - screen.height;
 
     try {
       FileInputStream fis = new FileInputStream("pocky.list");
@@ -129,7 +124,6 @@ public class PockyVision extends Window implements DbnEnvironment {
     Image original = tk.getImage("pocky.gif");
     image = createImage(IMAGE_WIDTH, IMAGE_HEIGHT);
 
-    //image = tk.getImage("pocky.gif");
     MediaTracker tracker = new MediaTracker(this);
     tracker.addImage(image, 0);
     tracker.addImage(original, 1);
@@ -143,60 +137,9 @@ public class PockyVision extends Window implements DbnEnvironment {
     runningIndex = -1;
     show();
     toFront();
-  }
 
-  public void saveImage() {
-    try {
-      FileOutputStream fos = new FileOutputStream("pocky.update.raw");
-      /*
-      int pixels[] = new int[IMAGE_WIDTH];
-      byte bytes[] = new byte[IMAGE_WIDTH];
-
-      for (int j = 0; j < IMAGE_HEIGHT; j++) {
-	PixelGrabber pg = 
-	  new PixelGrabber(image, 0, j*IMAGE_WIDTH, IMAGE_WIDTH, 1, 
-			   pixels, 0, IMAGE_WIDTH);
-	try {
-	  pg.grabPixels();
-	} catch (InterruptedException e) {
-	}
-	for (int i = 0; i < IMAGE_WIDTH; i++) {
-	  bytes[i] = (byte) (pixels[i] & 0xff);
-	}
-	fos.write(bytes);
-      }
-      */
-      int pixels[] = new int[IMAGE_COUNT];
-      byte bytes[] = new byte[IMAGE_COUNT];
-
-      System.out.println("grabbing pixels..");
-      PixelGrabber pg = 
-	new PixelGrabber(image, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT,
-			 pixels, 0, IMAGE_WIDTH);
-      try {
-	pg.grabPixels();
-      } catch (InterruptedException e) {
-      }
-      System.out.println("done grabbing");
-
-      int lastPercent = 0;
-      for (int i = 0; i < IMAGE_COUNT; i++) {
-	fos.write((byte) (pixels[i] & 0xff));
-	if ((i % IMAGE_WIDTH) == 0) 
-	  System.out.println(((int) (100 * (float)i / (float)IMAGE_COUNT)) + "%");
-      }
-      //for (int i = 0; i < IMAGE_COUNT; i++) {
-      //bytes[i] = (byte) (pixels[i] & 0xff);
-      //}
-      //fos.write(bytes);
-
-      fos.flush();
-      fos.close();
-      System.out.println("Wrote new image, size is " + 
-			 IMAGE_WIDTH + " x " + IMAGE_HEIGHT);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    thread = new Thread(this);
+    thread.start();
   }
 
   public boolean keyDown(Event e, int k) {
@@ -204,6 +147,7 @@ public class PockyVision extends Window implements DbnEnvironment {
     if (k == 27) System.exit(0);
     return false;
   }
+
 
   public void update() {
     if (g == null) {
@@ -222,31 +166,26 @@ public class PockyVision extends Window implements DbnEnvironment {
     paint(screen);
   }
 
-  public void paint(Graphics screen) {
-    //System.out.println("painting " + image);
+  public void paint(Graphics screeng) {
     if (image != null) {
-      screen.drawImage(image, offsetX, offsetY, null);
-      //} else {
-      //reupdate();
+      screeng.drawImage(image, offsetX, offsetY, null);
+
+      screeng.setColor(Color.lightGray);
+      if (offsetX > 0) 
+	screeng.fillRect(0, 0, offsetX, screen.height);
+      if (offsetY > 0)
+	screeng.fillRect(0, 0, screen.width, offsetY);
+      if (offsetX < -maxOffsetX)
+	screeng.fillRect(offsetX + IMAGE_WIDTH, 0, 
+			 screen.width, screen.height);
+      if (offsetY < -maxOffsetY)
+	screeng.fillRect(0, offsetY + IMAGE_HEIGHT,
+			 screen.width, screen.height);
+      //fx = (-maxOffsetX - offsetX) * TIGHTNESS;
+      //if (offsetY < -maxOffsetY) fy = (-maxOffsetY - offsetY) * TIGHTNESS;
     }
-    //paintComponents();
   }
 
-
-  public void setProgramFile(String programFile) {
-    DbnEditor editor = (DbnEditor)app.environment;
-    app.frame.setTitle(programFile);
-    editor.textarea.setText(app.readFile(programFile));
-    File lastFileObject = new File(programFile);
-    editor.lastDirectory = lastFileObject.getParent();
-    editor.lastFile = lastFileObject.getName();
-    //System.out.println(editor.lastDirectory + " " + editor.lastFile);
-    app.frame.show();
-    app.frame.toFront();
-  }
-
-  //protected void releaseDbnGraphics() {
-  //}
 
   synchronized public boolean mouseDown(Event e, int x, int y) {
     int selX = (-offsetX + x) / WIDE;
@@ -293,6 +232,8 @@ public class PockyVision extends Window implements DbnEnvironment {
       }
       gx = (selX * WIDE) + offsetX;
       gy = (selY * HIGH) + offsetY;
+      /*
+	// by definition, this won't happen
       if (programs[sel] == null) {
 	System.out.println(filenames[sel] + " not found");
 	g.setColor(Color.orange);
@@ -302,6 +243,7 @@ public class PockyVision extends Window implements DbnEnvironment {
 	update();
 	return false;
       }
+      */
       runner = new DbnRunner(programs[sel], graphics, this);
       runner.start();
       graphics.setVisible(true);
@@ -321,6 +263,43 @@ public class PockyVision extends Window implements DbnEnvironment {
     return false;
   }
 
+
+  public boolean mouseDrag(Event e, int x, int y) {
+    //if (ignoreDrag) return false;
+    if (mouseMode == MOVING) {
+      int deltaX = x - lastMouseX;
+      int deltaY = y - lastMouseY;
+
+      fx += deltaX;
+      fy += deltaY;
+      /*
+      offsetX += deltaX; 
+      offsetY += deltaY; 
+      gx += deltaX; 
+      gy += deltaY;
+      //graphics.setLocation(gx, gy);
+      update();
+      */
+
+    } else if (mouseMode == NAMING) {
+      int selX = (-offsetX + x) / WIDE;
+      int selY = (-offsetY + y) / HIGH;
+      int sel = selY * HCOUNT + selX;
+      nameSelection(x, y, selX, selY, sel);
+    }
+    lastMouseX = x;
+    lastMouseY = y;
+    return false;
+  }
+
+  public boolean mouseUp(Event e, int x, int y) {
+    if (mouseMode == NAMING) {
+      update();
+    }
+    return false;
+  }
+
+
   synchronized public void exterminate() {
     if (runningIndex != -1) {
       //System.out.println("replacing");
@@ -339,6 +318,7 @@ public class PockyVision extends Window implements DbnEnvironment {
     graphics.setVisible(false);
     runningIndex = -1;
   }
+
 
   protected void nameSelection(int x, int y, int selX, int selY, int sel) {
     if (g == null) return;
@@ -364,38 +344,131 @@ public class PockyVision extends Window implements DbnEnvironment {
     g.drawString(filenames[sel], textX, textY);
   }
 
-  public boolean mouseDrag(Event e, int x, int y) {
-    //if (ignoreDrag) return false;
-    if (mouseMode == MOVING) {
-      int deltaX = x - lastMouseX;
-      int deltaY = y - lastMouseY;
-      offsetX += deltaX;
-      offsetY += deltaY;
-      gx += deltaX;
-      gy += deltaY;
-      //graphics.setLocation(gx, gy);
-      update();
 
-    } else if (mouseMode == NAMING) {
-      int selX = (-offsetX + x) / WIDE;
-      int selY = (-offsetY + y) / HIGH;
-      int sel = selY * HCOUNT + selX;
-      nameSelection(x, y, selX, selY, sel);
+  public void run() {
+    while (Thread.currentThread() == thread) {
+      vx = (vx + fx) * 0.3f;
+      vy = (vy + fy) * 0.3f;
+      //px += vx;
+      //py += vy;
+
+      //System.out.println(vx + " " + vy);
+      int dx = (int) vx;
+      int dy = (int) vy;
+      if ((dx != 0) && (dy != 0)) {
+	offsetX += dx;
+	offsetY += dy;
+
+	final float TIGHTNESS = 0.75f;
+	if (offsetX > 0) fx = -offsetX * TIGHTNESS;
+	if (offsetY > 0) fy = -offsetY * TIGHTNESS;
+	if (offsetX < -maxOffsetX) fx = (-maxOffsetX - offsetX) * TIGHTNESS;
+	if (offsetY < -maxOffsetY) fy = (-maxOffsetY - offsetY) * TIGHTNESS;
+	//if (offsetY < 0) fy = -offsetY;
+	//if (offsetX > maxOffsetX) offsetX = maxOffsetX;
+	
+	//gx += (int) vx;
+	//gy += (int) vy;
+	//graphics.setLocation(gx, gy);
+	
+	fx *= 0.9f;
+	fy *= 0.9f;
+	vx *= 0.9f;
+	vy *= 0.9f;
+	/*
+	  offsetX += deltaX; 
+	  offsetY += deltaY; 
+	  gx += deltaX; 
+	  gy += deltaY;
+	  //graphics.setLocation(gx, gy);
+	*/
+	update();
+      }
+      try {
+	thread.sleep(20);
+	//System.out.println(offsetX + " " + offsetY);
+      } catch (InterruptedException e) { }
     }
-    lastMouseX = x;
-    lastMouseY = y;
+  }
+
+
+  public void saveImage() {
+    try {
+      FileOutputStream fos = new FileOutputStream("pocky.update.raw");
+      int pixels[] = new int[IMAGE_COUNT];
+      byte bytes[] = new byte[IMAGE_COUNT];
+
+      System.out.println("grabbing pixels..");
+      PixelGrabber pg = 
+	new PixelGrabber(image, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT,
+			 pixels, 0, IMAGE_WIDTH);
+      try {
+	pg.grabPixels();
+      } catch (InterruptedException e) {
+      }
+      System.out.println("done grabbing");
+
+      int lastPercent = 0;
+      for (int i = 0; i < IMAGE_COUNT; i++) {
+	fos.write((byte) (pixels[i] & 0xff));
+	if ((i % IMAGE_WIDTH) == 0) 
+	  System.out.println(((int) (100 * (float)i / (float)IMAGE_COUNT)) + "%");
+      }
+      //for (int i = 0; i < IMAGE_COUNT; i++) {
+      //bytes[i] = (byte) (pixels[i] & 0xff);
+      //}
+      //fos.write(bytes);
+
+      fos.flush();
+      fos.close();
+      System.out.println("Wrote new image, size is " + 
+			 IMAGE_WIDTH + " x " + IMAGE_HEIGHT);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+
+  public boolean gotFocus(Event e, Object o) {
+    //System.out.println("got it");
+    //getToolkit().beep();
+    graphics.setCurrentDbnGraphics();
     return false;
   }
 
-  public boolean mouseUp(Event e, int x, int y) {
-    if (mouseMode == NAMING) {
-      update();
-    }
+  public boolean lostFocus(Event e, Object o) {
+    DbnEditor editor = (DbnEditor)app.environment;
+    editor.graphics.setCurrentDbnGraphics();
     return false;
   }
+
+
+  public void setProgramFile(String programFile) {
+    DbnEditor editor = (DbnEditor)app.environment;
+    app.frame.setTitle(programFile);
+    editor.textarea.setText(app.readFile(programFile));
+    File lastFileObject = new File(programFile);
+    editor.lastDirectory = lastFileObject.getParent();
+    editor.lastFile = lastFileObject.getName();
+    //System.out.println(editor.lastDirectory + " " + editor.lastFile);
+    app.frame.show();
+    app.frame.toFront();
+  }
+
 
   public void terminate() { } 
-  public void error(DbnException e) { }
+
+  public void error(DbnException e) { 
+    e.printStackTrace();
+
+    g.setColor(Color.orange);
+    g.fillRect(gx, gy, WIDE, HIGH);
+    long t = System.currentTimeMillis();
+    while (System.currentTimeMillis() - t < 2000) { }
+    update();
+    //return false;
+  }
+
   public void finished() { }
   public void message(String msg) { }
 }
