@@ -10,10 +10,10 @@ import java.net.*;
 import java.util.*;
 
 
-// TODO don't create a new Date() on every idle() step
 // TODO write memoryimagesource code (call it jdk11_plus)
 // DONE add method for setting hostname
 // DONE switch grays around the correct way, setup palette
+// DONE don't create a new Date() on every idle() step
 
 public class DbnGraphics extends Panel {
   // haha, don't want anybody fiddling with the grays

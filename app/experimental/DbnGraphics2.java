@@ -42,7 +42,8 @@ public class DbnGraphics2 extends DbnGraphics {
 
   static final int HSB = 0;
   static final int RGB = 1;
-  int colorModel;
+  int colorModel;  
+  float r0, r1, r2; // color ranges
 
   int magnification = 1;
   Frame frame;
@@ -58,34 +59,7 @@ public class DbnGraphics2 extends DbnGraphics {
 
   /////////////////////////////////////////////////////////////
 
-  // methods relating to dbn calls
-
-
-  public void useRgbColor() {
-    colorModel = RGB;
-  }
-
-  public void useHsbColor() {
-    colorModel = HSB;
-  }
-
-  public void refresh() {
-    if (source != null) {
-      source.newPixels();
-      update();
-    }
-  }
-
-
-  public void magnify(int howmuch) {
-    if (howmuch < 1) howmuch = 1;
-
-    magnification = howmuch;
-    // fake out the setup function to make it look
-    // like something has actually changed
-    height += 1000;
-    setup(width, height - 1000); 
-  }
+  // methods relating to api calls
 
 
   public void setup(int width, int height) {
@@ -94,10 +68,10 @@ public class DbnGraphics2 extends DbnGraphics {
 
     // make sure the jokers don't ask for something ridiculous
     if ((width < 1) || (height < 1)) {
-      if ((oldWidth != 0) && (oldHeight != 0))
-	return;
-      setup(101, 101);
-      return;
+      if ((oldWidth == 0) && (oldHeight == 0)) {
+	setup(101, 101);
+      }
+      return;  // otherwise just ignore
     }
 
     this.width = width;
@@ -108,10 +82,14 @@ public class DbnGraphics2 extends DbnGraphics {
 
     pixelCount = width * height;
     pixels = new int[pixelCount];
-    for (int i = 0; i < pixelCount; i++)
-      pixels[i] = 0xffffffff;
-    penColor = 0xff000000;
-    colorModel = HSB;
+    //for (int i = 0; i < pixelCount; i++)
+    //pixels[i] = 0xffffffff;
+
+    reset();
+    //rgbColor();
+    //pen(100);
+    //penColor = 0xff000000;
+    //colorModel = HSB;
     //magnification = 1;
 
     source = new MemoryImageSource(width, height, pixels, 0, width);
@@ -120,15 +98,52 @@ public class DbnGraphics2 extends DbnGraphics {
     image = Toolkit.getDefaultToolkit().createImage(source);
 
     screenImage = null; // so that it gets reshaped
-    update();
 
-    if (oldWidth != width || oldHeight != height) {
-      if (getParent() != null) {
-	getParent().getParent().getParent().doLayout();
-	frame = (Frame) getParent().getParent().getParent().getParent();
-	frame.pack();
-	//System.err.println("packed");
-      }
+    if (oldWidth != width || oldHeight != height) 
+      repack();
+
+    update();
+  }
+
+  public void magnify(int howmuch) {
+    if (howmuch < 1) howmuch = 1;
+    magnification = howmuch;
+    repack();
+    // fake out the setup function to make it look
+    // like something has actually changed
+    //height += 1000;
+    //setup(width, height - 1000); 
+  }
+
+  protected void repack() {
+    if (getParent() != null) {
+      getParent().getParent().getParent().doLayout();
+      frame = (Frame) getParent().getParent().getParent().getParent();
+      frame.pack();
+      //System.err.println("packed");
+    }
+  }
+
+
+  public void rgbColor() {
+    colorModel = RGB;
+    useColorRange(255, 255, 255);
+  }
+
+  public void hsbColor() {
+    colorModel = HSB;
+    useColorRange(360, 100, 100);
+  }
+
+  public void colorRange(float a, float b, float c) {
+    r0 = a; r1 = b; r2 = c;
+  }
+
+
+  public void refresh() {
+    if (source != null) {
+      source.newPixels();
+      update();
     }
   }
 
@@ -161,6 +176,11 @@ public class DbnGraphics2 extends DbnGraphics {
     for (int i = 0; i < pixelCount; i++) {
       pixels[i] = val;
     }
+  }
+
+  public void paperColor(String cname) {
+    if (cname.charAt(0) == '#') cname = cname.substring(1);
+    paperColor = 0xff000000 | Integer.parseInt(cname, 16);
   }
 
 
@@ -209,17 +229,23 @@ public class DbnGraphics2 extends DbnGraphics {
     penColor = 0xff000000 | (val << 16) | (val << 8) | val;
   }
 
-  public void penColor(float h, float s, float b) {
+  public void penColor(float c0, float c1, float c2) {
     if (colorModel == HSB) {
-      penColor = Color.HSBtoRGB(boundf(h, 100)/100f, 
-				boundf(s, 100)/100f, 
-				boundf(b, 100)/100f);
-    } else {
-      int red = (int) (h * 2.55);
-      int green = (int) (s * 2.55);
-      int blue = (int) (b * 2.55);
-      penColor = 0xff000000 | (red << 16) | (green << 8) | blue;      
+      penColor = Color.HSBtoRGB(boundf(c0, r0) / r0, 
+				boundf(c1, r1) / r1, 
+				boundf(c2, r2) / r2);
+    } else if (colorModel == RGB) {
+      penColor = (0xff000000 | 
+		  (int) ((boundf(c0, r0) / r0) * 255) << 16 |  
+		  (int) ((boundf(c1, r1) / r1) * 255) << 8 |
+		  (int) ((boundf(c2, r2) / r2) * 255));
+      //penColor = 0xff000000 | (red << 16) | (green << 8) | blue;      
     }
+  }
+
+  public void penColor(String cname) {
+    if (cname.charAt(0) == '#') cname = cname.substring(1);
+    penColor = 0xff000000 | Integer.parseInt(cname, 16);
   }
 
 
@@ -243,7 +269,7 @@ public class DbnGraphics2 extends DbnGraphics {
 
 
   public void norefresh() {
-    System.err.println("norefresh notneeded, just be sure to use refresh");
+    System.err.println("norefresh not needed, just be sure to use refresh");
   }
 
   public void field(int a, int b, int c, int d, int e) {
@@ -280,11 +306,13 @@ public class DbnGraphics2 extends DbnGraphics {
 
 
   public void reset() {
-    for (int i = 0; i < pixelCount; i++) {
-      pixels[i] = 0xffffffff;
-    }
-    penColor = 0xff000000;
-    colorModel = HSB;
+    //for (int i = 0; i < pixelCount; i++) {
+    //pixels[i] = 0xffffffff;
+    //}
+    paper(0);
+    pen(100);
+    rgbColor();
+    //magnify(1);  // can't call magnify here
     magnification = 1;
 
     for (int i = 0; i < 3; i++)
@@ -297,20 +325,31 @@ public class DbnGraphics2 extends DbnGraphics {
 
 
   public void setPixel(int x, int y, float gray) {
-    setPixelColor(x, y, 0, 0, 100 - gray);
+    //setPixelColor(x, y, 0, 0, 100 - gray);
+    int val = (int) (255 * (boundf(gray, 100) / 100.0f));
+    pixels[(height1-y)*width + x] = 
+      (0xff000000 | (val << 16) | (val << 8) | val);
   }
 
-  public void setPixelColor(int x, int y, float h, float s, float b) {
+  public void setPixelColor(int x, int y, float c0, float c1, float c2) {
     if (x < 0 || x > width1 || y < 0 || y > height1) return;
 
-    int val = Color.HSBtoRGB(boundf(h, 100)/100f, 
-			     boundf(s, 100)/100f, 
-			     boundf(b, 100)/100f);
-    pixels[(height1-y) + x] = val;
+    int val = 0xff000000;
+    if (colorModel == HSB) {
+      val |= Color.HSBtoRGB(boundf(c0, r0)/r0, 
+			    boundf(c1, r1)/r1,
+			    boundf(c2, r2)/r2);
+    } else if (colorModel == RGB) {
+      val |= ((int) ((boundf(c0, r0) / r0) * 255) << 16 |  
+	      (int) ((boundf(c1, r1) / r1) * 255) << 8 |
+	      (int) ((boundf(c2, r2) / r2) * 255));
+    }
+    pixels[(height1-y)*width + x] = val;
   }
 
   public void setPixelInt(int x, int y, int val) {
-    pixels[(height1-y) + x] = val;
+    pixels[(height1-y)*width + x] = 0xff000000 | val;
+    //pixels[(height1-y) + x] = val;
   }
 
 
