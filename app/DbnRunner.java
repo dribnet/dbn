@@ -74,10 +74,15 @@ public class DbnRunner implements Runnable {
 	//forceStop = true;
 #endif
       } else {
+	String pre = "set red 0; set green 1; set blue 2; ";
 	DbnParser parser = 
-	  new DbnParser(DbnPreprocessor.process("set red 0; set green 1; set blue 2; " + program));
-	//parser.root.print();
-	engine = new DbnEngine(parser.getRoot(), graphics);
+	  new DbnParser(DbnPreprocessor.process(pre + program));
+	
+	DbnToken root = parser.getRoot();
+	if (!root.findToken(DbnToken.SIZE)) {
+	  graphics.size(101, 101, 1);
+	}
+	engine = new DbnEngine(root, graphics);
 	engine.start();
       }
       //System.out.println("finished");

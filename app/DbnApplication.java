@@ -20,8 +20,8 @@ public class DbnApplication extends DbnApplet {
     //if (args.length != 0) {
     //app.setProgramFile(args[0]);
     //}
+
     app.frame.show();
-    //frame.show();
   }
 
   public DbnApplication() {
@@ -63,6 +63,10 @@ public class DbnApplication extends DbnApplet {
     Insets insets = frame.getInsets();
     frame.reshape(50, 50, width + insets.left + insets.right, 
 		  height + insets.top + insets.bottom);
+
+    // i don't like this being here, but..
+    ((DbnEditor)environment).graphics.frame = frame;
+
     frame.pack();
     //frame.show();
   }

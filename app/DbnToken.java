@@ -175,6 +175,15 @@ public class DbnToken {
     return (parent != null) ? parent.findFunction(name) : null;
   }
 
+  boolean findToken(int tokenKind) {
+    if (kind == tokenKind) return true;
+    for (int i = 0; i < childCount; i++) {
+      if (children[i].findToken(tokenKind)) 
+	return true;
+    }
+    return false;
+  }
+
 #ifndef KVM
   public void print() {
     System.out.println(toString());

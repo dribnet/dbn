@@ -51,6 +51,9 @@ public class DbnParser {
     root = new DbnToken(DbnToken.ROOT, line);
 
     root.functions = new Hashtable();
+    // not clear to me if these actually mean anything,
+    // because they're parsed differently. also, not everything
+    // is listed here, but it still works
     root.functions.put("command", new Object());
     root.functions.put("number", new Object());
     root.functions.put("value", new Object());
@@ -79,17 +82,14 @@ public class DbnParser {
       }
 #endif
     }
-    //root.convert();
-    //root.print();
-    //System.out.println("over here");
   }
 	
     
   public DbnToken getRoot() {
     return root;
   }
-    
-    
+
+
   boolean parseStatements(DbnToken parent) throws DbnException {
     DbnToken current = parent.addChild(DbnToken.STATEMENTS, line);
     while (parseStatement(current)) { }

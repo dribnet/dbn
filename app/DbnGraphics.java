@@ -21,12 +21,13 @@ public class DbnGraphics extends Panel {
     }
   }
 
-  MemoryImageSource source;
+  Graphics panelGraphics;
 
-  Graphics panelg;
-  Image screenImage;
-  Image screenImageg;
-  Image image;
+  Image baseImage; // all the background stuff
+  Graphics baseGraphics;
+
+  Image dbnImage;
+  MemoryImageSource dbnSource;
 
   Graphics g;
   int gx, gy;
@@ -43,6 +44,7 @@ public class DbnGraphics extends Panel {
 
   Color bgColor;
   Frame frame;
+  Cursor cursor = new Cursor(Cursor.CROSSHAIR_CURSOR);
 
   int width, height;
   int width1, height1;
@@ -96,8 +98,12 @@ public class DbnGraphics extends Panel {
   // but that seems needlessly complex. 
 
   public void size(int wide, int high) {
-    System.out.println("setting size to " + wide + " " + high);
+    if (wide < 1) wide = 1;
+    if (high < 1) high = 1;
 
+    if ((wide == width) && (high == height)) return;
+
+    /*
     int oldWidth = width;
     int oldHeight = height;
 
@@ -105,11 +111,10 @@ public class DbnGraphics extends Panel {
     if ((wide < 1) || (high < 1)) {
       if ((oldWidth == 0) && (oldHeight == 0)) {
 	size(101, 101);
-      } else {
-	System.out.println("would punt, but old is " + oldWidth + ", " + oldHeight);
       }
       return;  // otherwise just ignore
     }
+    */
 
     width = wide;
     height = high;
@@ -119,26 +124,18 @@ public class DbnGraphics extends Panel {
     pixelCount = width * height;
     pixels = new int[pixelCount];
     lines = new int[pixelCount];
-    //for (int i = 0; i < pixelCount; i++)
-    //pixels[i] = 0xffffffff;
 
     reset();
-    //rgbColor();
-    //pen(100);
-    //penColor = 0xff000000;
-    //colorModel = HSB;
-    //magnification = 1;
 
-    source = new MemoryImageSource(width, height, pixels, 0, width);
-    source.setAnimated(true);
-    //source.setFullBufferUpdates(true);
-    image = Toolkit.getDefaultToolkit().createImage(source);
+    dbnSource = new MemoryImageSource(width, height, pixels, 0, width);
+    dbnSource.setAnimated(true);
+    //dbnSource.setFullBufferUpdates(true);
+    dbnImage = Toolkit.getDefaultToolkit().createImage(dbnSource);
 
-    screenImage = null; // so that it gets reshaped
+    baseImage = null; // so that it gets reshaped
 
-    if (oldWidth != width || oldHeight != height)
-      repack();
-
+    //if (oldWidth != width || oldHeight != height)
+    repack();
     update();
   }
 
@@ -154,9 +151,18 @@ public class DbnGraphics extends Panel {
   */
 
   public void size(int wide, int high, int magnify) {
-    System.out.println("size " + wide + " " + high + " " + magnify);
+    int mag = magnification;
     magnification = Math.max(magnify, 1);
-    size(wide, high);
+    if ((wide == width) && (high == height)) {
+      if (mag == magnification) {
+	return;  // nothing has changed
+      } else {
+	baseImage = null;  // clear out bg so it gets updated
+	repack();  // resize window and finish
+      }
+    } else {  // width, height should also change
+      size(wide, high);
+    }
   }
 
   /*
@@ -172,14 +178,18 @@ public class DbnGraphics extends Panel {
   */
 
   protected void repack() {
-    System.out.println("attempting repack");
+    //System.out.println("attempting repack");
+    invalidate();
+    /*
     if (getParent() != null) {
-      System.out.println("  repacking");
-      getParent().getParent().getParent().doLayout();
+      //System.out.println("  repacking");
+      //getParent().getParent().getParent().doLayout();
       frame = (Frame) getParent().getParent().getParent().getParent();
       frame.pack();
       //System.err.println("packed");
     }
+    */
+    if (frame != null) frame.pack();
   }
 
 
@@ -538,13 +548,28 @@ public class DbnGraphics extends Panel {
 
   public void setPixel(int x, int y, int which, int value) {
     aiFlush(FDOT);
-    if ((which < 0) || (which > 2)) return;
     if (x < 0 || x > width1 || y < 0 || y > height1) return;
+    if ((which < 0) || (which > 2)) return;
     int index = (height1-y)*width + x;
     int place = (2-which) * 8;
     value = bound(value, 100);
     pixels[index] &= ~(0xff << place);
     pixels[index] |= colorMap[value] << place;
+    /*
+    int index = (height1-y)*width + x;
+    if (which == 0) {
+      pixels[index] = (pixels[index] & 0xff00ffff) | 
+	(colorMap[bound(value, 100)] << 16);
+    } else if (which == 1) {
+      pixels[index] = (pixels[index] & 0xffff00ff) | 
+	(colorMap[bound(value, 100)] << 8);
+    } else if (which == 2) {
+      pixels[index] = (pixels[index] & 0xffffff00) | 
+	(colorMap[bound(value, 100)]);
+    } else {
+      return;
+    }
+    */
     lines[index] = currentLine;
   }
 
@@ -1015,7 +1040,7 @@ public class DbnGraphics extends Panel {
   // panel methods, get connector input, etc.
 
   public Dimension preferredSize() {
-    System.out.println("setting new preferred size");
+    //System.out.println("setting new preferred size");
     return new Dimension(width1*magnification + 30, 
 			 height1*magnification + 30);
     //return new Dimension(width, height);
@@ -1023,21 +1048,21 @@ public class DbnGraphics extends Panel {
 
 
   public void update() {
-    if (panelg == null)
-      panelg = this.getGraphics();
-    if (panelg != null)
-      paint(panelg);
+    if (panelGraphics == null)
+      panelGraphics = this.getGraphics();
+    if (panelGraphics != null)
+      paint(panelGraphics);
 
     flushCount = 0;
-    if (source != null) {
-      source.newPixels();
+    if (dbnSource != null) {
+      dbnSource.newPixels();
     }
 
 #ifdef RECORDER
     // maybe this should go inside DbnEditorGraphics, 
     // but i'm not sure
     //DbnRecorder.addFrame(pixels);
-    DbnRecorder.addFrame(image, pixels, mouse[0], 
+    DbnRecorder.addFrame(dbnImage, pixels, mouse[0], 
 			 height1-mouse[1], (mouse[2] == 100));
 #endif
     /*
@@ -1053,21 +1078,29 @@ public class DbnGraphics extends Panel {
     */
   }
 
+  boolean updateBase = false;
+
   public void update(Graphics g) {
+    System.out.println("calling update, should fix background");
+    updateBase = true;
     paint(g);
   }
 
-  public void paint(Graphics screen) {
-    if (screenImage == null) {
-      System.out.println("reallocating screenImage");
+
+  public void base() {
+    if (baseImage == null) updateBase = true;
+    //if ((baseImage == null) || (updateBase)) {
+    if (updateBase) {
+      System.out.println("reallocating baseImage");
       //Dimension dim = new Dimension(width + 100, height + 100);
       Dimension dim = preferredSize();
-      screenImage = createImage(dim.width, dim.height);
-      g = screenImage.getGraphics();
+      baseImage = createImage(dim.width, dim.height);
+      baseGraphics = baseImage.getGraphics();
       gx = (dim.width - width*magnification) / 2;
       gy = (dim.height - height*magnification) / 2;
 
       // draw background
+      Graphics g = baseGraphics;
       g.setColor(bgColor);
       g.fillRect(0, 0, dim.width, dim.height);
 
@@ -1075,20 +1108,31 @@ public class DbnGraphics extends Panel {
       g.setColor(Color.black);
       g.drawRect(gx-1, gy-1, width*magnification+1, height*magnification+1);
     }
+  }
 
-    if (image != null) {
-      //Graphics g = screenImage.getGraphics();
-      g.drawImage(image, gx, gy, 
-		  width*magnification, height*magnification, null);
+  public void paint(Graphics g) {
+    base();
+
+    if (dbnImage != null) {
+      baseGraphics.drawImage(dbnImage, gx, gy, 
+			     width*magnification, height*magnification, null);
+    } else {
+      System.out.println("DBN IMAGE *WAS* NULL");
     }
-
     // avoid an exception during quit
-    if ((screen != null) && (screenImage != null)) {
+    if ((g != null) && (baseImage != null)) {
       // blit to screen
-      screen.drawImage(screenImage, 0, 0, null);
+      g.drawImage(baseImage, 0, 0, null);
       //screen.drawImage(image, gx, gy, 
       //	  width*magnification, height*magnification, null);
     }
+    updateBase = false;
+  }
+
+  public void paint() {
+    // blit only changed portion
+    g.drawImage(dbnImage, gx, gy, 
+		width*magnification, height*magnification, null);
   }
 
   /*
@@ -1189,13 +1233,22 @@ public class DbnGraphics extends Panel {
 
   public boolean mouseEnter(Event e, int x, int y) {    
     //System.out.println("entering");
+    /*
     if (frame == null) {
       // shhh! don't tell anyone!
       frame = (Frame) getParent().getParent().getParent().getParent();
       // that is the nastiest piece of code in the codebase
     }
     frame.setCursor(Frame.CROSSHAIR_CURSOR);
-    return super.mouseEnter(e, x, y);
+    */
+    /*
+    if (frame != null) {
+      frame.setCursor(Frame.CROSSHAIR_CURSOR);
+    }
+    */
+    setCursor(cursor); 
+    //return super.mouseEnter(e, x, y);
+    return true;
   }
 
   //public boolean mouseEnter(Event e, int x, int y) {

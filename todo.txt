@@ -9,13 +9,52 @@ _ make print statements show up in dark blue area
 _ pause/continue ability
 
 
+LANGUAGE
+_ break out of forever
+_ floating point numbers (toggle from dbn.properties?)
+
+
 MAC
 _ window is too wide, not tall enough
 _ resize box on window makes it look really crappy
+_ check to see if key event bug is still a problem
+_ error messages going away too quickly
+_   small movements change (inside play btn changes to Play)
+_ make mrj menubar behave a little better, have file->quit menu,
+_ add an about box under the apple/help menu:
+_   Add a 'MENU' resource with an ID of 1128 to override the default Apple
+_   menu. It should just have a single "About MyApp..." item followed by a
+_   separator line. You'll need to use MRJApplicationUtils to register an
+_   About handler so you can catch the menu command and put up your dialog.
+_   To add stuff to the Help menu just use the regular Help-menu support in
+_   the AWT -- as I recall, you just call MenuBar.getHelpMenu() and then
+_   append items to that menu.
 
 
 GRID
 _ when applet finished in grid, 'deselect' it
+
+
+COURSEWARE
+_ add grid mode to DbnFancy
+_ coloring comments with only \s at beginning in html cgi
+_ coloring of dbn keywords in courseware
+_ toggle for text only assignments in courseware
+_ courseware text-only assignments is an addl tag, for non-supporting
+_   courses it just gets left out (requiring no addl changes to
+_   unaffected stuff)
+_ rewrite in python, have self-contained java web server/engine
+_   or use perl-based web server that runs CGI as well
+_ make courseware save old versions of programs in log file format
+_ must improve no cache commands.. causing much confusion for students
+_ really need to get python dbn working in browser
+_   currently too difficult to look at everyone's work
+_ better dbn app to courseware connection (via 'ultramode')
+_   set the root for the cw files, can be url or local files
+_ in selection list for assign, include full text of project (?)
+_ add a gallery
+_ uploading library of functions (myfunctions.dbn) to the server
+o dbn ultramode is a bad idea because it only works on our apache
 
 
 ENV
@@ -29,6 +68,7 @@ _ comments as naming for shapes drawn after it,
 _   or some other model of naming based on inserted text with "" or // or #
 _   could fit nicely with printf-style statements and comments
 _   comments would contain descriptions //!blah for printing and formatting
+_ sketchbook - doodling/scribbling area.. since wacom tablet easily accessible
 
 
 WHAT?
@@ -36,14 +76,11 @@ _ must fix dbn runner problem with thread weirdness
 
 
 _ fix the naming for all the properties before releasing new rev
-_ error messages going away too quickly
-_   small movements change (inside play btn changes to Play)
 _ controlling colors and other properties from inside dbn
 _   generic properties sheet might be better than none
 _   comments are the descriptive text, use multi-line parsing code
 _   embed special chars for ranges
 _   groupings or properties pages based on first word of blah.blah1.blah2=
-_ sketchbook - doodling/scribbling area.. since wacom tablet easily accessible
 _ benchmarking/calibrating system for auto-slowdown
 _ make repetition window (saves and collapses with 10 or so frames)
 _ pockyvision
@@ -53,26 +90,6 @@ _ when play gets hit, hit stop first (python is complaining)
 _ fix dbnletters.dbn to be more like what's in the book
 _   include a credit to peter cho in the comments?
 _   run a script on all courseware material to fix refs to old fxns
-_ courseware
-_   add grid mode to DbnFancy
-_   coloring comments with only \s at beginning in html cgi
-_   coloring of dbn keywords in courseware
-_   toggle for text only assignments in courseware
-_   courseware text-only assignments is an addl tag, for non-supporting
-_     courses it just gets left out (requiring no addl changes to
-_     unaffected stuff)
-_   rewrite in python, have self-contained java web server/engine
-_     or use perl-based web server that runs CGI as well
-_   make courseware save old versions of programs in log file format
-_   must improve no cache commands.. causing much confusion for students
-_   really need to get python dbn working in browser
-_     currently too difficult to look at everyone's work
-_   better dbn app to courseware connection (via 'ultramode')
-_     set the root for the cw files, can be url or local files
-_   in selection list for assign, include full text of project (?)
-_   add a gallery
-_   uploading library of functions (myfunctions.dbn) to the server
-o   dbn ultramode is a bad idea because it only works on our apache
 _ need to have someone go through and fix the pieces to be archived
 _   older projects are already starting to rot on new version of dbn
 _ movies
@@ -157,7 +174,6 @@ _ figure out why network is running so slow.
   bytes, just 1k, not bad. this means 3 updates/sec over modem 
   which is faster than current response time. need to
   figure out if bottleneck is server or client induced. 
-X get rid of pop-up menu
 _ network down/disconnect crashes applet without notice
   throws an arrayindexoutofbounds exception while running
   couldn't restart afterwards (network down?)
@@ -180,17 +196,6 @@ _ better method of highlighting errors - color, flash, ?
 _ need to internationalize type program here
   as well as breaking out warnings/messages/errors to separate file
 _ would be nice to have auto-bug-reporting built into applet
-_ make mrj menubar behave a little better, have file->quit menu,
-  add an about box under the apple/help menu:
-
-_ Add a 'MENU' resource with an ID of 1128 to override the default Apple
-_ menu. It should just have a single "About MyApp..." item followed by a
-_ separator line. You'll need to use MRJApplicationUtils to register an
-_ About handler so you can catch the menu command and put up your dialog.
-_ 
-_ To add stuff to the Help menu just use the regular Help-menu support in
-_ the AWT -- as I recall, you just call MenuBar.getHelpMenu() and then
-_ append items to that menu.
 
 
 DONE
@@ -209,3 +214,4 @@ X     write to memory (or disk file) first
 X     naming files simply and with a sensible default
 X     get rid of last little bit of trouble with stopping the movie
 X write pockyvision
+X get rid of pop-up menu

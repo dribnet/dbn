@@ -6,48 +6,50 @@ import java.awt.*;
 public class DbnEditorGraphics extends DbnGraphics {
   static Font plainFont = new Font("Helvetica", Font.PLAIN, 10);
 
-  Image screenImage;
-  Graphics screenImageGraphics;
-  int gx, gy;
+  //Image screenImage;
+  //Graphics screenImageGraphics;
+  //int gx, gy;
 
   Color tickColor;
   //Color bgColor;
   Color bgStippleColor;
 
   DbnEditor editor;
-  Frame frame;
+  //Frame frame;
 
 
   public DbnEditorGraphics(int width, int height, Color tickColor,
 			   Color bgColor, Color bgStippleColor, 
-			   DbnEditor editor) {
+			   DbnEditor editor /*, Frame frame*/) {
     super(width, height, bgColor);
     this.tickColor = tickColor;
     //this.bgColor = bgColor;
     this.bgStippleColor = bgStippleColor;
     this.editor = editor;
+    //this.frame = frame;
   }
+
 
   public Dimension preferredSize() {
-    return new Dimension(width1 + 100, height1 + 100);
+    return new Dimension(width1*magnification + 100, 
+			 height1*magnification + 100);
   }
 
-  public void paint(Graphics screen) {
-    if (image == null) {  // from superclass
-      image = createImage(width, height);
-      if (image == null) return;
-      g = image.getGraphics();
-      g.setColor(Color.white);
-      g.fillRect(0, 0, width, height);
-    }
-    if (screenImage == null) {
-      Dimension dim = new Dimension(width + 100, height + 100);
-      screenImage = createImage(dim.width, dim.height);
-      Graphics g = screenImage.getGraphics();
-      gx = (dim.width - width) / 2;
-      gy = (dim.height - height) / 2;
+
+  public void base() {
+    //if ((baseImage == null) || (updateBase)) {
+    if (baseImage == null) updateBase = true;
+
+    if (updateBase) {
+      //System.out.println("calling base inside editor");
+      Dimension dim = preferredSize();
+      baseImage = createImage(dim.width, dim.height);
+      baseGraphics = baseImage.getGraphics();
+      gx = (dim.width - width*magnification) / 2;
+      gy = (dim.height - height*magnification) / 2;
 
       // draw background
+      Graphics g = baseGraphics;
       g.setColor(bgColor);
       g.fillRect(0, 0, dim.width, dim.height);
       if (!bgColor.equals(bgStippleColor)) {
@@ -64,26 +66,31 @@ public class DbnEditorGraphics extends DbnGraphics {
 
       // put ticks around (only if in edit mode)
       g.setColor(tickColor);
-      int increment = 20;
+      int increment = (width > 101) ? 25 : 20;
       int x, y;
-      y = gy + height;
-      for (x = 0; x < width; x += increment) {
-	g.drawLine(gx + x, y, gx + x, y + 4);
+      y = gy + height*magnification;
+      for (x = 0; x <= width; x += increment) {
+	int xx = x * magnification;
+	g.drawLine(gx + xx, y, gx + xx, y + 4);
 	String num = String.valueOf(x);
-	g.drawString(num, gx + x - 1, y + 2 + lineheight);
+	g.drawString(num, gx + xx - 1, y + 2 + lineheight);
       }
-      for (y = 0; y < height; y += increment) {
-	g.drawLine(gx - 4, gy + y, gx, gy + y);
+      for (y = 0; y <= height; y += increment) {
+	int yy = y * magnification;
+	g.drawLine(gx - 4, gy + yy, gx, gy + yy);
 	String num = String.valueOf(y);
 	int numWidth = metrics.stringWidth(num);
 	g.drawString(num, gx - 6 - numWidth, 
-		     gy + height - y);
+		     gy + height*magnification - yy);
       }
       // draw a dark frame around the runner
       g.setColor(Color.black);
-      g.drawRect(gx-1, gy-1, width+1, height+1);
+      g.drawRect(gx-1, gy-1, width*magnification+1, height*magnification+1);
     }
+  }
 
+  /*
+  public void paint(Graphics screen) {
     if (image != null) {
       if (screenImageGraphics == null)
 	screenImageGraphics = screenImage.getGraphics();
@@ -114,11 +121,11 @@ public class DbnEditorGraphics extends DbnGraphics {
 
 #ifdef RECORDER
     if (e.controlDown() && (mouse[2] == 100)) {
-      Experimental.screenGrab(lastImage, /*pixels,*/ width, height);
+      Experimental.screenGrab(lastImage, width, height);
     }
 #endif
 
-    if (e.shiftDown() /*&& (mouse[2] == 100)*/) {
+    if (e.shiftDown()) {
       //System.out.println(getLine(x, height1 - y));
       editor.highlightLine(getLine(x, height1 - y));
       return true;
@@ -127,6 +134,7 @@ public class DbnEditorGraphics extends DbnGraphics {
     mouse[1] = height1 - y;
     return true;
   }
+*/ 
 }
 
 
