@@ -775,7 +775,12 @@ public class DbnGui extends Panel {
     Color textcol; // color to draw it in (incl grid)
     Color panelBgColor;
 
-  
+    // uglyish hack for scheme, the fix is even uglier, though
+    static DbnGui currentDbnGui;
+    static public DbnGui getCurrentDbnGui() {
+	return currentDbnGui;
+    }
+
     public DbnGui(DbnApplet app, String []progs)
     {
 	this.app = app;
@@ -818,6 +823,7 @@ public class DbnGui extends Panel {
 	    run_mode = null;
 	    buildeditgui(progs);
 	}
+	currentDbnGui = this;
     }
 
 
@@ -1106,6 +1112,7 @@ public class DbnGui extends Panel {
 
 class ParenBalancer extends KeyAdapter {
     boolean balancing = false;
+    int selectionStart, selectionEnd;
     int position;
     
     public void keyPressed(KeyEvent event) {
@@ -1114,7 +1121,9 @@ class ParenBalancer extends KeyAdapter {
 	TextArea tc = (TextArea) event.getSource();
 	if (balancing) {
 	    // bounce back, otherwise will write over!
-	    tc.setCaretPosition(position);
+	    if ((selectionStart == tc.getSelectionStart()) &&
+		(selectionEnd == tc.getSelectionEnd()))
+		tc.setCaretPosition(position);
 	    balancing = false;
 	}
 	char c = event.getKeyChar();
@@ -1122,8 +1131,13 @@ class ParenBalancer extends KeyAdapter {
 	    position = tc.getCaretPosition() + 1;
 	    char contents[] = tc.getText().toCharArray();
 	    int counter = 1; // char not in the textfield yet
-	    int index = contents.length-1;
+	    //int index = contents.length-1;
+	    int index = tc.getCaretPosition() - 1;
 	    boolean error = false;
+	    if (index == -1) {  // special case for first char
+		counter = 0;
+		error = true;
+	    }
 	    while (counter != 0) {
 		if (contents[index] == ')') counter++;
 		if (contents[index] == '(') counter--;
@@ -1142,7 +1156,9 @@ class ParenBalancer extends KeyAdapter {
 	    tc.insert(")", position-1);
 	    event.consume();
 	    if (!error) {
-		tc.select(index+1, index+2);
+		selectionStart = index+1;
+		selectionEnd = index+2;
+		tc.select(selectionStart, selectionEnd);
 		balancing = true;
 	    }
 	}

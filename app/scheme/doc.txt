@@ -1,0 +1,64 @@
+document
+
+; these are equivalent
+(print '(3 4 56))
+(print (list 3 4 56))
+(print (cons 3 (cons 4 (cons 56 nil))))
+
+; this is recursive
+(define (iter x) (if (= x 0) (print "done.") (seq (print x) (iter (- x
+1)))))
+(iter 10)
+
+; this is iterative (be sure to define variable before set!-ing)
+(define i 100)
+(while (> i 0) (seq (print i) (set! i (- i 1))))
+
+; this is iterative, another example harking to DBN
+(define i 100)
+(while (> i 0) (seq (print i) (paper i) (line i 0 i 100) (set! i (- i 1))))
+
+; this uses external interface
+(forever (paper (ext "time" 4)))
+
+; this is reactive
+(forever (paper (cond (((> (ext "mouse" 1) 50) 20) (true 50)))))
+
+; reference
+
+	"(define (sin x) (class_method \"java.lang.Math.sin\" x))\n" +
+	"(define (cos x) (class_method \"java.lang.Math.cos\" x))\n" +
+	"(define (sqrt x) (class_method \"java.lang.Math.sqrt\" x))\n" +
+	"(define (random) (class_method \"java.lang.Math.random\"))\n" +
+	"(define (round x) (class_method \"java.lang.Math.round\" x))\n" +
+	"(define #t (= 0 0))\n"+
+	"(define #f (= 0 1))\n"+
+	"(define true (= 0 0))\n"+
+	"(define false (= 0 1))\n"+
+	"(define nil '())"+
+	"(define (null? L) (eq L ()))\n"+
+
+	e.addEnv("+",new jschemeFunc(jschemeFunc.ARITH,"+"));
+	e.addEnv("-",new jschemeFunc(jschemeFunc.ARITH,"-"));
+	e.addEnv("*",new jschemeFunc(jschemeFunc.ARITH,"*"));
+	e.addEnv("/",new jschemeFunc(jschemeFunc.ARITH,"/"));
+	e.addEnv("=",new jschemeFunc(jschemeFunc.ARITH,"="));
+	e.addEnv("<",new jschemeFunc(jschemeFunc.ARITH,"<"));
+	e.addEnv(">",new jschemeFunc(jschemeFunc.ARITH,">"));
+	e.addEnv(">=",new jschemeFunc(jschemeFunc.ARITH,">="));
+	e.addEnv("<=",new jschemeFunc(jschemeFunc.ARITH,"<="));
+	e.addEnv("!=",new jschemeFunc(jschemeFunc.ARITH,"!="));
+
+	e.addEnv("car",new jschemeFunc(jschemeFunc.CAR));
+	e.addEnv("cdr",new jschemeFunc(jschemeFunc.CDR));
+	e.addEnv("cons",new jschemeFunc(jschemeFunc.CONS));
+	e.addEnv("list",new jschemeFunc(jschemeFunc.LIST));
+	e.addEnv("seq",new jschemeFunc(jschemeFunc.SEQ));
+	e.addEnv("eq",new jschemeFunc(jschemeFunc.EQ));
+	e.addEnv("print",new jschemeFunc(jschemeFunc.PRINT));
+	e.addEnv("explode",new jschemeFunc(jschemeFunc.EXPLODE));
+	e.addEnv("implode",new jschemeFunc(jschemeFunc.IMPLODE));
+	e.addEnv("length",new jschemeFunc(jschemeFunc.LENGTH));
+	e.addEnv("debugging",new Boolean(false));
+	e.addEnv("tracing",new Boolean(false));
+

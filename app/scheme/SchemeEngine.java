@@ -61,6 +61,7 @@ public class SchemeEngine extends DbnEngine implements MemWin {
 	    // aaaaak! slow! bad! dirty! take out yo *own* garbage!
 	    debugging = env.lookup("debugging").equals(truthful);
 	    if (debugging) System.out.println(v);
+	    //	    System.out.println("parse" + System.currentTimeMillis());
 	    try {
 		r = evaluator.eval(v, env);
 		if (debugging) System.out.println("=> " + r);

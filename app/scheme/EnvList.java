@@ -38,7 +38,7 @@ import java.io.InputStream;
 import java.util.*;
 
 import DbnGraphics;
-
+import DbnGui;
 
 class Associate implements Cloneable
 {
@@ -285,6 +285,7 @@ public class EnvList extends ListNode implements Cloneable
 	"(define #f (= 0 1))\n"+
 	"(define true (= 0 0))\n"+
 	"(define false (= 0 1))\n"+
+	"(define nil '())"+
 	"(define (null? L) (eq L ()))\n"+
 	"(define (getClass x) (instance_method x \"getClass\"))\n"+
 	"(define (toString x) (instance_method x \"toString\"))\n"+
@@ -601,6 +602,8 @@ class reflectionFunc extends FunctionObj
 	    }
 	} else if (methodName.equals("ext")) {
 	    if (obj instanceof DbnGraphics) {
+		// why not call idle now as io gets critical
+		(DbnGui.getCurrentDbnGui()).idle(System.currentTimeMillis());
 		try {
 		    return new Integer(((DbnGraphics)obj).connectorGet(args[2].toString(),((Number)args[3]).intValue()));	 	
 		} catch (Exception e) {
@@ -1030,7 +1033,10 @@ class jschemeFunc extends FunctionObj
     }
 
     public Object printApply(String[] names, Object args[]) {
-	System.out.println("PRINT: "+ args);
+	if (args[0]==null) 
+	    System.out.println("PRINT: null");
+	else
+	    System.out.println("PRINT: "+ args[0].toString());
 	return null;
     }
 

@@ -135,17 +135,27 @@ public class Evaluator extends Thread
 			LN = (ListNode)LN.cdr();
 			LN = (ListNode)LN.car(); // list of stuff
 			
+			//			System.out.println("hello?");
 			Object first = LN.car(); // first clause
-			
-			while (LN.cdr() != null) {
+
+			L = null;
+
+			while (LN != null) {
+			    //			    System.out.println("this is first" + first);
+			    //			    System.out.println("car is:"+((ListNode)first).car());
 			    if ((tmp=eval(((ListNode)first).car(),env)) == null || 
 				(!tmp.equals(FALSE))) {
-				eval(((ListNode)first).second(),env);
+				//			    System.out.println("  cond is:"+((ListNode)first).second());				
+				L=eval(((ListNode)first).second(),env);
+				break;
 			    }
 			    LN= (ListNode)LN.cdr();
+			    //			    System.out.println("LN IS: "+LN);
 			    first = LN.car();
+			    //			    System.out.println("it's car is: "+first);
 			}
-			L = first;
+			///			L = first;
+			//			System.out.println("done");
 
 		    } else if (s.equals("forever")) {
 			LN = (ListNode)LN.cdr();
@@ -157,7 +167,9 @@ public class Evaluator extends Thread
 
 		    } else if (s.equals("while")) {
 			LN = (ListNode)LN.cdr();
-			while((eval(LN.car(),env)) != null) {
+			while (((tmp=eval(LN.car(),env)) == null) || 
+			    (!tmp.equals(FALSE))) {
+			    //			    System.out.println(eval(LN.car(),env));
 			    L=(eval(LN.second(),env));
 			}
 
