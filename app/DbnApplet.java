@@ -56,7 +56,7 @@ public class DbnApplet extends Applet
     public void init() {
 	String file, prog = null;
 	String progs[] = null;
-	String defprogram = new String("// enter program\n");
+	String defaultProgram = "// enter program\n";
 
 	setLayout(new BorderLayout());
 
@@ -76,8 +76,8 @@ public class DbnApplet extends Applet
 		    if (getParameter(f) == null) break;
 		    i++;
 		}
-		if (i==0) {
-		    prog=defprogram;
+		if (i == 0) {
+		    prog = defaultProgram;
 		} else {
 		    cnt = i;
 		    progs = new String[cnt];
@@ -94,7 +94,7 @@ public class DbnApplet extends Applet
 		    prog = readFile(file);
 		}
 		if (prog == null || prog.length() == 0) {
-		    prog = defprogram;
+		    prog = defaultProgram;
 		}
 	    }
 	} else {

@@ -134,6 +134,7 @@ public class DbnRunner implements Runnable {
 	    dbg.buildBuffers();
 	}
 	// i think this was throwing an exception on close
+	System.out.println("rendering at " + dispx + ", " + dispy);
 	if (g != null) {
 	    g.drawImage(dbg.image, dispx, dispy, parent);
 	}

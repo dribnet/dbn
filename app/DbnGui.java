@@ -191,10 +191,10 @@ public class DbnGui extends Panel {
 
     public void doSnapshot() {
 	msg("Taking snapshot...");
-	if (!io.doSnapshot(ta.getText(), dbrp.dbr.dbg.getPixels())) {
-	    msg("Could not make snapshot.");
-	} else {
+	if (io.doSnapshot(ta.getText(), dbrp.dbr.dbg.getPixels())) {
 	    msg("Done taking snapshot.");
+	} else {
+	    msg("Could not make snapshot.");
 	}
     }
 
