@@ -520,16 +520,16 @@ public class DbnGraphics extends Panel {
     int pixel = pixels[(height1-((y<0)?0:((y>height1)?height1:y)))*width + 
 		      ((x<0)?0:((x>width1)?width1:x))];
     // do the right thing and return an average of the pixel values
-    return 100 * (((pixel >> 16) & 0xff) + 
-		  ((pixel >> 8) & 0xff) + 
-		  (pixel & 0xff)) / (3*255);
+    return 100 - (100 * (((pixel >> 16) & 0xff) + 
+			 ((pixel >> 8) & 0xff) + 
+			 (pixel & 0xff)) / (3*255));
   }
 
   public int getPixel(int x, int y, int which) {
     if ((which < 0) || (which > 2)) return 0;
     int pixel = pixels[(height1-((y<0)?0:((y>height1)?height1:y)))*width + 
 		      ((x<0)?0:((x>width1)?width1:x))];
-    return (100 * ((pixel >> (2-which)*8) & 0xff)) / 255;
+    return ((100 * ((pixel >> (2-which)*8) & 0xff)) / 255);
   }
 
 

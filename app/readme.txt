@@ -1,13 +1,22 @@
 DESIGN BY NUMBERS RELEASE NOTES
-Version 3.0, Released August 14, 2001
+Version 3.0.1, Released November 9, 2001
 http://dbn.media.mit.edu * dbn-feedback@media.mit.edu
 
 
 * FINAL VERSION OF DBN
-We intend for version 3.0 to be the final release of 
+We intend for version 3.0.1 to be the final release of 
 the Design By Numbers system. While there may be upgrades 
 for important bug fixes, this is the last version that
-will include new features.
+will include new features. (In fact, version 3.0 was 
+intended as the final release, but a major bug was found,
+and 3.0.1 was released)
+
+
+* QUESTIONS?
+See the DBN web site, dbn.media.mit.edu, especially the
+'frequently asked questions' page: dbn.media.mit.edu/faq.html
+If your question is not covered there, send mail to the
+DBN maintainers at dbn-feedback@media.mit.edu.
 
 
 * DBNGRAPHICS.DBN and DBNLETTERS.DBN
@@ -43,7 +52,9 @@ start DBN, just double-click the file titled 'dbn.bat'.
 If you are using Windows 95, 98 (or perhaps even ME), 
 you may have trouble with using the run file. If the
 window opens and then closes quickly, instead move
-dbn to your C drive, and try the dbn95.bat file.
+dbn to your C drive, and try the dbn95.bat file. More 
+information can be found in the DBN FAQ:
+http://dbn.media.mit.edu/faq.html
 
 
 * HIDDEN FEATURES INSIDE DBN
@@ -109,7 +120,15 @@ SUCH DAMAGES.
 CHANGES (technical section that you're welcome to ignore)
 
 
+Version 3.0.1: Changes since 3.0
+
+- fixed a bug where getting and setting pixels was returning
+  numbers that were backwards (100 - the correct number).
+  thanks to all the people who pointed this out.
+
+
 Version 3.0: Changes since 2.0.1
+
 - changed .bat file to be called 'dbn'
 - added dbn95.bat for common win95 error
 - removed the need for 'norefresh'
