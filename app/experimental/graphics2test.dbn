@@ -1,0 +1,19 @@
+#
+a = 10
+g.setup(a, a)
+g.magnify(16)
+while 1:
+ x = g.getMouse(1)
+ y = g.getMouse(2)
+
+ butt = g.getMouse(3)
+ if (butt == 100):
+  if (x < a/2):
+   a = a - 10
+  else:
+   a = a + 10
+  g.setup(a, a)
+ g.paperColor(0, 70, 50)
+ g.penColor(0, 40, 90)
+ g.line(60, 70, x, y)
+ g.refresh()

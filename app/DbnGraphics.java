@@ -67,9 +67,7 @@ public class DbnGraphics extends Panel {
   int flushCount = 0;
 
 
-#ifdef GRAPHICS2
-  public DbnGraphics() { }
-#endif
+  public DbnGraphics() { }  // for DbnGraphics2 only
 
   public DbnGraphics(int width, int height /*, DbnRunner dbr*/) {
     this.width = width;
@@ -213,7 +211,8 @@ public class DbnGraphics extends Panel {
   // line clipping code appropriated from 
   // "Computer Graphics for Java Programmers"
 
-  private void intensifyPixel(int x, int y, float dist) {
+  public void intensifyPixel(int x, int y, float dist) {
+    System.out.println(this);
     int oldVal, newVal, val, index;
 	
     //System.err.println("setting " + x + ", " + y);
@@ -240,8 +239,13 @@ public class DbnGraphics extends Panel {
     return ((x < 0 ? 8 : 0) | (x > width1 ? 4 : 0) |
 	    (y < 0 ? 2 : 0) | (y > height1 ? 1 : 0));
   }
-    
+  
   public void line(int ox1, int oy1, int ox2, int oy2) {
+    bresenham(ox1, oy1, ox2, oy2, true);
+  }
+
+  public void bresenham(int ox1, int oy1, int ox2, int oy2, 
+			boolean useGraphics) {
     /* check for line clipping, do it if necessary */
     if ((ox1 < 0) || (oy1 < 0) || (ox2 > width1) || (oy2 > height1)) {
       // clipping, converts to floats for dy/dx fun
@@ -288,12 +292,13 @@ public class DbnGraphics extends Panel {
     float invDenom, twoDX, scratch, slope;
     int x1, x2, y1, y2, incy=0, incx=0, which;
     boolean backwards = false, slopeDown = false;
-	
-    myFlush(FLINE);
-	
-    if (!antialias) { 
-      g.setColor(grays[penColor]);
-      g.drawLine(ox1,height1-oy1,ox2,height1-oy2);
+
+    if (useGraphics) {
+      myFlush(FLINE);
+      if (!antialias) { 
+	g.setColor(grays[penColor]);
+	g.drawLine(ox1,height1-oy1,ox2,height1-oy2);
+      }
     }
 	
     /* first do horizontal line */
