@@ -8,7 +8,7 @@ rm -f classes\*.class
 set ME=experimental
 set CLASSPATH2=%CLASSPATH%
 set CLASSPATH=%ME%\lib\jpython.jar;%CLASSPATH%
-set OPTIONS=-dJDK11 -dJAVAC -dPLAYER_CLASS -dFANCY -dEDITOR  -dGRAPHICS2 -dPYTHON
+set OPTIONS=-dJDK11 -dJAVAC -dPLAYER_CLASS -dFANCY -dEDITOR  -dGRAPHICS2 -dPYTHON -dCONVERTER
 
 cd ..
 

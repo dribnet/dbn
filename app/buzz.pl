@@ -105,6 +105,7 @@ foreach $arg (@ARGV) {
 
 print "processing...\n";
 foreach $file (@file_list) {
+    print "$file\n";
     open(FILE, "$file") || die "error with $file, $!";
     @contents = <FILE>;
     close(FILE);

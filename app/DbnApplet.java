@@ -104,13 +104,6 @@ public class DbnApplet extends Applet
       setLayout(new BorderLayout());
       add("Center", grid);
       environment = grid;
-
-#ifdef CONVERTER
-    } else if (mode.equals("convert")) {
-      convert(readFile(get("input_filename")), 
-	      get("output_class"), get("output_filename"));
-      System.exit(0);
-#endif
     }
 #endif PLAYER
   }
@@ -147,7 +140,60 @@ public class DbnApplet extends Applet
   }
 
 #ifdef CONVERTER
-  public void convert(String program, String classname, String filename) {
+  /*
+    } else if (mode.equals("convert")) {
+      convert(readFile(get("input_filename")), 
+	      get("output_class"), get("output_filename"));
+      System.exit(0);
+  */
+
+  //public void convert(String program, String classname, String filename) {
+  public void convert() throws IOException {
+    String program = ;
+
+    FileDialog fd = new FileDialog(new Frame(), 
+				   "Select a DBN program to convert...", 
+				   FileDialog.LOAD);
+    fd.show();
+	
+    String inputDirectory = fd.getDirectory();
+    String inputFilename = fd.getFile();
+    if (inputFilename == null) return; // user cancelled
+
+    int suffixIndex = inputFilename.lastIndexOf(".");
+    String outputNameBase = null;
+    if (suffixIndex != -1) {
+      String suffix = inputFilename.substring(suffixIndex);
+      if (suffix.equals(".dbn")) {
+	outputNameBase = inputFilename.substring(0, suffixIndex);
+      } else {
+	System.err.println("suffix no good: " + suffix);
+      }
+    }
+    fd = new FileDialog(new Frame(), 
+			"Save converted program as...", 
+			FileDialog.SAVE);
+    fd.setDirectory(inputDirectory);
+    if (outputNameBase != null) fd.setFile(outputNameBase);
+    fd.show();
+
+    String outputDirectory = fd.getDirectory();
+    String outputName = fd.getFile();
+    if (outputName == null) return;
+
+    File inputFile = new File(inputDirectory, inputFilename);
+    //FileInputStream fis = new FileInputStream(inputFile);
+    FileInputStream input = new FileInputStream(inputFile);
+    int length = (int) inputFile.length();
+    byte data[] = new byte[length];
+	    
+      int count = 0;
+      while (count != length) {
+	data[count++] = (byte) input.read();
+      }
+
+    
+
     try {
       DbnParser parser = 
 	new DbnParser(DbnPreprocessor.process(program));
