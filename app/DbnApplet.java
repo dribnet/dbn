@@ -55,8 +55,9 @@ public class DbnApplet extends Applet
       //System.exit(0);
       boolean beautify = false; 
       String program = get("program"); 
-      program = readFile(program);
-      if (program == null) { 
+      if (program != null) { 
+	program = readFile(program);
+      } else {
         program = get("inline_program"); 
       } 
       if (program != null) { 

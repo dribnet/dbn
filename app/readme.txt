@@ -1,5 +1,5 @@
 DESIGN BY NUMBERS RELEASE NOTES
-Version 1.3, Released November 10, 1999
+Version 2.0, Released January 11, 2000
 http://dbn.media.mit.edu 
 dbn-feedback@media.mit.edu
 
@@ -7,6 +7,11 @@ dbn-feedback@media.mit.edu
 Welcome to the latest release of downloadable DBN.
 This file contains useful updates, information, and
 troubleshooting notes.
+
+
+* NEW USER INTERFACE
+This version if DBN is a major rewrite, with the most
+obvious change being the new user interface. Mmmm tasty!
 
 
 * DBNGRAPHICS.DBN and DBNLETTERS.DBN
@@ -45,7 +50,8 @@ There is a problem with functions that are too heavily
 recursive. You will know you have run up against this 
 problem if you get a "java.lang.StackOverFlowError" 
 after your program has been running for a while. A fix
-for this would require major work on dbn's internal engine.
+for this would require major work on dbn's internal engine,
+and it's not clear if the problem could truly be resolved.
 
 
 * IF YOU HAVE PROBLEMS
@@ -62,9 +68,9 @@ Send this mail to dbn-feedback@media.mit.edu
 
 PEOPLE
 DBN is the product of many people. Ben Fry is the chief 
-architect of the most current release, DBN 1.3. The previous 
-release, DBN 1.0.1 was created by Tom White. The original 
-version DBN 1.0 was created by John Maeda.
+architect of releases since 1.1. A previous release,
+DBN 1.0.1 was created by Tom White. The original version 
+was created by John Maeda.
 
 Concurrently we have several DBN-related developments. 
 A DBN courseware system architected by Casey Reas, 
@@ -96,14 +102,18 @@ ASSERTED, EVEN IF ADVISED OF THE POSSIBILITY OR LIKELIHOOD OF
 SUCH DAMAGES. 
 
 
-CHANGES (technical section, can be ignored)
+CHANGES (technical section that you're welcome to ignore)
 
-Version 1.X: Changes since 1.3
 
-- semi-automatic indenting
-- tabs convert to spaces
-- no more unsightly boxes at the end of selected lines on windows
-- correct line number used from python stack traces
+Version 2.0: Changes since 1.3
+
+- whizzy new user interface
+- rewrite of everything else that wasn't redone for 1.2
+- semi-automatic indenting of lines
+- tabs magically turn into spaces
+- no more unsightly boxes at the end of selected lines (win95/nt)
+- correct line number used from python stack traces (courseware)
+
 
 Version 1.3: Changes since 1.2.1
 
