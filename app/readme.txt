@@ -106,6 +106,11 @@ CHANGES (technical section that you're welcome to ignore)
 
 Version 2.X: Changes since 2.0.1
 
+- dbnletters was broken.. it used functions called typeA,
+  typeB, typeC; but the book used letterA, letterB, letterC
+  the new dbnletters is based on the book examples
+- fixed a bug for the example on page 57 of the book, 
+  where code inside curly braces would fail to run
 - made fixes so that the new DBN works with the courseware
 - changed threading so that DBN stops hesitating every
   once in a while while running.
@@ -150,7 +155,7 @@ Version 1.3: Changes since 1.2.1
   anti-alias turned on for the rest of the dbn session
 
 
-Version 1.2.1: Minor changes since 1.2
+Version 1.21: Minor changes since 1.2
 
 - this version will only be updated on the website,
   since the bug fix doesn't affect the downloadable version
