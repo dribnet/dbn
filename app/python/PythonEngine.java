@@ -3,12 +3,12 @@ import org.python.core.*;
 
 
 public class PythonEngine extends DbnEngine {
-    DbnGraphics graphics;
+    //DbnGraphics graphics;
     String program;
     PythonInterpreter interpreter;
 
-    public PythonEngine(DbnGraphics graphics, String program) {
-	this.graphics = graphics;
+    public PythonEngine(/*DbnGraphics graphics,*/ String program) {
+	//this.graphics = graphics;
 	this.program = program;
         interpreter = new PythonInterpreter();
     }

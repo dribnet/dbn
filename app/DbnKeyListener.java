@@ -1,4 +1,4 @@
-#ifdef JDK11
+#ifdef EDITOR
 
 
 import java.awt.*;

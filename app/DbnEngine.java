@@ -3,7 +3,7 @@ import java.util.*;
 
 public class DbnEngine {
     DbnToken root;
-    DbnRunner parent;
+    //DbnRunner parent;
     DbnGraphics graphics;
     boolean stopFlag;
 
@@ -14,10 +14,10 @@ public class DbnEngine {
 
     DbnEngine() { }  // so it can be subclassed for scheme and python
 
-    DbnEngine(DbnToken root, DbnGraphics graphics, DbnRunner parent) {
+    DbnEngine(DbnToken root, DbnGraphics graphics /*, DbnRunner parent*/) {
 	this.root = root;
 	this.graphics = graphics;
-	this.parent = parent;
+	//this.parent = parent;
     }
 
 
@@ -45,7 +45,7 @@ public class DbnEngine {
 
 	for (int i = 0; i < current.childCount; i++) {
 	    execStatement(current.children[i]);
-	    parent.idle();
+	    //parent.idle();
 	}
     }
 
@@ -153,7 +153,7 @@ public class DbnEngine {
 	    // have modified it inside the block
 	    setStackVariable(iterator.name, 
 			     getStackVariable(iterator.name)+step);
-	    parent.idle();
+	    //parent.idle();
 	    graphics.endRepeat();
 	}
 	//popVariables();
@@ -167,7 +167,7 @@ public class DbnEngine {
 	while (!stopFlag) {
 	    graphics.beginForever();
 	    execBlock(block);
-	    parent.idle();
+	    //parent.idle();
 	    graphics.endForever();
 	}
     }

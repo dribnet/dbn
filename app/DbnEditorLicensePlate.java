@@ -1,8 +1,11 @@
+#ifdef EDITOR
+
+
 import java.awt.*;
 
 // only used by gui, did not used to be public
 
-public class DbnLicensePlate extends Panel implements Runnable {
+public class DbnEditorLicensePlate extends Panel implements Runnable {
     DbnGui gui;
     Font f = new Font("Helvetica", Font.PLAIN, 10);
     Thread thread;
@@ -29,7 +32,7 @@ public class DbnLicensePlate extends Panel implements Runnable {
     int s2x, s2y;
 
 	
-    public DbnLicensePlate(DbnGui gui) {
+    public DbnEditorLicensePlate(DbnGui gui) {
 	super();
 	this.gui = gui;
     }
@@ -188,3 +191,6 @@ public class DbnLicensePlate extends Panel implements Runnable {
         return new Dimension(48,24);
     }	
 }
+
+
+#endif

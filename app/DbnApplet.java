@@ -7,150 +7,126 @@ import java.util.*;
 
 public class DbnApplet extends Applet
 {
-    DbnGui gui;
-    DbnApplet applet;
-    Properties properties;
+    static DbnApplet applet;
+    static boolean application;
+    static Properties properties;
 
-    private String languageEncoding;
-    private char[][] languageTable;
-    Hashtable languageHash;
+    String encoding;
 
-    // use \u0000 for unicode characters, since most
-    // versions of javac will choke on > 7 bit characters
-    static final String keywords[][] = { {
-	"en", "paper", "pen", "line", "repeat", "forever", 
-	"set", "command", "number", "field", "refresh",
-	"mouse", "keyboard", "net", "time",
-	"same?", "notsame?", "smaller?", "notsmaller?"
-    }, {
-	"jp", "\u304B\u307F", "\u30DA\u30F3", "\u305B\u3093",
-	"\u304F\u308A\u304B\u3048\u3057", "\u305A\u3063\u3068",
+    static final String DEFAULT_PROGRAM = "// enter program\n";
 
-	"\u304A\u304F", "\u30B3\u30DE\u30F3\u30C9", 
-	"\u3070\u3093\u3054\u3046", "\u308A\u3087\u3046\u3044\u304D", 
-	"\u30EA\u30D5\u30EC\u30C3\u30B7\u30E5",
-
-	"\u30DE\u30A6\u30B9", "\u30AD\u30FC\u30DC\u30FC\u30C9",
-	"\u30CD\u30C3\u30C8", "\u3058\u304B\u3093", 
-
-	"\u304A\u306A\u3058\uFF1F", 
-	"\u304A\u306A\u3058\u3067\u306A\u3044\uFF1F",
-	"\u3059\u304F\u306A\u3044\uFF1F",
-	"\u3059\u304F\u306A\u304F\u306A\u3044\uFF1F"
-    }, {
-	"es", "papel", "stilo", "l\u00EDnea", "repita", "siempre",
-	"ponga", "instruci\u00F3n", "n\u00FAmero", "\u00E1rea", "refrese",
-	"rat\u00F3n", "teclado", "internet", "hora",
-	"\u00BFigual?", "\u00BFnoigual?", "\u00BFmenos?", "\u00BFnomenos?"
-    }, {
-	"fr", "papier", "plume", "ligne", "r\u00E9peter", "toujours",
-	"mettre", "fonction", "num\u00E9ro", "r\u00E9gion", "\u00E0neuf",
-	"souris", "clef", "r\u00E9seau", "heure",
-	"pareil?", "paspareil?", "pluspetit?", "plusgrand?"
-    } };
+    DbnEnvironment environment;
 
 
     public void init() {
-	DbnProperties.setApplet(this);
+	applet = this;
+	encoding = get("encoding", null);
+	new DbnPreprocessor(this);
 
-	String file, prog = null;
-	String progs[] = null;
-	String proglids[] = null; // titles for program -jm
-	String progrems[] = null; // program remarks -jm
-	String defaultProgram = "// enter program\n";
-
-	setLayout(new BorderLayout());
+	//String file, prog = null;
+	//String progs[] = null;
+	//setLayout(new BorderLayout());
 	//System.getProperties().list(System.out);
 	//System.out.println("home = " + System.getProperty("user.home"));
 	//System.out.println("prefix = " + System.getProperty("sys.prefix"));
 
-#ifdef JDK11
-	initLanguage();
-#endif
-	
-	boolean shouldBeautify = false;
-	prog = getParameter("inline_program");
-	if (prog == null) {
-	    file = getParameter("program");
-	    if (file == null) {
-		// check if sequence of files exist
-		// prog0, prog1, etc.
-		int i=0, cnt=0;
-		boolean donep = false;
-		while(!donep) {
-		    String f = "program" + i;
-		    if (getParameter(f) == null) break;
-		    i++;
-		}
-		if (i == 0) {
-		    prog = defaultProgram;
-		} else {
-		    cnt = i;
-		    progs = new String[cnt];
-		    proglids = new String[cnt];
-		    progrems = new String[cnt];
-		    for (i = 0; i < cnt; i++) {
-			String fname = getParameter("program"+i);
-			//System.err.println("reading program #" + i);
-			progs[i] = readFile(fname);
-			proglids[i] = getParameter("programL"+i);
-			progrems[i] = getParameter("programR"+i);
-			//System.err.println("done reading");
-		    }
-		}
-	    } else {
-		// else single file
-		if (file != null && file.length() > 0) {
-		    prog = readFile(file);
-		}
-		if (prog == null || prog.length() == 0) {
-		    prog = defaultProgram;
-		}
+	String mode = get("mode", "editor");
+	if (mode.equals("editor")) {
+	    System.err.println("editor not yet complete");
+	    System.exit(0);
+	    /*
+	    boolean beautify = false; 
+	    String program = get("program", null); 
+	    if (program == null) { 
+		program = get("inline_program", null); 
+	    } 
+	    if (program != null) { 
+		// don't convert ; to \n if scheme
+		if (program.charAt(0) != ';') { 
+		    program = program.replace(';', '\n'); 
+		    // not scheme, but don't beautify if it's python
+		    if (program.charAt(0) != '#') 
+			beautify = true; 
+		} 
+	    } else { 
+		program = DEFAULT_PROGRAM; 
+	    } 
+	    add(hostess = new DbnEditor(this, program));
+	    DbnEditor editor = new DbnEditor(this, program);
+	    if (beautify) {
+	    editor.doBeautify();
 	    }
-	} else {
-	    // don't replace the semicolons if it was scheme
-	    if (prog.charAt(0) != ';') 
-		prog = prog.replace(';','\n');
-	    shouldBeautify = true;
-	    if (prog.charAt(0) == '#') // don't want to beautify python
-		shouldBeautify = false;
-	}
-	if (progs == null) {
-	    progs = new String[1];
-	    proglids = new String[1];
-	    progrems = new String[1];
-	    progs[0] = prog;
-	    proglids[0] = progrems[0] = "";
-	}
-	add("Center", gui = new DbnGui(this, progs, proglids, progrems));
-	// otherwise inline progs will look scary
-	if (shouldBeautify) gui.doBeautify();
-    }
-
-    public String getParameter(String name) {
-	if (isApplet()) {
-	    return super.getParameter(name);
-	}
-	return properties.getProperty(name);
-    }
-
-    public Color getColorParameter(String name, Color otherwise) {
-	Color parsed = null;
-	String s = getParameter(name);
-	if ((s != null) && (s.indexOf("#") == 0)) {
-	    try {
-		int v = Integer.parseInt(s.substring(1), 16);
-		parsed = new Color(v);
-	    } catch (Exception e) {
+	    add(editor);
+	    environment = editor;
+	    */
+	} else if (mode.equals("grid")) {
+	    // read 1 or more programs to be laid out in grid mode
+	    // first count how many programs
+	    int counter = 0;
+	    while (true) {
+		if (get("program" + counter, null) == null)
+		    break;
+		counter++;
 	    }
+	    // next load the programs
+	    // what to do if zero programs in griddify?
+	    String filenames[] = new String[counter];
+	    String programs[] = new String[counter];
+	    for (int i = 0; i < counter; i++) {
+		String filename = get("program" + i, null);
+		programs[i] = readFile(filename);
+	    }
+	    DbnGrid grid = new DbnGrid(this, programs);
+	    add(grid);
+	    environment = grid;
+
+	} else if (mode.equals("exhibition")) {
+	    Hashtable names = new Hashtable();
+	    names.put("akilian", "Axel Kilian");
+	    names.put("carsonr", "Carson Reynolds");
+	    names.put("darkmoon", "Chris McEniry");
+	    names.put("golan", "Golan Levin");
+	    names.put("jared", "Jared Schiffman");
+	    names.put("shyam", "Shyam Krishnamoorthy");
+	    names.put("ben", "Ben Fry");
+	    names.put("casey", "Casey Reas");
+	    names.put("dc", "David Chiou");
+	    names.put("hannes", "Hannes Vilhjalmsson");
+	    names.put("kelly", "Kelly Heaton");
+	    names.put("tom", "Tom White");
+	    names.put("cameron", "Cameron Marlow");
+	    names.put("dana", "Dana Spiegel");
+	    names.put("elise", "Elise Co");
+	    names.put("james", "James Seo");
+	    names.put("ppk", "Pengkai Pan");
+
+	    int counter = 0; 
+	    while (true) {
+		if (get("program" + counter, null) == null)
+		    break;
+		counter++;
+	    }
+	    String filenames[] = new String[counter];
+	    String programs[] = new String[counter];
+	    String students[] = new String[counter];
+	    for (int i = 0; i < counter; i++) {
+		String filename = get("program" + i, null);
+		String userid = filename.substring(0, filename.lastIndexOf("/"));
+		userid = userid.substring(userid.lastIndexOf("/") + 1);
+		students[i] = (String) names.get(userid);
+		programs[i] = readFile(filename);
+	    }
+	    DbnExhibitionGrid grid = new DbnExhibitionGrid(this, programs, students);
+	    add(grid);
+	    environment = grid;
 	}
-	if (parsed == null) return otherwise;
-	return parsed;
     }
 
 
     public void destroy() {
-	if (gui != null) gui.terminate();
+	if (environment != null) {
+	    environment.terminate();
+	}
     }
 
 
@@ -159,20 +135,15 @@ public class DbnApplet extends Applet
      * 1. a file relative to the .html file containing the applet
      * 2. a url 
      * 3. a file relative to the .class files
-     * 4. http://thehost/whatever.dbn
      */
     public String readFile(String filename) {
 	if (filename.length() == 0) {
 	    return null;
 	}
-
 	URL url;
 	InputStream stream = null;
 	String openMe;
-	byte temp[] = new byte[16384];  // 16k
-	
-	String status = "Loading " + filename;
-	if (gui != null) gui.showStatus(status);
+	byte temp[] = new byte[65536];  // 64k, 16k was too small
 
      	try {
 	    // this is two cases, one is bound to throw (or work)
@@ -187,14 +158,15 @@ public class DbnApplet extends Applet
 
 	} catch (Exception e1) { try {
 	    if (isApplet()) {
-		// Now try to open it relative to the code base
+		// now try to open it relative to the code base
 		url = new URL(getCodeBase(), filename);
 		stream = url.openStream();
 	    } else {
 #ifdef JDK11
-		// this is jdk 1.1, but should be ok for app versions
 		url = getClass().getResource(filename);
 		stream = url.openStream();
+#else
+		throw new DbnException(); // move to next
 #endif
 	    } 
 
@@ -203,111 +175,136 @@ public class DbnApplet extends Applet
 	    url = new URL(filename);
 	    stream = url.openStream();
 	
-	} catch (Exception e3) { try {
-	    if (isApplet()) {
-		// desperation, try from the root of the codebase server
-		url = getCodeBase();
-		openMe = "http://" + url.getHost();
-		openMe = openMe.concat(filename);
-		url = new URL(openMe);
-		stream = url.openStream();
-	    } else {
-		throw new Exception();
-	    }
-
-	} catch (Exception e6) {
+	} catch (Exception e3) {
 	    e1.printStackTrace(); 
 	    e2.printStackTrace();
-	    e3.printStackTrace();
-	    if (gui != null) gui.clearStatus(status);
 	    return null;
-	} } } }
+	} } }
 
 	try {
-	    //int length = connection.getContentLength();
-	    //InputStream input = connection.getInputStream();
-	    int start = 0;
-	    //byte program[] = new byte[length];
-
+	    int offset = 0;
 	    while (true) {
-		int byteCount = stream.read(temp, start, 1024);
+		int byteCount = stream.read(temp, offset, 1024);
 		if (byteCount <= 0) break;
-		start += byteCount;
-		//length -= byteCount;
+		offset += byteCount;
 	    }
-	    byte program[] = new byte[start];
-	    System.arraycopy(temp, 0, program, 0, start);
-	    if (gui != null) gui.clearStatus(status);
-	    //return program;
-	    
-	    return languageEncode(program);
+	    byte program[] = new byte[offset];
+	    System.arraycopy(temp, 0, program, 0, offset);
+
+	    //return languageEncode(program);
+#ifdef JDK11
+	    // convert the bytes based on the current encoding
+	    try {
+		if (encoding == null)
+		    return new String(program);
+		return new String(program, encoding);
+	    } catch (UnsupportedEncodingException e) {
+		e.printStackTrace();
+		encoding = null;
+		return new String(program);
+	    }
+#else
+	    // use old-style jdk 1.0 constructor
+	    return new String(program, 0);
+#endif
 
 	} catch (Exception e) {
 	    System.err.println("problem during download");
 	    e.printStackTrace();
-	    if (gui != null) gui.clearStatus(status);
 	    return null;
 	}
     }
 
 
-    public String languageEncode(byte program[]) {
-#ifdef JDK11
-	// convert the bytes based on the current
-	// language and encoding setting
-	try {
-	    if (languageEncoding == null)
-		return new String(program);
-	    //System.err.println("using encoding " + languageEncoding);
-	    return new String(program, languageEncoding);
-	} catch (UnsupportedEncodingException e) {
-	    e.printStackTrace();
-	    languageEncoding = null;
-	    return new String(program);
-	}
-#else
-	// use old-style jdk 1.0 constructor
-	return new String(program, 0);
-#endif
+    // all the information from DbnProperties
+
+    static public String get(String attribute, String defaultValue) {
+	String value = application ?
+	    properties.getProperty(attribute) : applet.getParameter(attribute);
+
+	return (value == null) ? 
+	    defaultValue : value;
     }
 
-    public boolean isApplet() {
-	// counter-intuitive, but applet only set as application
-	return (applet == null);
+    static public boolean getBoolean(String attribute, boolean defaultValue) {
+	String value = get(attribute, null);
+	return (value == null) ? defaultValue : 
+	    (new Boolean(value)).booleanValue();
     }
-    
-    public boolean isMacintosh() {
+
+    static public int getInteger(String attribute, int defaultValue) {
+	String value = get(attribute, null);
+	return (value == null) ? defaultValue : 
+	    Integer.parseInt(value);
+    }
+
+    static public Color getColor(String name, Color otherwise) {
+	Color parsed = null;
+	String s = get(name, null);
+	if ((s != null) && (s.indexOf("#") == 0)) {
+	    try {
+		int v = Integer.parseInt(s.substring(1), 16);
+		parsed = new Color(v);
+	    } catch (Exception e) {
+	    }
+	}
+	if (parsed == null) return otherwise;
+	return parsed;
+    }
+
+    static public boolean isApplet() {
+	return (!application);
+	//return (applet != null);
+    }
+
+    static public boolean isMacintosh() {
 	return System.getProperty("os.name").toLowerCase().indexOf("mac") != -1;
     }
 
+    static public boolean hasFullPrivileges() {
+	//if (applet == null) return true;  // application
+	//return false;
+	return !isApplet();
+    }
+
+    public String getNetServer() {
+	String host = get("net_server", null);
+	if (host != null) return host;
+
+	if (isApplet()) {
+	    return getCodeBase().getHost();
+	}
+	return "dbn.media.mit.edu";
+    }
+
+    static public Font getFont(String which) {
+	if (which.equals("editor")) {
+	    // 'Monospaced' and 'courier' also caused problems.. ;-/
+	    return new Font("monospaced", Font.PLAIN, 12);
+	}
+	return null;
+    }
+}
+
+
+	/*
+	String separator = System.getProperty("line.separator");
+	eolCount = separator.length();
+	eol = new char[eolCount];
+	for (int i = 0; i < eolCount; i++) {
+	    eol[i] = separator.charAt(i);
+	}
+	*/
+
+
+	/* not so useful
     public boolean isLocal() {
 	if (!isApplet()) return true;
 	String codebase = getCodeBase().toString();
 	return (codebase.indexOf("file") == 0);
     }
+	*/
 
-    public String getHost() {
-	return isLocal() ? "localhost" : getCodeBase().getHost();
-    }
-
-    public void showStatus(String status) {
-	if (isApplet()) {
-	    super.showStatus(status);
-	}
-    }
-
-    /*
-    public void paint(Graphics g) {
-	Rectangle r = bounds(); // do this to make sure back is uniform color
-	g.setColor(Color.gray);
-	g.fillRect(0, 0, r.width, r.height);
-    }
-    */
-    
-    public void setProgram(String filename) {
-	// for nn javascriptlink
-	gui.setProgram(readFile(filename));
-    }
 
     /* temporary, a little something for the kids */
     /*
@@ -324,130 +321,3 @@ public class DbnApplet extends Applet
 	System.out.println();
     }
     */
-
-    public void initLanguage() {
-	languageHash = new Hashtable();
-	int languageCount = keywords.length;
-	int keywordCount = getKeywordCount();
-	for (int i = 0; i < languageCount; i++) {
-	    String languageName = keywords[i][0];
-	    char characters[][] = new char[keywordCount][];
-	    for (int j = 0; j < keywordCount; j++) {
-		characters[j] = keywords[i][j+1].toCharArray();
-	    }
-	    languageHash.put(languageName, characters);
-	}
-	languageEncoding = getParameter("encoding");
-	String lang = getParameter("language"); 
-	languageTable = (lang == null) ? null :
-	    (char[][])languageHash.get(lang);
-
-	/*
-	for (int j = 0; j < languageHash.size()-1; j++) {
-	    for (int i = 0; i < keywordCount; i++) {
-		System.err.println(keywords[0][i+1] + "\t" + 
-				   keywords[j+1][i+1]);
-	    }
-	    System.err.println();
-	}
-	*/
-    }
-
-    public int getKeywordCount() {
-	return keywords[0].length - 1;
-    }
-
-    // returns a hashtable of char[][] where 
-    // the keyword is the language 'identifier' such as
-    // en, es, de (the iso specifiers) and the value
-    // is char[][], which contains the chars for replace
-    public char[][] getLanguageTable() {
-#ifndef JDK11
-	return null;
-#else
-	return languageTable;
-#endif
-    }
-
-    public char[][] getEnglishTable() {
-#ifndef JDK11
-	return null;
-#else
-	return (char[][]) languageHash.get("en");
-#endif
-    }
-
-    // parse language table using input from a file
-    // read file using program methods above, 
-    // then add the language to the languageHash
-    public void addLanguageTable(String filename) {
-#ifndef JDK11
-	return;
-#else
-	char[] chars = readFile(filename).toCharArray();
-	int keywordIndex = 0;
-	char[] keyword = new char[32];
-	int translationIndex = 0;
-	char[] translation = new char[32];
-	int keywordCount = keywords[0].length;
-	char[][] keywordData = new char[keywordCount][];
-	String languageName = null;
-
-	for (int i = 0; i < chars.length; i++) {
-	    while (Character.isWhitespace(chars[i])) i++;
-	    if (i == chars.length) break;
-	    
-	    // look for comments, which start with slash-slash
-	    // (just like dbn for sake of simplicity)
-	    if ((chars[i] == '/') && (i < chars.length-1) &&
-		(chars[i+1] == '/')) {
-		// it's a comment, ignore
-		while ((chars[i] != '\r') && (chars[i] != '\n')) {
-		    i++; if (i == chars.length) break;
-		}
-	    }
-	    if (i == chars.length) break;
-
-	    // read the keyword
-	    while (!Character.isWhitespace(chars[i]))
-		keyword[keywordIndex++] = chars[i++];
-
-	    while (Character.isWhitespace(chars[i])) i++;
-	    
-	    // read the translation of that keyword
-	    while ((i != chars.length) &&
-		   !Character.isWhitespace(chars[i]))
-		translation[translationIndex++] = chars[i++];
-	    if (i == chars.length) break;
-	    
-	    // match it up with the default language
-	    // check each of the keywords in the default language
-	    boolean foundMatch = false;
-	    for (int j = 0; j < keywordCount; j++) {
-		String one = new String(keywords[0][j]);
-		String two = new String(keyword, 0, keywordIndex);
-		if (one.equals(two)) {
-		    keywordData[j] = new char[keywordIndex];
-		    System.arraycopy(translation, 0, 
-				     keywordData, 0, translationIndex);
-		} else if (two.equals("language")) {
-		    languageName = 
-			new String(translation, 0, translationIndex);
-		}
-	    }
-	    if (!foundMatch) {
-		System.err.println("Error in language file: Could not find");
-		System.err.println("find a match for keyword " + keyword);
-		return;
-	    }
-	}
-	if (languageName == null) {
-	    System.err.println("Error in language file: ");
-	    System.err.println("Language name not specified in file");
-	    return;
-	}
-	languageHash.put(languageName, keywordData);
-#endif
-    }
-}
-

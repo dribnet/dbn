@@ -27,7 +27,8 @@ public class DbnApplication extends DbnApplet
 	frame.reshape(screen.width+10, 10, 100, 200);
 	frame.show();
 	DbnApplet app = new DbnApplet();
-	app.applet = app;
+	//app.applet = app;
+	app.application = true;
 	app.properties = new Properties();
 	try {
 	    app.properties.load(new FileInputStream("dbn.properties"));

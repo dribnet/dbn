@@ -3,19 +3,12 @@ import java.applet.Applet;
 import java.util.*;
 
 
-/*
- * the job of dbnpreproc is to hold onto/manage language translation table
- * as well as manage the 'load' command
- *
- * i.e. load http://acg.media.mit.edu/foo.dbn
- *      load foo.dbn (assuming same path)
- *      -> need path resoution issue
- *
- * if no .dbn extension then gets passed as is to parser
- */ 
+// the job of dbnpreproc is to hold onto/manage language 
+// translation table as well as manage the 'load' command
+// if no .dbn extension then gets passed as is to parser
+
 public class DbnPreprocessor {
-    DbnGui gui;
-    DbnApplet applet;
+    static DbnApplet applet;
 
     // this is sticky, because the textfield really wants its
     // own type of newlines. this is because the parser needs
@@ -25,38 +18,158 @@ public class DbnPreprocessor {
     static int eolCount;
     static char eol[];
     static {
-	/*
-	String separator = System.getProperty("line.separator");
-	eolCount = separator.length();
-	eol = new char[eolCount];
-	for (int i = 0; i < eolCount; i++) {
-	    eol[i] = separator.charAt(i);
-	}
-	*/
-	
 	// modified for dbn-ng, because it uses only \n internally
 	eolCount = 1;
 	eol = new char[1];
 	eol[0] = '\n';
     }
 
-    public DbnPreprocessor(DbnGui gui, DbnApplet applet) {
-	this.gui = gui;
+    static char[][] languageTable;
+    static Hashtable languageHash;
+
+    // use \u0000 for unicode characters, since most
+    // versions of javac will choke on > 7 bit characters
+    static final String keywords[][] = { {
+	"en", "paper", "pen", "line", "repeat", "forever", 
+	"set", "command", "number", "field", "refresh",
+	"mouse", "keyboard", "net", "time",
+	"same?", "notsame?", "smaller?", "notsmaller?"
+    }, {
+	"es", "papel", "stilo", "l\u00EDnea", "repita", "siempre",
+	"ponga", "instruci\u00F3n", "n\u00FAmero", "\u00E1rea", "refrese",
+	"rat\u00F3n", "teclado", "internet", "hora",
+	"\u00BFigual?", "\u00BFnoigual?", "\u00BFmenos?", "\u00BFnomenos?"
+    }, {
+	"fr", "papier", "plume", "ligne", "r\u00E9peter", "toujours",
+	"mettre", "fonction", "num\u00E9ro", "r\u00E9gion", "\u00E0neuf",
+	"souris", "clef", "r\u00E9seau", "heure",
+	"pareil?", "paspareil?", "pluspetit?", "plusgrand?"
+    }, {
+	"jp", "\u304B\u307F", "\u30DA\u30F3", "\u305B\u3093",
+	"\u304F\u308A\u304B\u3048\u3057", "\u305A\u3063\u3068",
+
+	"\u304A\u304F", "\u30B3\u30DE\u30F3\u30C9", 
+	"\u3070\u3093\u3054\u3046", "\u308A\u3087\u3046\u3044\u304D", 
+	"\u30EA\u30D5\u30EC\u30C3\u30B7\u30E5",
+
+	"\u30DE\u30A6\u30B9", "\u30AD\u30FC\u30DC\u30FC\u30C9",
+	"\u30CD\u30C3\u30C8", "\u3058\u304B\u3093", 
+
+	"\u304A\u306A\u3058\uFF1F", 
+	"\u304A\u306A\u3058\u3067\u306A\u3044\uFF1F",
+	"\u3059\u304F\u306A\u3044\uFF1F",
+	"\u3059\u304F\u306A\u304F\u306A\u3044\uFF1F"
+    } };
+
+
+    static {
+	languageHash = new Hashtable();
+	int languageCount = keywords.length;
+	int keywordCount = getKeywordCount();
+	for (int i = 0; i < languageCount; i++) {
+	    String languageName = keywords[i][0];
+	    char characters[][] = new char[keywordCount][];
+	    for (int j = 0; j < keywordCount; j++) {
+		characters[j] = keywords[i][j+1].toCharArray();
+	    }
+	    languageHash.put(languageName, characters);
+	}
+    }
+
+    static public int getKeywordCount() {
+	return keywords[0].length - 1;
+    }
+
+
+    public DbnPreprocessor(DbnApplet applet) {
 	this.applet = applet;
 	
-	// build hashtable here
-	// with some nicely defined param interface for language 
-	// replacement don't forget that some languages have 2-byte 
-	// code. want to define the 'space' character replacement
-	// perhaps as enclosuers in singlebyte parens?
-	// (#),( ),(papel),(paper) or some universally unicode 
-	// compliant enclosure of a string start/end then can 
-	// stringtokenize based upon whitespace char/chars.
-	// * try not to make too much garbage.
+	if (languageTable == null) {
+	    String lang = applet.get("language", null); 
+	    languageTable = (lang == null) ? 
+		null : (char[][])languageHash.get(lang);
+	    if ((languageTable == null) & (lang != null)) {
+		addLanguageTable("keywords-" + lang + ".txt", applet);
+	    }
+	}
     }
     
+
+    // parse language table using input from a file downloaded via
+    // the applet, and then add the language to the languageHash
+    static public void addLanguageTable(String filename, DbnApplet applet) {
+#ifndef JDK11
+	return;
+#else
+	char[] chars = applet.readFile(filename).toCharArray();
+	int keywordIndex = 0;
+	char[] keyword = new char[32];
+	int translationIndex = 0;
+	char[] translation = new char[32];
+	int keywordCount = keywords[0].length;
+	char[][] keywordData = new char[keywordCount][];
+	String languageName = null;
+
+	for (int i = 0; i < chars.length; i++) {
+	    while (Character.isWhitespace(chars[i])) i++;
+	    if (i == chars.length) break;
+	    
+	    // look for comments, which start with slash-slash
+	    // (just like dbn for sake of simplicity)
+	    if ((chars[i] == '/') && (i < chars.length-1) &&
+		(chars[i+1] == '/')) {
+		// it's a comment, ignore
+		while ((chars[i] != '\r') && (chars[i] != '\n')) {
+		    i++; if (i == chars.length) break;
+		}
+	    }
+	    if (i == chars.length) break;
+
+	    // read the keyword
+	    while (!Character.isWhitespace(chars[i]))
+		keyword[keywordIndex++] = chars[i++];
+
+	    while (Character.isWhitespace(chars[i])) i++;
+	    
+	    // read the translation of that keyword
+	    while ((i != chars.length) &&
+		   !Character.isWhitespace(chars[i]))
+		translation[translationIndex++] = chars[i++];
+	    if (i == chars.length) break;
+	    
+	    // match it up with the default language
+	    // check each of the keywords in the default language
+	    boolean foundMatch = false;
+	    for (int j = 0; j < keywordCount; j++) {
+		String one = new String(keywords[0][j]);
+		String two = new String(keyword, 0, keywordIndex);
+		if (one.equals(two)) {
+		    keywordData[j] = new char[keywordIndex];
+		    System.arraycopy(translation, 0, 
+				     keywordData, 0, translationIndex);
+		} else if (two.equals("language")) {
+		    languageName = 
+			new String(translation, 0, translationIndex);
+		}
+	    }
+	    if (!foundMatch) {
+		System.err.println("Error in language file: Could not find");
+		System.err.println("find a match for keyword " + keyword);
+		return;
+	    }
+	}
+	if (languageName == null) {
+	    System.err.println("Error in language file: ");
+	    System.err.println("Language name not specified in file");
+	    return;
+	}
+	languageHash.put(languageName, keywordData);
+#endif
+    }
+
+
     // hopefully this will just inline
-    private final char[] growArray(char stuff[]) {
+    static private final char[] growArray(char stuff[]) {
 	if (stuff == null) return new char[16384];
 	char temp[] = new char[stuff.length*2];
 	System.arraycopy(stuff, 0, temp, 0, stuff.length);
@@ -65,13 +178,13 @@ public class DbnPreprocessor {
 
     // applet parameter tag has language en, ja, es, de
     // can't mix multiple languages together
-    public char[] translateLanguage(char program[]) {
+    static public char[] translateLanguage(char program[]) {
 #ifndef JDK11
 	return program;
 #else
 	// default language (english), no changes
-	char[][] table = applet.getLanguageTable();
-	char[][] translated = applet.getEnglishTable();
+	char[][] table = languageTable; 
+	char[][] translated = (char[][]) languageHash.get("en"); 
 	if (table == null) return program;
 
 	int expansionIndex = 0;
@@ -83,7 +196,7 @@ public class DbnPreprocessor {
 	// of the input data (file or otherwise) to unicode
 	// in the format of chars. all that's left is to
 	// substitute the keyword strings with english versions.
-	int indices[] = new int[applet.getKeywordCount()];
+	int indices[] = new int[getKeywordCount()];
 
 	//klens = table[i].length;
 
@@ -142,7 +255,6 @@ public class DbnPreprocessor {
 	// copy everything into memory of the exact size
 	char output[] = new char[expansionIndex];
 	System.arraycopy(expansion, 0, output, 0, expansionIndex);
-	//DBNApplet.debugString(new String(output));
 	return output;
 #endif
     }
@@ -152,7 +264,7 @@ public class DbnPreprocessor {
     // of 'load foo.dbn' (i.e. in the command bar 'beautify, expand') for
     // replacement (mutation) in the main textarea buffer
 
-    public char[] loadExpand(char data[]) {
+    static public char[] loadExpand(char data[]) {
 	// stream has already been converted to ascii, so this is safe
 	int lastChunk = 0;
 	int expansionIndex = 0;
@@ -320,7 +432,7 @@ public class DbnPreprocessor {
     // first do language translation for the main code
     // then do load expansion for the main code
     // (do this recursively)
-    public String process(String string) {
+    static public char[] process(String string) {
 	//System.err.println("preproc: doit " + s);
 	char program[] = string.toCharArray();
 	
@@ -334,10 +446,9 @@ public class DbnPreprocessor {
 	// at the end be sure to attach this (see comments above, 
 	// the newline is added by the preproc
 	program = loadExpand(program);
-	
-	//DbnApplet.debugString(new String(program));
 
-	return new String(program);
+	return program;
+	//return new String(program);
     }
 }
 

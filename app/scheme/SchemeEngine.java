@@ -19,7 +19,7 @@ public class SchemeEngine extends DbnEngine implements MemWin {
     //Interpreter interpreter;
     //Interface interfase;
 
-    DbnGraphics dbg;
+    //DbnGraphics dbg;
     String program;
     
     EnvList env;
@@ -27,8 +27,8 @@ public class SchemeEngine extends DbnEngine implements MemWin {
     //Evaluator e;
 
 
-    public SchemeEngine(DbnGraphics dbg, String program) {
-	this.dbg = dbg;
+    public SchemeEngine(/*DbnGraphics dbg,*/ String program) {
+	//this.dbg = dbg;
 	this.program = program;
 
 	Evaluator.kill = false;

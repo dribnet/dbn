@@ -38,7 +38,7 @@ import java.io.InputStream;
 import java.util.*;
 
 import DbnGraphics;
-import DbnGui;
+//import DbnGui;
 
 class Associate implements Cloneable
 {
@@ -612,7 +612,7 @@ class reflectionFunc extends FunctionObj
 	} else if (methodName.equals("ext")) {
 	    if (obj instanceof DbnGraphics) {
 		// why not call idle now as io gets critical
-		(DbnGui.getCurrentDbnGui()).idle(System.currentTimeMillis());
+		//(DbnGui.getCurrentDbnGui()).idle(System.currentTimeMillis());
 		try {
 		    return new Integer(((DbnGraphics)obj).getConnector(args[2].toString(),((Number)args[3]).intValue()));	 	
 		} catch (Exception e) {
@@ -1095,7 +1095,7 @@ class jschemeFunc extends FunctionObj
 	else {
 	    s = "PRINT: "+args[0].toString();
 	}
-	(DbnGui.getCurrentDbnGui()).msg(s);
+	//(DbnGui.getCurrentDbnGui()).msg(s);
 	System.err.println(s);
 	return null;
     }

@@ -1,19 +1,29 @@
 import java.awt.*;
+import java.awt.image.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
 
 
-public class DbnGraphics {
+// TODO add method for setting hostname
+// TODO don't create a new Date() on every idle() step
+// TODO write jdk11 code
+// TODO switch grays around the correct way, setup palette
+
+public class DbnGraphics extends Panel {
     // haha, don't want anybody fiddling with the grays
     static private Color grays[];  
     static {
 	grays = new Color[101];
 	for (int i = 0; i < 101; i++) {
-	    int gray = (i*255/100);
+	    int gray = ((100-i)*255/100);
 	    grays[i] = new Color(gray, gray, gray);
 	}
     }
+
+#ifdef JDK11
+    MemoryImageSource source;
+#endif
     Image image;
     Graphics g;    
     byte[] pixels;
@@ -24,22 +34,25 @@ public class DbnGraphics {
     int width, height;
     int width1, height1;
 
-    DbnRunner dbr;
-    
-    Hashtable connectorTable;
-    String hostname;
+    //DbnRunner dbr;
+
+    int mouse[] = new int[3];
+    int key[] = new int[26];
+    int array[] = new int[1000];
+    long keyTime[] = new long[26];
+    //String hostname;  // server for <net>
 
     long lastpapert;
 
-    boolean explicitRefresh = false;
+    boolean explicitRefresh;
     int FDOT = 10;
     int FPAPER = 100;
     int FLINE = 10; 
     int FFIELD = 10;
     int FMAX = 100;
-    
-    boolean insideforeverp = false;
-    boolean aiflushp = false;
+
+    boolean insideforeverp;
+    boolean aiflushp;
     short flushfire = -1; // 0 is paper, 1 is field
     short lastflushfire = -1;
     boolean insiderepeatp = false;
@@ -47,64 +60,24 @@ public class DbnGraphics {
     int repeatlevel = 0;    
     int flushCount = 0;
 
-    static final int DISPLAY_PLAIN = 0;
-    static final int DISPLAY_FLUSH = 1;
-    static final int DISPLAY_FLUSH_MORE = 2;
-    static final int DISPLAY_AUTO = 3;
 
-
-    public DbnGraphics(Image image, int width, int height,
-		       DbnRunner dbr, String hostname, int displayMode) {
-	this.image = image;
-	g = image.getGraphics();
-
-	g.setColor(Color.white);
-	g.fillRect(0, 0, width, height);
-
+    public DbnGraphics(int width, int height /*, DbnRunner dbr*/) {
 	this.width = width;
 	this.height = height;
 	width1 = width - 1;
 	height1 = height - 1;
 	
-	this.dbr = dbr;
-	this.hostname = hostname;
-
-	switch (displayMode) {
-	case DISPLAY_PLAIN: 
-	    break;
-	case DISPLAY_FLUSH: 
-	    FLINE = 0; FDOT = 0; break;
-	case DISPLAY_FLUSH_MORE: 
-	    FLINE = 10; FDOT = 10; aiflushp = true; break;
-	case DISPLAY_AUTO: 
-	    aiflushp = true; break;
-	}
+	//this.dbr = dbr;
+	aiflushp = true;
 
 	pixelCount = width * height;
-	pixels = new byte[pixelCount];
-	
-	byte value = 0;
-	for(int i = 0; i < pixelCount; ++ i ) {
-	    pixels[i] = value;
-	}
+	pixels = new byte[pixelCount];  // all set to zero
 	penColor = 100;
 	
-        // build the 'i' of io into it all
-        connectorTable = new Hashtable();
-        
-        // mouse, key, time are arrays of ints
-        connectorTable.put("mouse", new int[3]);
-        connectorTable.put("key", new int[26]);
-        connectorTable.put("time", new int[4]);
-        connectorTable.put("net", new Object()); // int values not useful here
-	connectorTable.put("array", new int[1000]);
-
 #ifdef CRICKET
-	connectorTable.put("sensor", new Object());
 	openSensor();	
 #endif
-
-	currentDbnGraphics = this;
+	//currentDbnGraphics = this;
 	//dbr.render();
     }
 
@@ -117,6 +90,10 @@ public class DbnGraphics {
 
     static public void setCurrentGraphics(DbnGraphics dbg) {
 	currentDbnGraphics = dbg;
+    }
+
+    public void setCurrentDbnGraphics() {
+	currentDbnGraphics = this;
     }
 
 
@@ -133,7 +110,8 @@ public class DbnGraphics {
     public void refresh() {
 	flushCount = flushCount % 100; //im.flush(); 
 	flushCount = 0;
-	dbr.render(); 
+	update();
+	//dbr.render(); 
     }
 
 
@@ -157,12 +135,18 @@ public class DbnGraphics {
 
 	bVal = (byte) bound(val, 100);
 	for (int i = 0; i < pixelCount; i++) pixels[i] = bVal;
-	g.setColor(grays[100 - bVal]);
+	g.setColor(grays[bVal]);
 	g.fillRect(0, 0, width, height);
     }
 
 
     public void field(int x1, int y1, int x2, int y2, int val) {
+	// don't even draw if it's completely offscreen
+	if (((x1 < 0) && (x2 < 0)) || 
+	    ((x1 > width1) && (x2 > width1))) return;
+	if (((y1 < 0) && (y2 < 0)) ||
+	    ((y1 > height1) && (y2 > height1))) return;
+	  	
 	x1 = bound(x1, width1);
 	y1 = bound(y1, height1);
 	x2 = bound(x2, width1);
@@ -180,7 +164,7 @@ public class DbnGraphics {
 		pixels[pp+i] = bVal;
 	    }
 	}		
-	g.setColor(grays[100 - bVal]);
+	g.setColor(grays[bVal]);
 
 	// don't look at this code too long, you'll hurt your head
 	y1 = height1 - y1;
@@ -192,24 +176,12 @@ public class DbnGraphics {
 
 
     public void pen(int val) {
-        if (val > 100) 
-	    val = 100;
-	else if(val < 0) 
-	    val = 0;
-	penColor = (byte)val;
+	penColor = (byte)bound(val, 100);
     }
 
-
-    public void antialias() {
-	antialias = true;
-    }
-
-    public void alias() {
-	antialias = false;
-    }
 
     public void antialias(int m) {
-	antialias = (m > 50);
+	antialias = (m != 0);
     }
 
 
@@ -233,7 +205,7 @@ public class DbnGraphics {
 	pixels[index] = (byte)val;
 	
 	if (antialias) {
-	    g.setColor(grays[100 - val]);
+	    g.setColor(grays[val]);
 	    g.drawLine(x,height1-y,x,height1-y);
 	}
     }
@@ -294,7 +266,7 @@ public class DbnGraphics {
 	myFlush(FLINE);
 	
 	if (!antialias) { 
-	    g.setColor(grays[100 - penColor]);
+	    g.setColor(grays[penColor]);
 	    g.drawLine(ox1,height1-oy1,ox2,height1-oy2);
 	}
 	
@@ -454,52 +426,50 @@ public class DbnGraphics {
     // outrageously inconsistent.
     
     public void print(Graphics g, int offsetX, int offsetY) {
-	g.drawImage(image, offsetX, offsetY, null);
+	//g.drawImage(image, offsetX, offsetY, null);
 	
 	int index = 0;
 	for (int y = 0; y < height; y++) {
 	    for (int x = 0; x < width; x++) {
 		// hopefully little overhead in setting color
-		g.setColor(grays[100 - pixels[index++]]);
+		g.setColor(grays[pixels[index++]]);
 		g.drawLine(offsetX + x, offsetY + y,
 			   offsetX + x, offsetY + y);
 	    }
 	}
-	
     }
     
 
-    // used by dbngui to get/set stuff
-    public Hashtable getConnectorTable() {
-	return connectorTable; 
-    }
-
-
     public void reset() {
-	penColor = 100;
-
-	g.setColor(grays[100]);
 	for (int i = 0; i < pixelCount; i++) 
 	    pixels[i] = 0;
-	g.fillRect(0,0,width,height);
+
+	if (g != null) {
+	  g.setColor(grays[0]);
+	  g.fillRect(0, 0, width, height);
+	}
+	penColor = 100;
 
 	antialias = false;
 	explicitRefresh = false;
 
 	flushCount = 0;
 	resetBlockDetect();
-    }
+
+	for (int i = 0; i < 3; i++)
+	    mouse[i] = 0;
+        for (int i = 0; i < 26; i++) 
+	    key[i] = 0;
+	for (int i = 0; i < 1000; i++)
+	    array[i] = 0;
    
+	//mouse = new int[3];
+	//key = new int[26];
+	//array = new int[1000];
+    }
 
     public void setPixel(int x, int y, int val) {
-	//int checkX, checkY, checkVal;
-	
         myFlush(FDOT);
-        // NOTE::*******
-	// ideally for optimize step here, should draw 
-	// directly to screen without flushing
-	// as drawing dots is so laborious...
-	
 	if (x < 0 || x > width1 || y < 0 || y > height1) return;
 	int checkVal = bound(val, 100);
 	pixels[(height1-y)*width + x] = (byte)checkVal;
@@ -515,44 +485,70 @@ public class DbnGraphics {
     }
 
 
+    public final int getMouse(int slot) throws Exception {
+	return mouse[slot-1];
+    }
+
+    public final int getKey(int slot) throws Exception {
+	return key[slot-1];
+    }
+
+    public final int getTime(int slot) throws Exception {
+	// wooaaah! garbage city!
+	Date d = new Date(); 
+	switch (slot) {
+	case 1: return d.getHours();
+	case 2: return d.getMinutes();
+	case 3: return d.getSeconds();
+	case 4: return (int) ((System.currentTimeMillis() % 1000)/10);
+	}
+	return 0;
+    }
+
     public int getConnector(String name, int slot) throws DbnException {
-	if (name.equals("net")) {
-	    return getNetwork(slot);
-#ifdef CRICKET
-	} else if (name.equals("sensor")) {
-	    return getSensor(slot);
-#endif
-	}
-	int values[] = (int[]) connectorTable.get(name);
-	if (values == null) {
-	    throw new DbnException("unknown external data " + name);
-	}
 	try {
-	    return values[slot-1];
+	    if (name.equals("mouse")) {
+		return getMouse(slot);
+	    } else if (name.equals("key")) {
+		return getKey(slot);
+	    } else if (name.equals("time")) {
+		return getTime(slot);
+	    } else if (name.equals("array")) {
+		return array[slot-1];
+	    } else if (name.equals("net")) {
+		return getNet(slot);
+#ifdef CRICKET
+	    } else if (name.equals("sensor")) {
+		return getSensor(slot);
+#endif
+		//} else {
+		//throw new DbnException("unknown external data " + name);
+	    }
 	} catch (Exception e) {
 	    throw new DbnException("could not get slot " + 
 				   slot + " of " + name);
 	}
+	return -1;
     }
 
 
     public void setConnector(String name, int slot, int value) 
 	throws DbnException {
-	if (name.equals("net")) {
-	    setNetwork(slot, value); 
-	    return;
-#ifdef CRICKET
-	} else if (name.equals("sensor")) {
-	    setSensor(slot, value);
-	    return;
-#endif
-	}
-	int values[] = (int[]) connectorTable.get(name);
-	if (values == null) {
-	    throw new DbnException("unknown external data " + name);
-	}
 	try {
-	    values[slot-1] = value;
+	    if (name.equals("net")) {
+		setNet(slot, value); 
+		return;
+#ifdef CRICKET
+	    } else if (name.equals("sensor")) {
+		setSensor(slot, value);
+		return;
+#endif
+	    } else if (name.equals("array")) {
+		array[slot-1] = value;
+		return;
+	    }
+	    //throw new DbnException("unknown external data " + name);
+
 	} catch (Exception e) {
 	    //System.out.println("should throw error here");
 	    throw new DbnException("error setting " + name + " " + slot + 
@@ -566,8 +562,10 @@ public class DbnGraphics {
 
     // other connector-related items
 
-    public boolean isConnector(String s) {
-	return connectorTable.containsKey(s);
+    public boolean isConnector(String name) {
+	return (name.equals("net") || name.equals("key") || 
+		name.equals("mouse") || name.equals("time") || 
+		name.equals("array") || name.equals("sensor"));
     }	
 
 
@@ -585,9 +583,8 @@ public class DbnGraphics {
 
     protected void openNetwork() throws DbnException {
 	try {
-	    //String hostname = app.isLocal() ? 
-	    //"localhost" : app.getCodeBase().getHost();
-
+	    DbnApplet applet = DbnApplet.applet;
+	    String hostname = applet.getNetServer();
 	    Socket socket = new Socket(hostname, NET_PORT);
 	    netInputStream = new DataInputStream(socket.getInputStream());
 	    netOutputStream = new DataOutputStream(socket.getOutputStream());
@@ -600,7 +597,7 @@ public class DbnGraphics {
     }
 
 
-    protected int getNetwork(int number) throws DbnException {
+    protected int getNet(int number) throws DbnException {
 	if (netInputStream == null) {
 	    openNetwork();
 	}
@@ -628,7 +625,7 @@ public class DbnGraphics {
 	    if (!secondAttempt) { // re-connect and try again
 		secondAttempt = true;
 		openNetwork();
-		return getNetwork(number);
+		return getNet(number);
 	    } else {
 		throw new DbnException("could not connect to server");
 	    }
@@ -637,7 +634,7 @@ public class DbnGraphics {
     }
 
 
-    protected void setNetwork(int number, int value) throws DbnException {
+    protected void setNet(int number, int value) throws DbnException {
 	if (netInputStream == null) {
 	    openNetwork();
 	}
@@ -663,7 +660,7 @@ public class DbnGraphics {
 	    if (!secondAttempt) { // re-connect and try again
 		secondAttempt = true;
 		openNetwork();
-		setNetwork(number, value);
+		setNet(number, value);
 	    } else {
 		throw new DbnException("could not connect to server");
 	    }
@@ -826,4 +823,124 @@ public class DbnGraphics {
 	}
 	lastflushfire = flushfire;
     }	
+
+
+    ////////////////////////////////////////////////////////////
+
+    // panel methods, get connector input, etc.
+
+
+    public void update() {
+	paint(this.getGraphics());
+    }
+
+    public void update(Graphics g) {
+	paint(g);
+    }
+
+    public void paint(Graphics screen) {
+	if (image == null) {
+	    image = createImage(width, height);
+	    g = image.getGraphics();
+	    g.setColor(Color.white);
+	    g.fillRect(0, 0, width, height);
+	}
+	// screen goes null on quit, throws an exception
+	if (screen != null) {  
+	    screen.drawImage(image, 0, 0, this);
+	}
+    }
+
+
+    //public void initiate() {
+    /*
+	for (int i = 0; i < 3; i++)
+	    mouse[i] = 0;
+        for (int i = 0; i < 26; i++) 
+	    key[i] = 0;
+	for (int i = 0; i < 1000; i++)
+	    array[i] = 0;
+    */
+    //}
+
+    //public void terminate() {
+    //}
+
+
+    public void idle(long currentTime) {
+	//Date d = new Date(); // wooaaah! garbage city!
+	//time[0] = d.getHours();
+	//time[1] = d.getMinutes();
+	//time[2] = d.getSeconds();
+	//time[3] = (int) (currentTime % 1000)/10;
+
+	// mac java doesn't always post key-up events, 
+	// so time out the characters after a second
+	for (int i = 0; i < 26; i++) {
+	    if ((key[i] == 100) && (currentTime-keyTime[i] > 1000)) {
+		keyTime[i] = -1;
+		key[i] = 0;
+	    }
+	}
+    }
+
+
+    private final int letterKey(int n) {
+        if ((n >= 'a') && (n <= 'z')) return n - 'a';
+	if ((n >= 'A') && (n <= 'Z')) return n - 'A';
+	return -1;
+    }
+
+    public boolean keyDown(Event ev, int n) {
+	//if (n == 27) app.gui.terminate();  // ooh.. ugly
+
+	int which = letterKey(n);
+	if (which == -1) return false;
+	keyTime[which] = System.currentTimeMillis();
+	key[which] = 100;
+        return true;
+    }
+
+    public boolean keyUp(Event ev, int n) {
+	int which = letterKey(n);
+	if (which == -1) return false;
+	keyTime[which] = -1;
+	key[which] = 0;
+        return true;
+    }
+
+
+    public boolean mouseDown(Event ev, int x, int y) {
+	mouse[2] = 100;
+	return updateMouse(x, y);
+    }
+
+    public boolean mouseUp(Event ev, int x, int y) {
+	mouse[2] = 0;
+	return updateMouse(x, y);
+    }
+
+    public boolean mouseMove(Event ev, int x, int y) {
+	return updateMouse(x, y);
+    }
+ 
+    public boolean mouseDrag(Event ev, int x, int y) {
+	return updateMouse(x, y);
+    }
+
+    public boolean mouseEnter(Event ev, int x, int y) {
+	return updateMouse(x, y);
+    }
+
+    public boolean mouseExit(Event ev, int x, int y) {
+	return updateMouse(x, y);
+    }
+
+    public boolean updateMouse(int x, int y) {
+	//mouse[0] = x - runnerX[current];
+	//mouse[1] = runnerHeight - (y - runnerY[current]);
+	mouse[0] = x;
+	mouse[1] = height1 - y;
+	return true;
+    }
 }

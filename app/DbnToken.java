@@ -229,6 +229,7 @@ public class DbnToken {
     }
 
 
+#ifdef CONVERTER
     static boolean shouldOutputFunctions;
 
     public void convert() {
@@ -550,4 +551,5 @@ public class DbnToken {
 	output(str);
 	outputln();
     }
+#endif
 }
