@@ -61,6 +61,31 @@ public class DbnPreprocessor {
     "\u3059\u304F\u306A\u304F\u306A\u3044\uFF1F"
   } };
 
+  /*
+  static public void main(String args[]) {
+    // write html code of the keywords
+    int languageCount = keywords.length;
+    int listCount = keywords[0].length;
+    System.out.println("<TABLE>");
+    for (int i = 0; i < listCount; i++) {
+      System.out.println("  <TR>");
+      for (int j = 0; j < languageCount; j++) {
+	char characters[] = keywords[j][i].toCharArray();
+	System.out.print("    <TD> ");
+	for (int k = 0; k < characters.length; k++) {
+	  if ((int) characters[k] < 128) {
+	    System.out.print(characters[k]);
+	  } else {
+	    System.out.print("&#" + ((int) characters[k]) + ";");
+	  }
+	}
+	System.out.println(" </TD>");
+      }
+      System.out.println("  </TR>");
+    }
+    System.out.println("</TABLE>");
+  }
+  */
 
   static {
     languageHash = new Hashtable();
