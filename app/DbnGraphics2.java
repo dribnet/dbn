@@ -8,9 +8,11 @@ import java.net.*;
 import java.util.*;
 
 
+// TODO reset magnify, screen size, color settings at restart
+
 // TODO gracefully kill python when someone hits play again
 
-// TODO fix miscellaneous update bugs
+// OK fix miscellaneous update bugs
 
 // DONE don't update if it's the same size
 
@@ -45,6 +47,7 @@ public class DbnGraphics2 extends DbnGraphics {
   int magnification = 1;
   Frame frame;
 
+  
 
   public DbnGraphics2(int width, int height, Color bgColor) {
     this.bgColor = bgColor;
@@ -108,6 +111,8 @@ public class DbnGraphics2 extends DbnGraphics {
     for (int i = 0; i < pixelCount; i++)
       pixels[i] = 0xffffffff;
     penColor = 0xff000000;
+    colorModel = HSB;
+    //magnification = 1;
 
     source = new MemoryImageSource(width, height, pixels, 0, width);
     source.setAnimated(true);
@@ -279,6 +284,8 @@ public class DbnGraphics2 extends DbnGraphics {
       pixels[i] = 0xffffffff;
     }
     penColor = 0xff000000;
+    colorModel = HSB;
+    magnification = 1;
 
     for (int i = 0; i < 3; i++)
       mouse[i] = 0;

@@ -81,6 +81,8 @@ public class DbnApplet extends Applet
       setLayout(new BorderLayout());
       add("Center", editor);
       environment = editor;
+
+      convert();
 #endif
 
     } else if (mode.equals("grid")) {
@@ -148,10 +150,11 @@ public class DbnApplet extends Applet
   */
 
   //public void convert(String program, String classname, String filename) {
-  public void convert() throws IOException {
-    String program = ;
-
-    FileDialog fd = new FileDialog(new Frame(), 
+  public void convert() {
+    //System.getProperties.list(System.out);
+    //System.getProperties().list(System.out);
+    try {
+      FileDialog fd = new FileDialog(new Frame(), 
 				   "Select a DBN program to convert...", 
 				   FileDialog.LOAD);
     fd.show();
@@ -186,48 +189,81 @@ public class DbnApplet extends Applet
     FileInputStream input = new FileInputStream(inputFile);
     int length = (int) inputFile.length();
     byte data[] = new byte[length];
-	    
-      int count = 0;
-      while (count != length) {
-	data[count++] = (byte) input.read();
-      }
+    int count = 0;
+    while (count != length) {
+      data[count++] = (byte) input.read();
+    }
+    // not I18N compliant
+    String program = new String(data);
 
+    DbnParser parser = 
+      new DbnParser(DbnPreprocessor.process(program));
+    String converted = parser.getRoot().convert(outputName);
+    File javaOutputFile = new File(outputDirectory, outputName + ".java");
+    FileOutputStream fos = new FileOutputStream(javaOutputFile);
+    PrintStream ps = new PrintStream(fos);
+    ps.print(converted);
+    ps.close();
     
+    File htmlOutputFile = new File(outputDirectory, outputName + ".html");
+    fos = new FileOutputStream(htmlOutputFile);
+    ps = new PrintStream(fos);
+    ps.println("<HTML> <BODY BGCOLOR=\"white\">");
+    ps.println("<APPLET CODE=\"DbnApplet\" WIDTH=101 HEIGHT=101>");
+    ps.print("<PARAM NAME=\"program\" VALUE=\"");
+    ps.print(outputName);
+    ps.println("\">");
+    ps.println("</APPLET>");
+    ps.println("</BODY> </HTML>");
+    ps.close();
+    
+    // copy DbnException.class, DbnGraphics.class, 
+    // DbnApplet.class, and DbnPlayer.class to the directory
+    copyFile(new File("lib\\player", "DbnApplet.class"),
+	     new File(outputDirectory, "DbnApplet.class"));
 
+    copyFile(new File("lib\\player", "DbnException.class"), 
+	     new File(outputDirectory, "DbnException.class"));
+
+    copyFile(new File("lib\\player", "DbnGraphics.class"), 
+	     new File(outputDirectory, "DbnGraphics.class"));
+
+    copyFile(new File("lib\\player", "DbnPlayer.class"), 
+	     new File(outputDirectory, "DbnPlayer.class"));
+
+    // execute javac with parameters:
+    // String outputdir = new File(filename).getPath();
+    // javac -classpath outputdir;%CLASSPATH% outputdir\*.java
+
+    String args[] = new String[5];
+    args[0] = "-classpath";
+    args[1] = outputDirectory + File.pathSeparator + 
+      System.getProperty("java.class.path");
+    args[2] = "-d";
+    args[3] = outputDirectory;
+    args[4] = javaOutputFile.getCanonicalPath();
+    sun.tools.javac.Main.main(args);
+
+    // if that's no good (which it's not)
+    // need to instead use sun.tools.javac.Main,
+    // which should be separated out from the core source base
+    // using metrowerks' nice binding stuff
+
+    } catch (Exception e) { // dbn or ioex
+      e.printStackTrace();
+    }
+  }
+
+  protected void copyFile(File afile, File bfile) {
     try {
-      DbnParser parser = 
-	new DbnParser(DbnPreprocessor.process(program));
-      String converted = parser.getRoot().convert(classname);
-      FileOutputStream fos = 
-	new FileOutputStream(filename + ".java");
-      PrintStream ps = new PrintStream(fos);
-      ps.print(converted);
-      ps.close();
-
-      fos = new FileOutputStream(filename + ".html");
-      ps = new PrintStream(fos);
-      ps.println("<HTML> <BODY BGCOLOR=\"white\">");
-      ps.println("<APPLET CODE=\"DbnApplet\" WIDTH=101 HEIGHT=101>");
-      ps.print("<PARAM NAME=\"program\" VALUE=\"");
-      ps.print(classname);
-      ps.println("\">");
-      ps.println("</APPLET>");
-      ps.println("</BODY> </HTML>");
-      ps.close();
-
-      // copy DbnException.class, DbnGraphics.class, 
-      // DbnApplet.class, and DbnPlayer.class to the directory
-
-      // execute javac with parameters:
-      // String outputdir = new File(filename).getPath();
-      // javac -classpath outputdir;%CLASSPATH% outputdir\*.java
-
-      // if that's no good (which it's not)
-      // need to instead use sun.tools.javac.Main,
-      // which should be separated out from the core source base
-      // using metrowerks' nice binding stuff
-	    
-    } catch (Exception e) {
+      FileInputStream from = new FileInputStream(afile);
+      FileOutputStream to = new FileOutputStream(bfile);
+      byte[] buffer = new byte[4096];
+      int bytesRead;
+      while ((bytesRead = from.read(buffer)) != -1) {
+	to.write(buffer, 0, bytesRead);
+      }
+    } catch (IOException e) {
       e.printStackTrace();
     }
   }
