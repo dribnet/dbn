@@ -1,10 +1,10 @@
 DESIGN BY NUMBERS RELEASE NOTES
-Version 1.0, June 22 1999
+Version 1.01, August 6, 1999
 http://dbn.media.mit.edu 
 dbn-feedback@media.mit.edu
 
 
-Welcome to the first release of downloadable DBN.
+Welcome to the latest release of downloadable DBN.
 This file contains useful updates, information, and
 troubleshooting notes.
 
@@ -17,18 +17,18 @@ add 'load dbnletters.dbn' or 'load dbngraphics.dbn' to
 the beginning of your program to include their functions.
 
 
-* MACINTOSH NOTES
+* MACINTOSH PEOPLE READ THIS!
 The Macintosh version requires Macintosh Runtime for 
-Java (MRJ) 2.1.2. This can be downloaded from Apple at
-http://www.apple.com/java/. Previous versions of MRJ
-were incompatible, slow and buggy, so you should 
-definitely be using the most recent version. MRJ in 
-fact continues to be somewhat incompatible, slow and 
-buggy, though Apple's small team of developers is 
+Java (MRJ), 2.1.2 (or newer). This can be downloaded 
+from Apple at http://www.apple.com/java/. Previous 
+versions of MRJ were incompatible, slow and buggy, so 
+you should definitely be using the most recent version. 
+MRJ in fact continues to be somewhat incompatible, slow 
+and buggy, though Apple's small team of developers is 
 slowly chipping away at the problems.
 
 
-* WINDOWS NOTES
+* WINDOWS PEOPLE READ THIS!
 The Windows version of the DBN download includes JRE,
 the Java Runtime Environment. This means that you won't
 have to download anything to get DBN up and running. To
@@ -74,4 +74,12 @@ BUSINESS INTERRUPTION OR LOSS OF DATA, REGARDLESS OF THE FORM
 OF ACTION OR LEGAL THEORY UNDER WHICH THE LIABILITY MAY BE 
 ASSERTED, EVEN IF ADVISED OF THE POSSIBILITY OR LIKELIHOOD OF 
 SUCH DAMAGES. 
+
+
+CHANGES
+
+1.01 from 1.00
+* Fixed an 'end of line' bug. If a program had a comment at
+the end of its final line, the line would not be read by
+the parser (end-of-line fix for multiple platforms)
 
