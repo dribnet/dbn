@@ -1,5 +1,5 @@
 #ifdef EDITOR
-
+#ifdef JDK11
 
 import java.awt.*;
 import java.awt.event.*;
@@ -134,4 +134,5 @@ public class DbnEditorListener extends KeyAdapter implements FocusListener {
 }
 
 
+#endif
 #endif

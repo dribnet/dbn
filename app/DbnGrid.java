@@ -106,7 +106,7 @@ public class DbnGrid extends Panel implements DbnEnvironment {
   public boolean mouseDown(Event ev, int x, int y) {
     if (gcurrent != -1) {
       //Rectangle r = graphics[gcurrent].getBounds();
-      if (graphics[gcurrent].contains(x, y)) {
+      if (graphics[gcurrent].inside(x, y)) {  // grrr.. jdk10
 	return true;
       } else {
 	// kill the currently running applet
@@ -118,9 +118,13 @@ public class DbnGrid extends Panel implements DbnEnvironment {
     }
     // figure out what was selected
     for (int i = 0; i < gcount; i++) {
+#ifdef JDK11
       Rectangle r = graphics[i].getBounds();
-      //if (graphics[i].contains(x, y)) {
-      if (r.contains(x, y)) {
+#else
+      Rectangle r = graphics[i].bounds();
+#endif
+      //if (r.contains(x, y)) {
+      if (r.inside(x, y)) {  // grr.. jdk10
 	//System.err.println("starting " + i);
 	//graphics[gcurrent].reset();
 	gcurrent = i;

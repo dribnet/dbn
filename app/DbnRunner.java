@@ -79,6 +79,7 @@ public class DbnRunner implements Runnable {
       }
       state = RUNNER_FINISHED;
       env.finished();
+      graphics.update();
 
     } catch (DbnException e) { 
       state = RUNNER_ERROR;

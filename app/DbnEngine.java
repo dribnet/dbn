@@ -63,10 +63,24 @@ public class DbnEngine {
   }
 
 
+  int lastNight;
+
   void execStatement(DbnToken statement) throws DbnException {
 #ifdef VIS
     setCurrent(statement);
 #endif
+
+    //long t = System.currentTimeMillis();
+    //if (t - lastNight > 1000) {
+    // don't let the ui starve
+    lastNight++;
+    if ((lastNight % 40) == 0) {
+      try {
+	Thread.sleep(5);
+      } catch (InterruptedException e) { }
+      lastNight = 0;
+    }
+
     DbnToken current = statement.children[0];
     switch (current.kind) {
 

@@ -25,7 +25,8 @@ public class DbnGraphics extends Panel {
   MemoryImageSource source;
 #endif
   Image image;
-  Graphics g;    
+  Graphics g;
+  Graphics panelg;
   byte[] pixels;
   byte penColor;
   int pixelCount;
@@ -42,7 +43,7 @@ public class DbnGraphics extends Panel {
   long keyTime[] = new long[26];
   //String hostname;  // server for <net>
 
-  long lastpapert;
+  //long lastpapert;
 
   boolean explicitRefresh;
   int FDOT = 10;
@@ -472,6 +473,7 @@ public class DbnGraphics extends Panel {
     //array = new int[1000];
   }
 
+  //int checkVal;
   public void setPixel(int x, int y, int val) {
     myFlush(FDOT);
     if (x < 0 || x > width1 || y < 0 || y > height1) return;
@@ -856,8 +858,23 @@ public class DbnGraphics extends Panel {
     return new Dimension(width, height);
   }
 
+  //long lastNight;
   public void update() {
-    paint(this.getGraphics());
+    /*
+    long t = System.currentTimeMillis();
+    if (t - lastNight > 100) {
+      System.err.println("sleeping");
+      try {
+	Thread.sleep(5);
+      } catch (InterruptedException e) { }
+      lastNight = t;
+    }
+    */
+    //paint(this.getGraphics());
+    if (panelg == null)
+      panelg = this.getGraphics();
+    if (panelg != null)
+      paint(panelg);
   }
 
   public void update(Graphics g) {
@@ -866,6 +883,7 @@ public class DbnGraphics extends Panel {
 
   public void paint(Graphics screen) {
     if (image == null) {
+      //System.out.println("creating new image");
       image = createImage(width, height);
       if (image == null) return;
       g = image.getGraphics();

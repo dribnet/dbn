@@ -51,6 +51,7 @@ public class DbnApplet extends Applet
       //System.exit(0);
       boolean beautify = false; 
       String program = get("program"); 
+      program = readFile(program);
       if (program == null) { 
         program = get("inline_program"); 
       } 
@@ -257,7 +258,7 @@ public class DbnApplet extends Applet
       image = applet.getImage(applet.getCodeBase(), name);
     } else {
       Toolkit tk = Toolkit.getDefaultToolkit();
-      image =  tk.getImage(name);
+      image =  tk.getImage("lib/" + name);
     }
     MediaTracker tracker = new MediaTracker(applet);
     tracker.addImage(image, 0);

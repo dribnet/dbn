@@ -7,6 +7,7 @@ public class DbnEditorGraphics extends DbnGraphics {
   static Font plainFont = new Font("Helvetica", Font.PLAIN, 10);
 
   Image screenImage;
+  Graphics screenImageGraphics;
   int gx, gy;
 
   Color tickColor;
@@ -28,6 +29,7 @@ public class DbnEditorGraphics extends DbnGraphics {
 
   public void paint(Graphics screen) {
     if (image == null) {  // from superclass
+      //System.err.println("creating new image");
       image = createImage(width, height);
       if (image == null) return;
       g = image.getGraphics();
@@ -35,6 +37,7 @@ public class DbnEditorGraphics extends DbnGraphics {
       g.fillRect(0, 0, width, height);
     }
     if (screenImage == null) {
+      //System.err.println("working on screenImage");
       //Dimension dim = size();
       Dimension dim = new Dimension(width + 100, height + 100);
       screenImage = createImage(dim.width, dim.height);
@@ -106,12 +109,12 @@ public class DbnEditorGraphics extends DbnGraphics {
       g.drawRect(gx-1, gy-1, width+1, height+1);
     }
 
-    // draw the actual runner
-    //g = 
-    //g.drawImage(image, gx, gy, null);
-    if (image != null)
-      screenImage.getGraphics().drawImage(image, gx, gy, null);
-
+    if (image != null) {
+      if (screenImageGraphics == null)
+	screenImageGraphics = screenImage.getGraphics();
+      if (screenImageGraphics != null)
+	screenImageGraphics.drawImage(image, gx, gy, null);
+    }
     // blit to screen
     screen.drawImage(screenImage, 0, 0, null);
   }

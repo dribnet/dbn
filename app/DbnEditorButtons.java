@@ -9,6 +9,11 @@ public class DbnEditorButtons extends Panel {
   static final int BUTTON_WIDTH = 24;
   static final int BUTTON_HEIGHT = 24;
 
+  static final String title[] = {
+    "Play", "Stop", "Open", "Save", "Snapshot", "Print", "Beautify"
+    //"play", "stop", "open", "save", "snapshot", "print", "beautify"
+  };
+
   static final int PLAY = 0;
   static final int STOP = 1;
   static final int OPEN = 2;
@@ -176,6 +181,12 @@ public class DbnEditorButtons extends Panel {
 	//state[currentRollover] = INACTIVE_STATE;
 	//stateImage[currentRollover] = inactive[currentRollover];
 	setState(currentRollover, INACTIVE, true);
+	editor.messageClear(title[currentRollover]);
+	/*
+	if (editor.status.getText().equals(title[currentRollover])) {
+	  editor.message("");
+	}
+	*/
 	currentRollover = -1;
 	//update();
       }
@@ -219,13 +230,20 @@ public class DbnEditorButtons extends Panel {
   }
 
   private void setState(int slot, int newState, boolean updateAfter) {
+    //if (inactive == null) return;
     state[slot] = newState;
     switch (newState) {
-    case INACTIVE: stateImage[slot] = inactive[which[slot]]; break;
-    case ROLLOVER: stateImage[slot] = rollover[which[slot]]; break;
-    case ACTIVE: stateImage[slot] = active[which[slot]]; break;
+    case INACTIVE:
+      stateImage[slot] = inactive[which[slot]]; 
+      break;
+    case ACTIVE: 
+      stateImage[slot] = active[which[slot]]; 
+      break;
+    case ROLLOVER: 
+      stateImage[slot] = rollover[which[slot]]; 
+      editor.message(title[which[slot]]);
+      break;
     }
-    //System.out.println("stateimg set to " + stateImage[slot]);
     if (updateAfter) update();
   }
 
@@ -234,6 +252,13 @@ public class DbnEditorButtons extends Panel {
   }
 
   public boolean mouseExit(Event e, int x, int y) {
+    // kludge
+    for (int i = 0; i < BUTTON_COUNT; i++) {
+      editor.messageClear(title[i]);
+    }
+    //if (currentRollover != -1) {
+    //editor.message("");
+    //}
     return mouseMove(e, x, y);
   }
 
@@ -260,6 +285,8 @@ public class DbnEditorButtons extends Panel {
   }
 
   public void clear() { // (int button) {
+    if (inactive == null) return;
+
     //setState(button, INACTIVE);
     // skip the play button, do the others
     for (int i = 1; i < buttonCount; i++) {
@@ -271,6 +298,7 @@ public class DbnEditorButtons extends Panel {
   }
 
   public void clearPlay() {
+    if (inactive == null) return;
     setState(0, INACTIVE, true);
   }
 

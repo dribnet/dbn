@@ -11,7 +11,7 @@ import java.util.*;
 
 public class DbnEditor extends Panel implements DbnEnvironment {
   static final String DEFAULT_PROGRAM = "// enter program\n";
-  static final String spaces = "                                                                              ";
+  static final String EMPTY = "                                                                                                                                                             ";
 
   // set explicitly because different platforms use different colors
   //static final Color panelBgColor = new Color(204, 204, 204);
@@ -79,7 +79,7 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     Panel statusPanel = new Panel();
     statusPanel.setBackground(statusBgColor);
     statusPanel.setLayout(new FlowLayout(FlowLayout.LEFT)); //new GridLayout(1, 1));
-    statusPanel.add(status = new Label(spaces));
+    statusPanel.add(status = new Label(EMPTY));
     right.add("North", statusPanel);
 
     if (program == null) program = DEFAULT_PROGRAM;
@@ -191,7 +191,7 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     String directory = fd.getDirectory();
     String filename = fd.getFile();
     if (filename == null) {
-      message("");
+      message(EMPTY);
       buttons.clear();
       return; // user cancelled
     }
@@ -400,7 +400,7 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     runner.stop();
     //System.out.println("stopping runner");
     //runner = null;
-    message("");
+    message(EMPTY);
   }
 
 
@@ -443,6 +443,7 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     //dbcp.repaint(); // button should go back to 'play'
     //System.err.println(e.getMessage());
     message("Problem: " + e.getMessage());
+    buttons.clearPlay();
     //showStatus(e.getMessage());
   }
 
@@ -459,6 +460,11 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     status.setText(msg);
   }
   
+  
+  public void messageClear(String msg) {
+    if (status.getText().equals(msg)) status.setText(EMPTY);
+  }
+
 
   /*
   public void idle(long t) {

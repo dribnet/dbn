@@ -14,7 +14,7 @@ set CLASSPATH2=%CLASSPATH%
 set CLASSPATH=.\applet\jdk-102.zip
 
 cd ..
-buzz.pl "jikes +1.0 +D -nowarn -d applet\classes" *.java
+buzz.pl "jikes +1.0 +D -nowarn -d applet\classes" -dEDITOR *.java
 cd applet\classes
 zip -0q dbn.jar *.class *.dbn
 cd ..
