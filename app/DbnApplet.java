@@ -54,8 +54,6 @@ public class DbnApplet extends Applet
 
 
     public void init() {
-	//for (int i = 0; i< 256; i++) 
-	//  System.out.print((char)i);
 	String file, prog = null;
 	String progs[] = null;
 	String defprogram = new String("// enter program\n");

@@ -100,6 +100,14 @@ CHANGES (technical section, can be ignored)
 
 IN PROGRESS: Version 1.X: Changes since 1.2.1
 
+- added parenthesis balancing code
+
+- default directory and filename for file saving are
+  now being respected or set.
+
+- fixed a bug that would cause dbn to die if the user
+  tried to divide by zero
+
 - fixed a bug where field was not properly setting the 
   values of the screen's [x y] image array
 
