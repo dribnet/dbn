@@ -5,7 +5,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-
+ 
 // play, stop, open, save, courseware, print, beautify
 // height of button panel is 35
 
@@ -64,14 +64,14 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     buttons.setBackground(buttonBgColor);
     left.add("North", buttons);
 
-    graphics = new DbnEditorGraphics(gwidth, gheight, 
+    graphics = new DbnEditorGraphics(gwidth, gheight, tickColor,
 				     bgColor, bgStippleColor);
     left.add("Center", graphics);
 
-    Panel gutter = new Panel();
-    gutter.setBackground(gutterBgColor);
-    gutter.setSize(100, 100);
-    left.add("South", gutter);
+    //Panel gutter = new Panel();
+    //gutter.setBackground(gutterBgColor);
+    //left.add("South", gutter);
+    left.setBackground(gutterBgColor);
 
     Panel right = new Panel();
     right.setLayout(new BorderLayout());
@@ -90,7 +90,8 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     //Panel leftright = new Panel();
     //leftright.setLayout(new FlowLayout(FlowLayout.LEFT));
     this.add("West", left);
-    this.add("East", right);
+    this.add("Center", right);
+    //this.add("East", right);
     //leftright.add(left);
     //leftright.add(right);
 
@@ -106,11 +107,16 @@ public class DbnEditor extends Panel implements DbnEnvironment {
       textarea.addKeyListener(new DbnKeyListener(this));
     }
 #endif
+
+    runner = new DbnRunner(graphics, this);
   }
 
 
   public void doPlay() {
-    initiate();
+    //initiate();
+    //runner = new DbnRunner(textarea.getText(), graphics, this);
+    runner.setProgram(textarea.getText());
+    runner.start();
   }
 
 
@@ -185,6 +191,7 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     String directory = fd.getDirectory();
     String filename = fd.getFile();
     if (filename == null) {
+      message("");
       buttons.clear();
       return; // user cancelled
     }
@@ -382,24 +389,17 @@ public class DbnEditor extends Panel implements DbnEnvironment {
     buttons.clear();
   }
 
-
+  /*
   public void initiate() {
-    //System.out.println("dbngui initiated");
     runner = new DbnRunner(textarea.getText(), graphics, this);
     runner.start();
-    //dbrp.setProgram(textarea.getText());
-    //dbrp.initiate();
-    //dbrp.requestFocus();
-    //dbcp.initiated();
   }
-
+  */
 
   public void terminate() {   // part of DbnEnvironment
-    //System.out.println("dbngui terminated");
-    //dbrp.terminate();
-    //dbcp.msg("");
     runner.stop();
-    runner = null;
+    //System.out.println("stopping runner");
+    //runner = null;
     message("");
   }
 
@@ -450,6 +450,7 @@ public class DbnEditor extends Panel implements DbnEnvironment {
   public void finished() {  // part of DbnEnvironment
     //dbcp.terminated();
     //dbcp.msg("Done.");
+    buttons.clearPlay();
     message("Done.");
   }
 
@@ -500,4 +501,13 @@ public class DbnEditor extends Panel implements DbnEnvironment {
   */
 }
 
+/*
+class GutterPanel extends Panel {
+  public Dimension preferredSize() {
+    return new Dimension(300, 300);
+  }
+}
+*/
+
 #endif
+

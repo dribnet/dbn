@@ -5,7 +5,7 @@ import java.awt.*;
 
 public class DbnEditorLicensePlate extends Panel implements Runnable {
   //DbnGui gui;
-  Font f = new Font("Helvetica", Font.PLAIN, 10);
+  Font f = new Font("Helvetica", Font.PLAIN, 9); // changed from 10
   Thread thread;
   Image im;
   Graphics img;
@@ -26,6 +26,7 @@ public class DbnEditorLicensePlate extends Panel implements Runnable {
   int s1x, s1y;
   String s2 = "MIT Media Laboratory. " +
     "Aesthetics + Computation Group. " +
+    //  "(c) 1999-2000 MIT";
     "(C) 1999, Massachusetts Institute of Technology";
   int s2x, s2y;
 

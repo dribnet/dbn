@@ -19,6 +19,10 @@ public class DbnRunner implements Runnable {
   boolean forceStop;
     
 
+  public DbnRunner(DbnGraphics graphics, DbnEnvironment env) {
+    this("", graphics, env);
+  }
+
   public DbnRunner(String program, DbnGraphics graphics, DbnEnvironment env) {
     this.program = program;
     this.graphics = graphics;
@@ -31,6 +35,10 @@ public class DbnRunner implements Runnable {
   //System.out.println("state of runner is " + state);
   //return (state == RUNNER_STARTED);
   //}
+
+  public void setProgram(String program) {
+    this.program = program;
+  }
 
   public void start() {
     if (thread != null) {

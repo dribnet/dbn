@@ -101,9 +101,7 @@ public class DbnEditorButtons extends Panel {
       state = new int[buttonCount];
       stateImage = new Image[buttonCount];
       for (int i = 0; i < buttonCount; i++) {
-	setState(i, INACTIVE);
-	//state[i] = INACTIVE_STATE;
-	//stateImage[i] = inactive[which[i]];
+	setState(i, INACTIVE, false);
       }
     }
     Dimension size = size();
@@ -177,7 +175,7 @@ public class DbnEditorButtons extends Panel {
       } else {
 	//state[currentRollover] = INACTIVE_STATE;
 	//stateImage[currentRollover] = inactive[currentRollover];
-	setState(currentRollover, INACTIVE);
+	setState(currentRollover, INACTIVE, true);
 	currentRollover = -1;
 	//update();
       }
@@ -188,7 +186,7 @@ public class DbnEditorButtons extends Panel {
     if (state[sel] != ACTIVE) {
       //state[sel] = ROLLOVER_STATE;
       //stateImage[sel] = rollover[sel];
-      setState(sel, ROLLOVER);
+      setState(sel, ROLLOVER, true);
       currentRollover = sel;
     }
     /*
@@ -220,14 +218,15 @@ public class DbnEditorButtons extends Panel {
     return -1;
   }
 
-  private void setState(int slot, int newState) {
+  private void setState(int slot, int newState, boolean updateAfter) {
     state[slot] = newState;
     switch (newState) {
     case INACTIVE: stateImage[slot] = inactive[which[slot]]; break;
     case ROLLOVER: stateImage[slot] = rollover[which[slot]]; break;
     case ACTIVE: stateImage[slot] = active[which[slot]]; break;
     }
-    update();
+    //System.out.println("stateimg set to " + stateImage[slot]);
+    if (updateAfter) update();
   }
 
   public boolean mouseEnter(Event e, int x, int y) {
@@ -243,30 +242,36 @@ public class DbnEditorButtons extends Panel {
   public boolean mouseDown(Event e, int x, int y) {
     int sel = findSelection(x, y);
     if (sel == -1) return false;
+    currentRollover = -1;
 
-    setState(sel, ACTIVE);
+    setState(sel, ACTIVE, true);
     switch (which[sel]) {
     case PLAY: editor.doPlay(); break;
-    case STOP: setState(PLAY, INACTIVE); editor.doStop(); break;
+    case STOP: setState(PLAY, INACTIVE, true); editor.doStop(); break;
     case OPEN: editor.doOpen(); break;
     case SAVE: editor.doSave(); break;
     case SNAPSHOT: editor.doSnapshot(); break;
     case PRINT: editor.doPrint(); break;
     case BEAUTIFY: editor.doBeautify(); break;
     }
-    wasDown = sel;
+    //wasDown = sel;
     //update();
     return true;
   }
 
   public void clear() { // (int button) {
     //setState(button, INACTIVE);
-
     // skip the play button, do the others
     for (int i = 1; i < buttonCount; i++) {
-      state[i] = INACTIVE;
-      stateImage[i] = inactive[which[i]];
+      //state[i] = INACTIVE;
+      //stateImage[i] = inactive[which[i]];
+      setState(i, INACTIVE, false);
     }
+    update();
+  }
+
+  public void clearPlay() {
+    setState(0, INACTIVE, true);
   }
 
   /*
