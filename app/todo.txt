@@ -1,5 +1,7 @@
 PRIORITY:
 
+
+
 TODO allow param tag for network host when dbn being run locally
 
 TODO mouse flakiness solved by using "set mx <mouse 1>"
@@ -72,6 +74,16 @@ TODO make mrj menubar behave a little better, have file->quit menu,
 
 FINISHED
 
+X play button no longer works (thurs)
+X fix tab indenting
+X python indent after return
+o   change to alias/antialias instead of antialias 100
+X   changed antialias 0/100 to antialias 0 / not zero
+X   add thread model to the converter to use with DbnPanel
+X   make a simple applet that could host a converted applet
+X   make it automatically write the html for the applet
+
+
 DONE select all for righthand side
 
 DONE move connectors, graphics and i/o together. 
@@ -132,3 +144,9 @@ DONE fixed bug where recursion didn't happen
 
 DONE reduce the amount of flashing that the applet does
      especially on the mac (reduce number of components involved)
+
+DONE read up on how to make signed version of dbn for mrj
+
+DONE figure out what's actually going on with dbn-python in exploder
+
+DONE add norefresh to dbn parser/engine

@@ -9,6 +9,13 @@ public class DbnToken {
     String name;
     int number;
 
+#ifdef VIS
+    // for tree output
+    static int serialIndex = 1;
+    int serialNumber;
+    String serialName;
+#endif
+
     int childCount;
     DbnToken children[];
 
@@ -147,14 +154,27 @@ public class DbnToken {
     }
 
     public String toString() {
-	return toString(0);
+#ifdef VIS
+	System.out.println("N START");
+	return toString(0, "START");
+#else
+	return toString(0, null);
+#endif
     }
     
-    public String toString(int indentCount) {
+    public String toString(int indentCount, String vparent) {
+	
 	StringBuffer buffer = new StringBuffer();
 
+#ifdef VIS
+	serialNumber = serialIndex++;
+	buffer.append(vparent + "/");
+	buffer.append(serialNumber);
+	buffer.append("_");
+#else
 	for (int i = 0; i < indentCount; i++) 
 	    buffer.append(' ');
+#endif	
 
 	switch(kind) {
 	case EOL: buffer.append("EOL"); break;
@@ -211,7 +231,8 @@ public class DbnToken {
 	    System.err.println("not handled: " + kind);
 	    System.exit(1);
 	}
-	
+
+#ifndef VIS	
 	if (variables != null) {
 	    buffer.append(" variables: ");
 	    Enumeration e = variables.keys();
@@ -223,9 +244,25 @@ public class DbnToken {
 	buffer.append(System.getProperty("line.separator"));
 
 	for (int i = 0; i < childCount; i++) {
-	    buffer.append(children[i].toString(indentCount + 2));
+	    buffer.append(children[i].toString(indentCount + 2, null));
 	}
 	return buffer.toString();
+#else
+	serialName = buffer.toString().replace(' ', '%');
+
+	StringBuffer output = new StringBuffer();
+	output.append("N " + serialName);
+	output.append(System.getProperty("line.separator"));
+
+	output.append("B " + parent + " " + serialName);
+	output.append(System.getProperty("line.separator"));
+	
+	for (int i = 0; i < childCount; i++) {
+	    output.append(children[i].toString(0, serialName));
+	}
+	//return output.toString().replace(' ', '%');
+	return output.toString();
+#endif
     }
 
 
@@ -400,6 +437,15 @@ public class DbnToken {
 		int b = children[2].children[0].number;
 		goingUp = (a < b);
 	    }
+	    /*
+start, stop
+inc = (start <= stop) 1 : -1;
+for (int i = start;
+     (((inc ==  1) && (i <= finish)) ||
+      ((inc == -1) && (i >= finish)));
+     i += inc) {
+   // blah
+	    */
 	    output("for (");
 	    if (findVariable(children[0].name) == null) 
 		output("int ");
