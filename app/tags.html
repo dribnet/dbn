@@ -1,0 +1,71 @@
+<HTML>
+
+<BODY BGCOLOR="#003366" TEXT="white">
+
+<FONT SIZE="-1" FACE="Verdana, sans-serif" COLOR="yellow">
+
+This is the documentation for all the PARAM tags used
+by the DBN applet.
+<BR>
+(last updated 8.9.99 by ben fry)
+
+</FONT>
+
+<PRE>
+
+run_mode: mouse_inside - runs whenever mouse is inside area
+          edit - default, shows text area
+          immediate - runs as soon as the applet is loaded
+
+program: whatever.dbn, attempts to load from:
+         1. (application only) it attempts to load the file 
+            straight from the disk, either using a path relative 
+            to the app, or an absolute path
+	 2. (applet only) relative to the document base --
+	    the same directory as html file
+	 3. (application only) as a 'resource', which would
+            be a file in the same directory as the classes,
+            just like codebase for an applet
+         4. (applet only) relative to the codebase --
+            i.e. dbn.jar or 'classes' folder
+         5. as an actual url (http://blahblahblah)
+         6. relative to root of same server as applet 
+            (http://dbn.media.mit.edu/whatever.dbn)
+
+inline_program: put an entire dbn program directly
+                into the html to have it automatically load
+                use semicolons for newlines
+                it will be auto-beautified after loading
+
+bg_color: # and six hex digits (web style! whoopee!) 
+          that determine the foreground used by the applet
+
+bg_color_stipple: an alternating color, to get nice mixed colors
+
+title: small blurb of text that appears just below the actual
+       active drawing area. only visible in editing mode
+
+text_color: color of the title text that goes below the 
+            100x100 drawing space
+
+language: one of the ISO language codes, for example:
+          en - english, ja - japanese, fr - french,
+          es - spanish, de - german
+
+encoding: a text encoding converter, java style
+          look up String in java class libraries vol. 1, 2nd edition
+          examples include 8859_1 (standard) 
+	  and SJIS (japanese, shift-jis)
+
+display_mode: plain, flush, flush_more, and auto
+              these are undocumented
+
+ie: this seems to be a parameter to signal whether the applet
+    was being run inside of internet exploiter. i think it's 
+    deprecated.
+
+</PRE>
+
+</BODY>
+
+</HTML>
