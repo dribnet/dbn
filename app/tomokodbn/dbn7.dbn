@@ -1,0 +1,16 @@
+//dbn applet 7
+//another gradation stuff
+
+paper 0
+repeat a 0 17
+{
+   repeat b 0 17
+   {
+      pen (((17-a)*(17-a)+(17-b)*(17-b))/2)
+      line (6*a) 0 (6*a) 100
+      line ((6*a)+1) 0 ((6*a)+1) 100
+      line ((6*a)+2) 0 ((6*a)+2) 100
+      line 0 (6*b) 100 (6*b)
+     
+   }
+}

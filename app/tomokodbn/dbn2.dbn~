@@ -1,0 +1,27 @@
+//dbn applet 2
+//chasing lines
+
+//lines will follow the mouse location
+
+number distance a b
+{
+   set d (a-b)
+   smaller? a b
+   {
+      set d (b-a)
+   }
+   value d
+}
+forever
+{
+   set y <mouse 2>
+   set x <mouse 1>
+paper y
+   repeat a 0 10
+   {
+      pen ((100-a*a)/2)
+      line (x-2*a*a) 0 (x-2*a*a) 100
+      line (x+2*a*a) 0 (x+2*a*a) 100
+   }
+ 
+}

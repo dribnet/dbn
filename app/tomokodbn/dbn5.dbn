@@ -1,0 +1,26 @@
+//dbn applet 5
+//vertical + horizontal gradations
+
+paper 0
+command vertrect a
+{
+   repeat b 0 5
+   {
+      pen (3*a/2)
+      line (a+b) 0 (a+b) 100
+   }
+}
+command horizrect c
+{
+   repeat d 0 5
+   {
+      pen (3*c/2)
+      line 0 (c+d) 100 (c+d)
+   }
+}
+paper 0
+repeat e 0 10
+{
+   vertrect (10*e+10)
+   horizrect (10*e+10)
+}

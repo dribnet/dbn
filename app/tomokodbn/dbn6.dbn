@@ -1,0 +1,57 @@
+// dbn applet 6
+// squares in squares
+
+//vsquare is a command which makes a
+//square with vertical lines. 
+//a, b, and c corresponds to (x,y)
+//coordinates of upper-left corner of the
+//square, and its size respectively.
+
+command vsquare a b c 
+{
+   repeat x 0 (c/3)
+   {
+      line (a+3*x) b (a+3*x) (b-c)
+   }
+}
+
+//ninesquares is a command that lines
+//up nine vsquares in a square.
+//e,f are (x,y) coordinates of upper-left 
+//corner of the squares, g is the size of
+//lined up squares, and p is the color of 
+//pen used.
+
+command ninesquares e f g 
+{
+vsquare e f ((g-8)/3)
+vsquare (e+((g-8)/3)+4) f ((g-8)/3)
+vsquare (e+(2*(g-8)/3)+8) f ((g-8)/3)
+vsquare e (f-((g-8)/3)-4) ((g-8)/3)
+vsquare e (f-(2*(g-8)/3)-8) ((g-8)/3)
+vsquare (e+((g-8)/3)+4) (f-((g-8)/3)-4) ((g-8)/3)
+vsquare (e+((g-8)/3)+4) (f-(2*(g-8)/3)-8) ((g-8)/3)
+vsquare (e+(2*(g-8)/3)+8) (f-((g-8)/3)-4) ((g-8)/3)
+vsquare (e+(2*(g-8)/3)+8) (f-(2*(g-8)/3)-8) ((g-8)/3)
+}
+pen 50
+ninesquares 0 100 100 
+pen 100
+ninesquares 2 100 31
+pen 80
+ninesquares 36 100 31
+pen 60
+ninesquares 68 100 31
+pen 80
+ninesquares 2 66 31
+pen 60
+ninesquares 2 31 31
+pen 40
+ninesquares 36 31 31
+pen 20
+ninesquares 68 31 31
+pen 60
+ninesquares 36 66 31
+pen 40 
+ninesquares 68 66 31
+

@@ -1,0 +1,21 @@
+//dbn applet 3
+//flying triangle
+
+//triangles flying in the space
+//notice the color change
+
+command triangle x1 y1 x2 y2 x3 y3
+{
+   line x1 y1 x2 y2
+   line x2 y2 x3 y3
+   line x3 y3 x1 y1
+}
+repeat a 0 20
+{
+   repeat b 20 0
+   {
+      paper 0
+      pen (10*a+30)
+      triangle (7*(a+1)) (5*(b-2)) (5*(b-2)) 60 (5*(a+3)) (5*(b-1))
+   }
+}

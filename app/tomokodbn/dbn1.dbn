@@ -1,0 +1,31 @@
+//dbn applet 1
+//lot's o' squares
+
+//let your mouse wander over the 
+//paper. 
+
+command fillrect x y s
+{
+   repeat a 0 s
+   {
+      line x (y+a) (x+s) (y+a)
+   }
+}
+paper 0
+repeat s 0 10000
+{
+   repeat t 5 0
+   {
+      set a <mouse 1>
+      set b <mouse 2>
+      pen (100-20*t)
+      fillrect a b (4*t+5)
+   }
+   repeat t 1 4
+   {
+      set a <mouse 1>
+      set b <mouse 2>
+      pen (20*t+10)
+      fillrect a b (4*t+5)
+   }
+}

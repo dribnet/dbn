@@ -1,0 +1,18 @@
+//dbn applet 4
+//gradation change
+
+//paper gradually darkens yet two 
+//lines remain in the plane
+
+paper 0
+repeat T 0 10
+{
+   repeat s 0 100
+   {
+      pen (((20*T)-s)*((20*T)-s)/100)
+      line s 0 s 100
+      pen (100-10*T)
+      line 75 0 75 100
+      line 70 0 70 100
+   }
+}
