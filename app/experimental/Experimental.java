@@ -8,8 +8,10 @@ public class Experimental extends DbnApplication implements ActionListener {
   MenuBar menubar;
   
   static final String goodieLabels[] = {
-    "Convert editing area to java applet...",
-    "Convert .dbn file to java applet..."
+    "Make QuickTime movie...",
+    null,
+    "Convert editing area to Java applet...",
+    "Convert .dbn file to Java applet..."
   };
 
   static public void main(String args[]) {
@@ -20,8 +22,12 @@ public class Experimental extends DbnApplication implements ActionListener {
     menubar = new MenuBar();
     MenuItem mi = null;
 
-    Menu goodies = new Menu("goodies");
+    Menu goodies = new Menu("Tasty");
     for (int i = 0; i < goodieLabels.length; i++) {
+      if (goodieLabels[i] == null) {
+	goodies.addSeparator();
+	continue;
+      }
       goodies.add(new MenuItem(goodieLabels[i]));
     }
     goodies.addActionListener(this);
@@ -36,13 +42,16 @@ public class Experimental extends DbnApplication implements ActionListener {
       if (command.equals(goodieLabels[i])) {
 	switch (i) {
 	case 0:
+	  ((DbnEditor)environment).doRecord();
+	  break;
+	case 2:
 	  try {
 	    convert(((DbnEditor)environment).textarea.getText());
 	  } catch (Exception e) {
 	    e.printStackTrace();
 	  }
 	  break;
-	case 1: 
+	case 3: 
 	  try {
 	    convert(null); 
 	  } catch (Exception e) {
@@ -54,6 +63,43 @@ public class Experimental extends DbnApplication implements ActionListener {
       }
     }
   }
+
+
+#ifdef RECORDER
+  static String lastGrabDirectory;
+
+  static public void screenGrab(Image image, byte pixelBytes[], 
+				int width, int height) {
+    FileDialog fd = new FileDialog(new Frame(), 
+				   "Save image as...", 
+				   FileDialog.SAVE);
+    if (lastGrabDirectory != null) {
+      fd.setDirectory(lastGrabDirectory);
+    }
+    fd.show();
+    
+    try {
+      String directory = fd.getDirectory();
+      String name = fd.getFile();
+      FileOutputStream fos = new FileOutputStream(new File(directory, name));
+      
+      int pixels[] = new int[width*height];
+      for (int k = 0; k < pixels.length; k++) {
+	pixels[k] = DbnRecorder.grays[pixelBytes[k]];
+      }
+      GifEncoder ge = new GifEncoder(pixels, width, fos);
+      ge.encode();
+      fos.close();
+
+      lastGrabDirectory = directory;
+      
+    } catch (IOException e) {
+      System.err.println("An error occurred while trying to make a screen grab");
+      e.printStackTrace();
+    }
+  }
+#endif
+
 
 #ifdef CONVERTER
   public void convert(String program) throws IOException, DbnException {

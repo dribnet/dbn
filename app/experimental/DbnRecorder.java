@@ -24,7 +24,9 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
   static final boolean RECORD_TO_DISK = true;
   static DbnRecorder recorder;
 
+  DbnEnvironment environment;
   int width, height;
+
   long lastTime;
   Image lastImage;
   int lastX, lastY;
@@ -57,7 +59,7 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
   Color cursorUpColor;
   Color cursorDownColor;
 
-  static int grays[];
+  static public int grays[];
   static {
     grays = new int[101];
     for (int i = 0; i < 101; i++) {
@@ -70,9 +72,11 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
   // a finalizer should call canvas.removeClient() 
   // and then QTSession.close(), frame.dispose() could come after that too
 
-  public DbnRecorder(int width, int height) throws Exception {
+  public DbnRecorder(DbnEnvironment environment, 
+		     int width, int height) throws Exception {
     // CreateMovie.<init>
     //per("DbnRecorder");
+    this.environment = environment;
     this.width = width;
     this.height = height;
 
@@ -81,7 +85,7 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
     cursorUpColor = DbnApplet.getColor("cursor_up_color", Color.gray);
 
     FileDialog fd = new FileDialog(new Frame(), "Save movie as...", 
-    			   FileDialog.SAVE);
+				   FileDialog.SAVE);
     fd.show();
     if (fd.getFile() == null) {
       throw new Exception("user cancelled movie creation");
@@ -166,15 +170,18 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
       }
       tempFrameCount = 0;
       lastTime = System.currentTimeMillis();
+      environment.message("Recording movie...");
+
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
 
-  static public void start(int width, int height) {
+  synchronized static public void start(DbnEnvironment environment,
+					int width, int height) {
     try {
-      recorder = new DbnRecorder(width, height);
+      recorder = new DbnRecorder(environment, width, height);
     } catch (Exception e) {
       recorder = null;
     }
@@ -220,6 +227,7 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
   public void makeQuickTime() throws IOException {
     InputStream is = null;
 
+    tempOutputStream.flush();
     if (RECORD_TO_DISK) {
       tempOutputStream.close();
       is = new FileInputStream(tempFile);
@@ -247,7 +255,14 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
       MemoryImageSource mis = 
 	new MemoryImageSource(width, height, pixels, 0, width);
       Image image = Toolkit.getDefaultToolkit().createImage(mis);
-      addQuickTime(image, mouseX, mouseY, mouseDown, frameDuration);
+      try {
+	environment.message("Saving frame " + (i+1) + 
+			    " of " + tempFrameCount);
+	addQuickTime(image, mouseX, mouseY, mouseDown, frameDuration);
+      } catch (Exception e) {
+	System.err.println("having trouble with duration " + frameDuration);
+	e.printStackTrace();
+      }
     }
     tempInputStream.close();
 
@@ -257,46 +272,43 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
   }
 
   public void addQuickTime(Image image, int mouseX, int mouseY, 
-			   boolean mouseDown, int frameDuration) {
-    try {
-      qid.setGWorld(gw);
-      qid.setDisplayBounds(rect);
-      
-      lastImage = image;
-      qid.redraw(null);
-      
-      CompressedFrameInfo info = 
-	sequence.compressFrame(gw, rect, codecFlagUpdatePrevious, 
-			       compressedImage);
-      boolean isKeyFrame = (info.getSimilarity() == 0);
-      // 0 is offset, 1 is the number of samples
-      // frameDuration is in units of timescale above/second
-      videoMedia.addSample(imageHandle, 0, info.getDataSize(), 
-			   frameDuration, description, 1, 
-			   (isKeyFrame ? 0 : mediaSampleNotSync));
-      //System.out.println("duration=" + frameDuration + ", " +
-      //		 "keyframe=" + isKeyFrame + ", " +
-      //		 "similarity=" + info.getSimilarity());
-      
-      //print out ImageDescription for the last video media data ->
-      //this has a sample count of 1 because we add each "frame" 
-      //as an individual media sample
-      //System.out.println(desc);
-      
-      //redraw after finishing...
-      qid.setGWorld(canvas.getPort());
-      //np.setCurrentFrame (numFrames);
-      qid.redraw(null);
-      
-      //lastTime = currentTime;
-      //lastImage = currentImage;
-      lastX = mouseX;
-      lastY = mouseY;
-      lastButton = mouseDown;
-
-    } catch (QTException e) {
-      e.printStackTrace();
-    }
+			   boolean mouseDown, int frameDuration) 
+    throws QTException {
+    
+    qid.setGWorld(gw);
+    qid.setDisplayBounds(rect);
+    
+    lastImage = image;
+    qid.redraw(null);
+    
+    CompressedFrameInfo info = 
+      sequence.compressFrame(gw, rect, codecFlagUpdatePrevious, 
+			     compressedImage);
+    boolean isKeyFrame = (info.getSimilarity() == 0);
+    // 0 is offset, 1 is the number of samples
+    // frameDuration is in units of timescale above/second
+    videoMedia.addSample(imageHandle, 0, info.getDataSize(), 
+			 frameDuration, description, 1, 
+			 (isKeyFrame ? 0 : mediaSampleNotSync));
+    //System.out.println("duration=" + frameDuration + ", " +
+    //		 "keyframe=" + isKeyFrame + ", " +
+    //		 "similarity=" + info.getSimilarity());
+    
+    //print out ImageDescription for the last video media data ->
+    //this has a sample count of 1 because we add each "frame" 
+    //as an individual media sample
+    //System.out.println(desc);
+    
+    //redraw after finishing...
+    qid.setGWorld(canvas.getPort());
+    //np.setCurrentFrame (numFrames);
+    qid.redraw(null);
+    
+    //lastTime = currentTime;
+    //lastImage = currentImage;
+    lastX = mouseX;
+    lastY = mouseY;
+    lastButton = mouseDown;
   }
 
 
@@ -312,7 +324,6 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
 
   public void finish() {
     //if (finishing) return;
-
     try {
       makeQuickTime();
 
@@ -327,10 +338,13 @@ public class DbnRecorder implements Paintable, StdQTConstants, Errors {
       outStream.close();
       QTSession.close();
 
+      environment.message("Done recording.");
+
     } catch (IOException e) {
       e.printStackTrace();
-      
+
     } catch (QTException e) {
+      System.err.println("doing things");
       e.printStackTrace();
     }
   }

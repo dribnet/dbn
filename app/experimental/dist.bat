@@ -1,11 +1,16 @@
 @echo off
 
 rem --- you must first call make.bat
-rem --- creates full downloadable dbn for the organic course
-rem --- there is no applet version for this stuff (yet)
-rem --- this is where most development is being done
+rem --- wraps up the fiendish experimental dbn
 
 rm -f dbn.zip
-zip -rq dbn.zip run.bat bin\*.dll bin\*.exe lib\*.properties lib\*.jar lib\security\java.security lib\*.py lib\pawt\*.py
+zip -rq dbn.zip run.bat bin\*.dll bin\*.exe lib\*.gif lib\*.zip lib\player\*.class lib\*.properties lib\*.jar lib\security\java.security lib\*.py lib\pawt\*.py
+
+rm -rf experimental
+mkdir experimental
+unzip -d experimental dbn.zip
+rm dbn.zip
+zip -rq dbn.zip experimental
+rm -rf experimental
 
 echo Remove dbn.zip when finished.
