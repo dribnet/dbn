@@ -13,8 +13,8 @@ set SAVED_CLASSPATH=%CLASSPATH%
 set CLASSPATH=.\%ME%\kvm.zip
 
 cd ..
-rem buzz.pl "jikes +1.0 +D -nowarn -d %ME%\classes" -dKVM *.java
-buzz.pl "sj -nowarn -d %ME%\classes" -dKVM *.java
+rem buzz.pl "jikes +1.0 +D -nowarn -d %ME%\classes" -dKVM *.java kvm\*.java
+buzz.pl "sj -nowarn -d %ME%\classes" -dKVM *.java kvm\*.java
 
 cd %ME%\classes
 rem zip -0q dbn.jar *.class *.dbn
