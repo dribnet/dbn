@@ -21,10 +21,12 @@ public class GifEncoder
   public GifEncoder(Image image, OutputStream out) throws IOException {
     this(image, out, false);
   }
+  */
 
+  /*
   public GifEncoder(Image image, OutputStream out, 
 		    boolean interlace) throws IOException {
-    this.imageData = ImageUtils.imageToArray(image);
+    this.imageData = imageToArray(image);
     this.imageWidth = image.getWidth(null);
     this.imageHeight = image.getHeight(null);
 
@@ -32,7 +34,7 @@ public class GifEncoder
     this.interlace = interlace;
   }
   */
-  
+
   public GifEncoder(int pixels[], int width, 
 		    OutputStream out) throws IOException {
     this(pixels, width, out, false);

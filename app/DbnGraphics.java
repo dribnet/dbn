@@ -34,6 +34,9 @@ public class DbnGraphics extends Panel {
   int pixelCount;
   boolean antialias;
 
+  Image lastImage;
+  Graphics lastImageg;
+
   int lines[];
   int currentLine;
 
@@ -489,6 +492,10 @@ public class DbnGraphics extends Panel {
       g.setColor(grays[0]);
       g.fillRect(0, 0, width, height);
     }
+    if (lastImageg != null) {
+      g.setColor(grays[0]);
+      g.fillRect(0, 0, width, height);
+    }
     penColor = 100;
 
     antialias = false;
@@ -921,6 +928,15 @@ public class DbnGraphics extends Panel {
     DbnRecorder.addFrame(image, pixels, mouse[0], 
 			 height1-mouse[1], (mouse[2] == 100));
 #endif
+    if ((lastImage == null) && (image != null)) {
+      lastImage = createImage(width, height);
+      if (lastImage != null) {
+	lastImageg = lastImage.getGraphics();
+      }
+    }
+    if (lastImageg != null) {
+      lastImageg.drawImage(image, 0, 0, null);
+    }
   }
 
   public void update(Graphics g) {

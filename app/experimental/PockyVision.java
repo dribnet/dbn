@@ -51,7 +51,20 @@ public class PockyVision extends Window implements DbnEnvironment {
   DbnRunner runner;
   Vector runners = new Vector();
   DbnApplication app;
-  boolean ignoreDrag; // set if mouseDown inside the Graphics
+  //boolean ignoreDrag; // set if mouseDown inside the Graphics
+
+  FontMetrics metrics;
+  int ascent, descent;
+
+  static final Color textColor = new Color(153, 0, 0);
+  static final Color textFrameColor = new Color(204, 204, 204);
+  static final Color textFillColor = Color.white;
+
+  static final int MOVING = 0;
+  static final int STARTING = 1;
+  static final int NAMING = 2;
+  static final int IGNORING = 3;
+  int mouseMode;
 
 
   static public void main(String args[]) {
@@ -99,7 +112,6 @@ public class PockyVision extends Window implements DbnEnvironment {
     ig.drawImage(original, 0, 0, this);
 
     runningIndex = -1;
-    //repaint();
     show();
     toFront();
   }
@@ -109,11 +121,15 @@ public class PockyVision extends Window implements DbnEnvironment {
     return false;
   }
 
-  public void paint() {
+  public void update() {
     if (g == null) {
       g = this.getGraphics();
-      g.setColor(Color.orange);
-      g.setFont(new Font("SansSerif", Font.BOLD, 14));
+      //g.setColor(Color.orange);
+
+      g.setFont(new Font("SansSerif", Font.PLAIN, 12));
+      metrics = g.getFontMetrics();
+      ascent = metrics.getAscent();
+      descent = metrics.getDescent();
     }
     paint(g);
   }
@@ -126,8 +142,8 @@ public class PockyVision extends Window implements DbnEnvironment {
     //System.out.println("painting " + image);
     if (image != null) {
       screen.drawImage(image, offsetX, offsetY, null);
-    } else {
-      repaint();
+      //} else {
+      //reupdate();
     }
     //paintComponents();
   }
@@ -139,27 +155,25 @@ public class PockyVision extends Window implements DbnEnvironment {
     int sel = selY * HCOUNT + selX;
 
     if (e.shiftDown()) {
-      if (g != null) {
-	if (sel == runningIndex) {
-	  y = (selY * HIGH) + offsetY + HIGH + 20;
-	}
-	paint();
-	g.drawString(filenames[sel], x, y);
-      }
-      ignoreDrag = true;
+      nameSelection(x, y, selX, selY, sel);
+      //ignoreDrag = true;
+      mouseMode = NAMING;
       return false;
     }
 
-    if ((sel == runningIndex) && (!e.controlDown())) {
-      ignoreDrag = true;
+    //if ((sel == runningIndex) && (!e.controlDown())) {
+    if ((sel == runningIndex) && (e.clickCount != 2)) {
+      mouseMode = IGNORING;
+      //ignoreDrag = true;
       return false;
     } else {
-      ignoreDrag = false;
+      //ignoreDrag = false;
+      mouseMode = MOVING;
     }
     exterminate();
 
-    //if (e.clickCount == 2) {
-    if (e.controlDown()) {
+    if (e.clickCount == 2) {
+      //if (e.controlDown()) {
       //System.out.println("gonna start " + filenames[sel]);
 
       if (programs[sel] == null) {
@@ -179,8 +193,8 @@ public class PockyVision extends Window implements DbnEnvironment {
       //g.drawString(filenames[sel], x, y);
       //}
       runningIndex = sel;
+      mouseMode = STARTING;
     }
-
     lastMouseX = x;
     lastMouseY = y;
     return false;
@@ -192,7 +206,7 @@ public class PockyVision extends Window implements DbnEnvironment {
       int selX = runningIndex % HCOUNT;
       int selY = runningIndex / HCOUNT;
       Graphics ig = image.getGraphics();
-      ig.drawImage(graphics.image, selX*WIDE, selY*HIGH,
+      ig.drawImage(graphics.lastImage, selX*WIDE, selY*HIGH,
 		   WIDE, HIGH, null);
     }
     Enumeration e = runners.elements();
@@ -205,25 +219,57 @@ public class PockyVision extends Window implements DbnEnvironment {
     runningIndex = -1;
   }
 
+  protected void nameSelection(int x, int y, int selX, int selY, int sel) {
+    if (g == null) return;
+
+    update(); // clear it out
+    int y1 = (selY * HIGH) + offsetY + HIGH + 3;
+    //int ascent = metrics.getAscent();
+    //int descent = metrics.getDescent();
+    int textY = y1 + 3 + ascent;
+    int y2 = textY + descent + 3;
+    int extentY = y2 - y1;
+
+    int x1 = x;
+    int textX = x1 + 3;
+    int x2 = textX + metrics.stringWidth(filenames[sel]) + 3;
+    int extentX = x2 - x1;
+
+    g.setColor(textFillColor);
+    g.fillRect(x1, y1, extentX, extentY);
+    g.setColor(textFrameColor);
+    g.drawRect(x1, y1, extentX, extentY);
+    g.setColor(textColor);
+    g.drawString(filenames[sel], textX, textY);
+  }
 
   public boolean mouseDrag(Event e, int x, int y) {
-    if (ignoreDrag) return false;
+    //if (ignoreDrag) return false;
+    if (mouseMode == MOVING) {
+      int deltaX = x - lastMouseX;
+      int deltaY = y - lastMouseY;
+      offsetX += deltaX;
+      offsetY += deltaY;
+      gx += deltaX;
+      gy += deltaY;
+      //graphics.setLocation(gx, gy);
+      update();
 
-    int deltaX = x - lastMouseX;
-    int deltaY = y - lastMouseY;
-    offsetX += deltaX;
-    offsetY += deltaY;
-    gx += deltaX;
-    gy += deltaY;
-    graphics.setLocation(gx, gy);
-
+    } else if (mouseMode == NAMING) {
+      int selX = (-offsetX + x) / WIDE;
+      int selY = (-offsetY + y) / HIGH;
+      int sel = selY * HCOUNT + selX;
+      nameSelection(x, y, selX, selY, sel);
+    }
     lastMouseX = x;
     lastMouseY = y;
-    paint();
     return false;
   }
 
   public boolean mouseUp(Event e, int x, int y) {
+    if (mouseMode == NAMING) {
+      update();
+    }
     return false;
   }
 

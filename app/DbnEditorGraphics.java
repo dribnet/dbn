@@ -114,7 +114,7 @@ public class DbnEditorGraphics extends DbnGraphics {
 
 #ifdef RECORDER
     if (e.controlDown() && (mouse[2] == 100)) {
-      Experimental.screenGrab(image, pixels, width, height);
+      Experimental.screenGrab(lastImage, /*pixels,*/ width, height);
     }
 #endif
 

@@ -8,9 +8,9 @@ rm -f classes/*.class
 set ME=experimental
 set CLASSPATH2=%CLASSPATH%
 set CLASSPATH=%ME%\lib\jpython.jar;%ME%\lib\QTJava.zip;%CLASSPATH%
-set OPTIONS=-dJDK11 -dPLAYER_CLASS -dFANCY -dEDITOR -dPYTHON -dSCHEME -dCONVERTER -dRECORDER 
+set OPTIONS=-dJDK11 -dPLAYER_CLASS -dEDITOR -dPYTHON -dSCHEME -dCONVERTER -dRECORDER 
 
-rem -dGRAPHICS2 -dJAVAC
+rem -dGRAPHICS2 -dJAVAC -dFANCY
 
 cd ..
 

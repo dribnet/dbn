@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
 import java.io.*;
 import java.util.zip.*;
 
@@ -85,7 +86,20 @@ public class Experimental extends DbnApplication implements ActionListener {
 #ifdef RECORDER
   static String lastGrabDirectory;
 
-  static public void screenGrab(Image image, byte pixelBytes[], 
+  static public int[] imageToArray(Image img, int w, int h) {
+    //int w = img.getWidth(DbnApplet.applet);
+    //int h = img.getHeight(DbnApplet.applet);
+    int pix[] = new int[w * h];
+    PixelGrabber pg = 
+      new PixelGrabber(img, 0, 0, w, h, pix, 0, w);
+    try {
+      pg.grabPixels();
+    } catch (InterruptedException e) {
+    }
+    return pix;
+  }
+
+  static public void screenGrab(Image image, /*byte pixelBytes[], */
 				int width, int height) {
     FileDialog fd = new FileDialog(new Frame(), 
 				   "Save image as...", 
@@ -100,10 +114,21 @@ public class Experimental extends DbnApplication implements ActionListener {
       String name = fd.getFile();
       FileOutputStream fos = new FileOutputStream(new File(directory, name));
       
+      /*
       int pixels[] = new int[width*height];
       for (int k = 0; k < pixels.length; k++) {
 	pixels[k] = DbnRecorder.grays[pixelBytes[k]];
       }
+      */
+      int pixels[] = new int[width*height];
+      PixelGrabber pg = 
+	new PixelGrabber(image, 0, 0, width, height, pixels, 0, width);
+      try {
+	pg.grabPixels();
+      } catch (InterruptedException e) {
+      }
+      //GifEncoder ge = new GifEncoder(pixels, width, fos);
+      //GifEncoder ge = new GifEncoder(image, fos, false);
       GifEncoder ge = new GifEncoder(pixels, width, fos);
       ge.encode();
       fos.close();
@@ -230,10 +255,8 @@ public class Experimental extends DbnApplication implements ActionListener {
       entry = new ZipEntry(outputName + ".class");
       zos.putNextEntry(entry);
       zos.write(grabFile(new File(outputDirectory, outputName + ".class")));
-      // if that's no good (which it's not)
-      // need to instead use sun.tools.javac.Main,
-      // which should be separated out from the core source base
-      // using metrowerks' nice binding stuff
+      zos.flush();
+      zipOutputFile.close();
 
     } catch (Exception e) {
       e.printStackTrace();
