@@ -1,2 +1,2 @@
 @echo off
-sj *.java
+jikes *.java

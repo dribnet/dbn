@@ -30,12 +30,18 @@ public class DbnGrid extends Panel implements DbnEnvironment, MouseListener {
   Vector runners;
 
 
-  public DbnGrid(DbnApplet app, String programs[]) {
+  public DbnGrid(DbnApplet app, String progs[]) {
     this.app = app;
+    setup(progs);
+  }
+
+  public void setup(String programs[]) {
     this.programs = programs;
 
-    gwidth = 101;
-    gheight = 101;
+    //gwidth = 101;
+    //gheight = 101;
+    gwidth = DbnApplet.getInteger("graphics_width", 101);
+    gheight = DbnApplet.getInteger("graphics_height", 101);
 
     runners = new Vector();
 
